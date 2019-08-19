@@ -1,5 +1,5 @@
 class ConfluentSchemaRegistryError extends Error {
-  constructor(e) {
+  constructor(e: any) {
     super(e.message || e)
     this.name = this.constructor.name
   }
@@ -8,7 +8,7 @@ class ConfluentSchemaRegistryError extends Error {
 class ConfluentSchemaRegistryArgumentError extends ConfluentSchemaRegistryError {}
 class ConfluentSchemaRegistryCompatibilityError extends ConfluentSchemaRegistryError {}
 
-module.exports = {
+export {
   ConfluentSchemaRegistryError,
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,

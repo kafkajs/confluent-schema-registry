@@ -1,15 +1,15 @@
-const path = require('path')
-const fs = require('fs-extra')
-const execa = require('execa')
-const avro = require('avsc')
+import path from 'path'
+import fs from 'fs-extra'
+import execa from 'execa'
+import avro from 'avsc'
 
-const SchemaRegistry = require('../index')
-const avdlToAVSC = require('./avdlToAVSC')
+import SchemaRegistry from '../SchemaRegistry'
+import avdlToAVSC from './avdlToAVSC'
 
 const registry = new SchemaRegistry({ host: 'http://localhost:8982' })
-const absolutePath = (...paths) => path.join(__dirname, '../..', ...paths)
+const absolutePath = (...paths: any) => path.join(__dirname, '../..', ...paths)
 
-const compareWithJavaImplementation = (avdlPath, name) => async () => {
+const compareWithJavaImplementation = (avdlPath: string, name: string) => async () => {
   const absolutePathToAvdlToAVSC = absolutePath('./bin/avdlToAVSC.sh')
   const execaArgs = [`./fixtures/avdl/${avdlPath}`, name]
 
@@ -18,7 +18,7 @@ const compareWithJavaImplementation = (avdlPath, name) => async () => {
     const { stdout: result } = await execa(absolutePathToAvdlToAVSC, execaArgs)
     expectedAVSC = JSON.parse(result)
   } catch (error) {
-    console.error(`Error when running ${absolutePathToAvdlToAVSC}`, error)
+    console.error(`Error when running ${absolutePathToAvdlToAVSC}`, error) // eslint-disable-line no-console
     throw error
   }
 

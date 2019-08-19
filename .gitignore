@@ -21,4 +21,5 @@ trash
 # confluent-schema-registry
 #
 tmp
+dist
 fixtures

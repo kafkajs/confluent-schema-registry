@@ -1,4 +1,4 @@
-const getErrorMessage = response => {
+const getErrorMessage = (response: any) => {
   const data = response.data()
   const error = data || null
 
@@ -15,7 +15,11 @@ const getErrorMessage = response => {
 }
 
 class ResponseError extends Error {
-  constructor(clientName, response) {
+  status: any
+  unauthorized: any
+  url: any
+
+  constructor(clientName: any, response: any) {
     super(`${clientName} - ${getErrorMessage(response)}`)
 
     const request = response.request()
@@ -26,12 +30,12 @@ class ResponseError extends Error {
   }
 }
 
-module.exports = clientName => () => ({
-  response(next) {
+export default (clientName: any) => () => ({
+  response(next: any) {
     return new Promise((resolve, reject) => {
       next()
         .then(resolve)
-        .catch(response => reject(new ResponseError(clientName, response)))
+        .catch((response: any) => reject(new ResponseError(clientName, response)))
     })
   },
 })
