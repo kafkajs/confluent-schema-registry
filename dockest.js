@@ -1,7 +1,7 @@
 const {
   default: Dockest,
   logLevel,
-  runners: { KafkaRunner, ZooKeeperRunner },
+  runners: { KafkaRunner, ZooKeeperRunner, SimpleRunner },
 } = require('dockest')
 
 const zooKeeperRunner = new ZooKeeperRunner({
@@ -11,7 +11,19 @@ const zooKeeperRunner = new ZooKeeperRunner({
   },
 })
 
-// TODO: Introduce SchemaRegistryRunner
+const schemaRegistryRunner = new SimpleRunner({
+  service: 'schemaRegistry',
+  image: 'confluentinc/cp-schema-registry:5.3.0',
+  ports: {
+    '8982': '8081',
+  },
+  environment: {
+    SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: `${zooKeeperRunner.runnerConfig.service}:${
+      ZooKeeperRunner.DEFAULT_PORT
+    }`,
+    SCHEMA_REGISTRY_HOST_NAME: 'localhost',
+  },
+})
 
 const kafkaRunner = new KafkaRunner({
   service: 'kafka',
@@ -19,23 +31,18 @@ const kafkaRunner = new KafkaRunner({
   dependsOn: [zooKeeperRunner],
   ports: {
     [KafkaRunner.DEFAULT_PORT_PLAINTEXT]: KafkaRunner.DEFAULT_PORT_PLAINTEXT,
-    [KafkaRunner.DEFAULT_PORT_SSL]: KafkaRunner.DEFAULT_PORT_SSL,
-    [KafkaRunner.DEFAULT_PORT_SASL_SSL]: KafkaRunner.DEFAULT_PORT_SASL_SSL,
   },
 })
 
 const dockest = new Dockest({
-  runners: [kafkaRunner],
+  runners: [kafkaRunner, schemaRegistryRunner],
   jest: {
     lib: require('jest'),
     verbose: true,
   },
   opts: {
     logLevel: logLevel.DEBUG,
-    afterSetupSleep: 10,
-    dev: {
-      // debug: false,
-    },
+    afterSetupSleep: 35,
   },
 })
 

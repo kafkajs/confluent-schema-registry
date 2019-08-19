@@ -3,20 +3,24 @@ const fs = require('fs-extra')
 const execa = require('execa')
 const avro = require('avsc')
 
-const SchemaRegistry = require('../')
+const SchemaRegistry = require('../index')
 const avdlToAVSC = require('./avdlToAVSC')
 
 const registry = new SchemaRegistry({ host: 'http://localhost:8982' })
 const absolutePath = (...paths) => path.join(__dirname, '../..', ...paths)
-const TMP = absolutePath('./tmp')
 
 const compareWithJavaImplementation = (avdlPath, name) => async () => {
-  const expectedAVSC = await execa(absolutePath('./bin/avdlToAVSC.sh'), [
-    `./fixtures/avdl/${avdlPath}`,
-    name,
-  ])
-    .then(result => result.stdout)
-    .then(JSON.parse)
+  const absolutePathToAvdlToAVSC = absolutePath('./bin/avdlToAVSC.sh')
+  const execaArgs = [`./fixtures/avdl/${avdlPath}`, name]
+
+  let expectedAVSC
+  try {
+    const { stdout: result } = await execa(absolutePathToAvdlToAVSC, execaArgs)
+    expectedAVSC = JSON.parse(result)
+  } catch (error) {
+    console.error(`Error when running ${absolutePathToAvdlToAVSC}`, error)
+    throw error
+  }
 
   const avsc = avdlToAVSC(absolutePath('./fixtures/avdl', avdlPath))
   expect(avsc).toEqual(expectedAVSC)
@@ -26,7 +30,7 @@ const compareWithJavaImplementation = (avdlPath, name) => async () => {
 
 beforeAll(async () => {
   jest.setTimeout(10000)
-  await fs.emptyDir(TMP)
+  await fs.emptyDir(absolutePath('./tmp'))
 })
 
 test('simple protocol', compareWithJavaImplementation('simple.avdl', 'Simple'))

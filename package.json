@@ -13,19 +13,18 @@
   },
   "scripts": {
     "test:unit:watch": "yarn test:unit -- --watch",
-    "test:unit": "JEST_JUNIT_OUTPUT=test-report.xml jest",
-    "test": "JEST_JUNIT_OUTPUT=test-report.xml echo 'TODO:'"
+    "test:unit": "jest",
+    "test": "node ./dockest.js"
   },
   "dependencies": {
     "avsc": "^5.2.3",
     "mappersmith": "^2.22.0"
   },
   "devDependencies": {
-    "dockest": "^1.0.0",
+    "dockest": "^1.0.1",
     "execa": "^2.0.4",
     "fs-extra": "^4.0.2",
     "jest": "^22.4.3",
-    "jest-junit": "^6.0.0",
     "uuid": "^3.3.3"
   },
   "jest": {
@@ -34,10 +33,8 @@
       "/node_modules/"
     ],
     "reporters": [
-      "default",
-      "jest-junit"
+      "default"
     ],
-    "testEnvironment": "node",
-    "testResultsProcessor": "jest-junit"
+    "testEnvironment": "node"
   }
 }

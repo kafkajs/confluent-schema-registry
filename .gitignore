@@ -18,5 +18,7 @@ trash
 \.vscode/
 \.vs/
 
-# TODO: Next steps
+# confluent-schema-registry
+#
+tmp
 fixtures

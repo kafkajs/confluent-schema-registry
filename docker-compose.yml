@@ -11,4 +11,3 @@ services:
 
   avro_tools: # https://hub.docker.com/r/coderfi/avro-tools
     image: coderfi/avro-tools:1.7.7
-    
