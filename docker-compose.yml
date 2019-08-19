@@ -1,8 +1,14 @@
 version: '2'
 services:
-  zookeeper: # https://hub.docker.com/r/confluentinc/cp-zookeeper
+  zooKeeper: # https://hub.docker.com/r/confluentinc/cp-zookeeper
     image: confluentinc/cp-zookeeper:5.2.2
+
   kafka: # https://hub.docker.com/r/confluentinc/cp-kafka
     image: confluentinc/cp-kafka:5.2.2
+
+  schemaregistry: # https://hub.docker.com/r/confluentinc/cp-schema-registry
+    image: confluentinc/cp-schema-registry:5.3.0
+
   avro_tools: # https://hub.docker.com/r/coderfi/avro-tools
     image: coderfi/avro-tools:1.7.7
+    
