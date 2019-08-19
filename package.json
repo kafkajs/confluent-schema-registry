@@ -1,0 +1,43 @@
+{
+  "name": "confluent-schema-registry",
+  "version": "0.0.1",
+  "main": "index.js",
+  "description": "ConfluentSchemaRegistry is a library that makes it easier to interact with the Confluent schema registry, it provides convenient methods to encode, decode and register new schemas using the Apache Avro serialization format.",
+  "keywords": [
+    "confluent schema registry",
+    "kafka"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erikengervall/confluent-schema-registry.git"
+  },
+  "scripts": {
+    "test:unit:watch": "yarn test:unit -- --watch",
+    "test:unit": "JEST_JUNIT_OUTPUT=test-report.xml jest",
+    "test": "JEST_JUNIT_OUTPUT=test-report.xml echo 'TODO:'"
+  },
+  "dependencies": {
+    "avsc": "^5.2.3",
+    "mappersmith": "^2.22.0"
+  },
+  "devDependencies": {
+    "dockest": "^1.0.0",
+    "execa": "^2.0.4",
+    "fs-extra": "^4.0.2",
+    "jest": "^22.4.3",
+    "jest-junit": "^6.0.0",
+    "uuid": "^3.3.3"
+  },
+  "jest": {
+    "setupTestFrameworkScriptFile": "<rootDir>/jestSetup/framework.js",
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
+    "testEnvironment": "node",
+    "testResultsProcessor": "jest-junit"
+  }
+}

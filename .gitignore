@@ -1,0 +1,24 @@
+# OSX
+#
+.DS_Store
+
+# node.js
+#
+node_modules
+npm-debug.log
+yarn-error.log
+junit.xml
+test-report.xml
+.eslintcache
+
+# Others
+#
+trash
+
+\.vscode/
+\.vs/
+
+# TODO: Next steps
+bin
+fixtures
+jestSetup
