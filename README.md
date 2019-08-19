@@ -1,9 +1,6 @@
----
-id: confluent-schema-registry
-title: Confluent Schema Registry
----
+# confluent-schema-registry
 
-ConfluentSchemaRegistry is a library that makes it easier to interact with the Confluent schema registry, it provides convenient methods to encode, decode and register new schemas using the Apache Avro serialization format.
+`confluent-schema-registry` is a library that makes it easier to interact with the Confluent schema registry, it provides convenient methods to encode, decode and register new schemas using the Apache Avro serialization format.
 
 - [Install](#install)
 - [Usage](#usage)
