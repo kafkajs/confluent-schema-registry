@@ -1,6 +1,6 @@
 const forge = require('mappersmith').default
 const Retry = require('mappersmith/middlewares/retry/v2').default
-const ErrorMiddleware = require('./errorMiddleware')
+import ErrorMiddleware from './errorMiddleware'
 
 const CONTENT_TYPE = 'application/vnd.schemaregistry.v1+json'
 
@@ -12,13 +12,13 @@ const DEFAULT_RETRY = {
   retries: 3, // max retries
 }
 
-const updateContentType = response =>
+const updateContentType = (response: any) =>
   response.enhance({
     headers: { 'content-type': 'application/json' },
   })
 
 const ConfluentEncoder = () => ({
-  request(req) {
+  request(req: any) {
     const headers = {
       'Content-Type': CONTENT_TYPE,
     }
@@ -35,16 +35,16 @@ const ConfluentEncoder = () => ({
     return req.enhance({ headers })
   },
 
-  response(next) {
+  response(next: any) {
     return next()
       .then(updateContentType)
-      .catch(response => {
+      .catch((response: any) => {
         throw updateContentType(response)
       })
   },
 })
 
-module.exports = ({ host, retry = {} }) => {
+export default ({ host, retry = {} }: any) => {
   return forge({
     clientId: 'Confluent_Schema_Registry',
     host,

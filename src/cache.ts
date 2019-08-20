@@ -1,24 +1,27 @@
-const avro = require('avsc')
+import avro from 'avsc'
 
-module.exports = class Cache {
+export default class Cache {
+  registryIdBySubject: any
+  schemasByRegistryId: any
+
   constructor() {
     this.registryIdBySubject = {}
     this.schemasByRegistryId = {}
   }
 
-  getLatestRegistryId(subject) {
+  getLatestRegistryId(subject: any) {
     return this.registryIdBySubject[subject]
   }
 
-  setLatestRegistryId(subject, id) {
+  setLatestRegistryId(subject: any, id: any) {
     this.registryIdBySubject[subject] = id
   }
 
-  getSchema(registryId) {
+  getSchema(registryId: any) {
     return this.schemasByRegistryId[registryId]
   }
 
-  setSchema(registryId, schema) {
+  setSchema(registryId: any, schema: any) {
     return (this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema))
   }
 

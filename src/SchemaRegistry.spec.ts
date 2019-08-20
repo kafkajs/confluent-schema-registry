@@ -1,17 +1,20 @@
-const path = require('path')
-const uuid = require('uuid/v4')
+import path from 'path'
+import { v4 as uuid } from 'uuid'
 
-const { readAVSC } = require('./utils')
-const SchemaRegistry = require('./index')
-const API = require('./api')
+import { readAVSC } from './utils'
+import SchemaRegistry from './SchemaRegistry'
+import API from './api'
+import { compatibility } from './constants'
+
+const encodedAnotherPersonV2 = require('../fixtures/encodedAnotherPersonV2.json') // eslint-disable-line @typescript-eslint/no-var-requires
+const wrongMagicByte = require('../fixtures/wrongMagicByte.json') // eslint-disable-line @typescript-eslint/no-var-requires
 
 const TEST_REGISTRY = 'http://localhost:8982'
 const PersonSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))
-const payload = { full_name: 'John Doe' }
-const compatibility = require('./compatibility')
+const payload = { full_name: 'John Doe' } // eslint-disable-line @typescript-eslint/camelcase
 
 describe('SchemaRegistry', () => {
-  let registry
+  let registry: any
 
   beforeEach(async () => {
     registry = new SchemaRegistry({ host: TEST_REGISTRY })
@@ -19,7 +22,7 @@ describe('SchemaRegistry', () => {
   })
 
   describe('#register', () => {
-    let namespace, Schema, subject, api
+    let namespace, Schema: any, subject: any, api: any
 
     beforeEach(() => {
       api = API({ host: TEST_REGISTRY })
@@ -116,15 +119,17 @@ describe('SchemaRegistry', () => {
       expect(schema2.id).not.toEqual(schema1.id)
 
       const data = await registry.encode(schema2.id, payload)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
       expect(data).toMatchConfluentAvroEncodedPayload({
         registryId: schema2.id,
-        payload: Buffer.from(require('../fixtures/encodedAnotherPersonV2.json')),
+        payload: Buffer.from(encodedAnotherPersonV2),
       })
     })
   })
 
   describe('#decode', () => {
-    let registryId
+    let registryId: any
 
     beforeEach(async () => {
       registryId = (await registry.register(PersonSchema)).id
@@ -137,7 +142,7 @@ describe('SchemaRegistry', () => {
     })
 
     it('throws an error if the magic byte is not supported', async () => {
-      const buffer = Buffer.from(require('../fixtures/wrongMagicByte.json'))
+      const buffer = Buffer.from(wrongMagicByte)
       await expect(registry.decode(buffer)).rejects.toHaveProperty(
         'message',
         'Message encoded with magic byte {"type":"Buffer","data":[48]}, expected {"type":"Buffer","data":[0]}',

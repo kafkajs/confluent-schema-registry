@@ -1,7 +1,10 @@
-const { MAGIC_BYTE } = require('../../src/encoder')
-const decode = require('../../src/decoder')
+import { MAGIC_BYTE } from './src/encoder'
+import decode from './src/decoder'
 
-module.exports = context => (received, { version: expectedVersion, payload: expectedPayload }) => {
+const toMatchConfluentAvroEncodedPayloadFun = context => (
+  received,
+  { payload: expectedPayload },
+) => {
   const { printExpected, printReceived, printWithType } = context.utils
 
   if (!Buffer.isBuffer(expectedPayload)) {
@@ -13,12 +16,8 @@ module.exports = context => (received, { version: expectedVersion, payload: expe
     throw new Error(error)
   }
 
-  const { magicByte, version, payload } = decode(received)
+  const { magicByte, payload } = decode(received)
   const expectedMessage = decode(expectedPayload)
-
-  if (!expectedVersion) {
-    expectedVersion = expectedMessage.version
-  }
 
   if (!Buffer.isBuffer(received)) {
     return {
@@ -43,19 +42,6 @@ module.exports = context => (received, { version: expectedVersion, payload: expe
     }
   }
 
-  if (!context.equals(version, expectedVersion)) {
-    return {
-      pass: false,
-      message: () =>
-        [
-          'expected schema version',
-          printExpected(expectedVersion),
-          '\nreceived',
-          printReceived(version),
-        ].join('\n'),
-    }
-  }
-
   return {
     pass: context.equals(payload, expectedMessage.payload),
     message: () =>
@@ -67,3 +53,11 @@ module.exports = context => (received, { version: expectedVersion, payload: expe
       ].join('\n'),
   }
 }
+
+expect.extend({
+  toMatchConfluentAvroEncodedPayload(...args) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    return toMatchConfluentAvroEncodedPayloadFun(this)(...args)
+  },
+})

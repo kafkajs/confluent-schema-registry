@@ -1,7 +1,7 @@
-const ErrorMiddleware = require('./errorMiddleware')
+import ErrorMiddleware from './errorMiddleware'
 
 describe('ErrorMiddleware', () => {
-  let middleware
+  let middleware: any
   beforeEach(() => {
     middleware = ErrorMiddleware('test')()
   })
@@ -13,7 +13,7 @@ describe('ErrorMiddleware', () => {
   })
 
   describe('when the request fails', () => {
-    const createResponse = data => ({
+    const createResponse = (data: any) => ({
       data: jest.fn(() => data),
       status: jest.fn(() => 500),
       request: jest.fn(() => ({

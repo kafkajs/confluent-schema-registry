@@ -1,8 +1,9 @@
+// import Dockest, { logLevel, runners } from 'dockest'
 const {
   default: Dockest,
   logLevel,
   runners: { KafkaRunner, ZooKeeperRunner, SimpleRunner },
-} = require('dockest')
+} = require('dockest') // eslint-disable-line @typescript-eslint/no-var-requires
 
 const zooKeeperRunner = new ZooKeeperRunner({
   service: 'zooKeeper',
@@ -18,9 +19,7 @@ const schemaRegistryRunner = new SimpleRunner({
     '8982': '8081',
   },
   environment: {
-    SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: `${zooKeeperRunner.runnerConfig.service}:${
-      ZooKeeperRunner.DEFAULT_PORT
-    }`,
+    SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: `${zooKeeperRunner.runnerConfig.service}:${ZooKeeperRunner.DEFAULT_PORT}`,
     SCHEMA_REGISTRY_HOST_NAME: 'localhost',
   },
 })
@@ -43,6 +42,9 @@ const dockest = new Dockest({
   opts: {
     logLevel: logLevel.DEBUG,
     afterSetupSleep: 35,
+  },
+  dev: {
+    // debug: true,
   },
 })
 

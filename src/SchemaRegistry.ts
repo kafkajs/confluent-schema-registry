@@ -1,18 +1,20 @@
-const { encode, MAGIC_BYTE } = require('./encoder')
-const decode = require('./decoder')
-const { BACKWARD } = require('./compatibility')
-const API = require('./api')
-const Cache = require('./cache')
-const {
+import { encode, MAGIC_BYTE } from './encoder'
+import decode from './decoder'
+import { compatibility } from './constants'
+import API from './api'
+import Cache from './cache'
+import {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
-} = require('./errors')
+} from './errors'
+
+const { BACKWARD } = compatibility
 
 // Based on https://github.com/mtth/avsc/issues/140
-const collectInvalidPaths = (schema, jsonPayload) => {
-  const paths = []
+const collectInvalidPaths = (schema: any, jsonPayload: any) => {
+  const paths: any = []
   schema.isValid(jsonPayload, {
-    errorHook: path => {
+    errorHook: (path: any) => {
       paths.push(path)
     },
   })
@@ -20,13 +22,16 @@ const collectInvalidPaths = (schema, jsonPayload) => {
   return paths
 }
 
-module.exports = class SchemaRegistry {
-  constructor({ host, retry = {} }) {
+export default class SchemaRegistry {
+  api: any
+  cache: any
+
+  constructor({ host, retry = {} }: any) {
     this.api = API({ host, retry })
     this.cache = new Cache()
   }
 
-  async register(schema, { compatibility = BACKWARD, separator = '.' } = {}) {
+  async register(schema: any, { compatibility = BACKWARD, separator = '.' } = {}) {
     if (!schema.name) {
       throw new ConfluentSchemaRegistryArgumentError(`Invalid name: ${schema.name}`)
     }
@@ -68,7 +73,7 @@ module.exports = class SchemaRegistry {
     return registeredSchema
   }
 
-  async getSchema(registryId) {
+  async getSchema(registryId: any) {
     const schema = this.cache.getSchema(registryId)
     if (schema) return schema
 
@@ -77,7 +82,7 @@ module.exports = class SchemaRegistry {
     return this.cache.setSchema(registryId, rawSchema)
   }
 
-  async encode(registryId, jsonPayload) {
+  async encode(registryId: any, jsonPayload: any) {
     if (!registryId) {
       throw new ConfluentSchemaRegistryArgumentError(
         `Invalid registryId: ${JSON.stringify(registryId)}`,
@@ -97,7 +102,7 @@ module.exports = class SchemaRegistry {
     return encode(registryId, avroPayload)
   }
 
-  async decode(buffer) {
+  async decode(buffer: any) {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -116,7 +121,7 @@ module.exports = class SchemaRegistry {
     return schema.fromBuffer(payload)
   }
 
-  async getRegistryId(subject, version) {
+  async getRegistryId(subject: any, version: any) {
     const response = await this.api.Subject.version({ subject, version })
 
     return response.data().id
