@@ -6,8 +6,8 @@ import SchemaRegistry from './SchemaRegistry'
 import API from './api'
 import { compatibility } from './constants'
 
-import encodedAnotherPersonV2 from '../fixtures/encodedAnotherPersonV2.json'
-import wrongMagicByte from '../fixtures/wrongMagicByte.json'
+const encodedAnotherPersonV2 = require('../fixtures/encodedAnotherPersonV2.json') // eslint-disable-line @typescript-eslint/no-var-requires
+const wrongMagicByte = require('../fixtures/wrongMagicByte.json') // eslint-disable-line @typescript-eslint/no-var-requires
 
 const TEST_REGISTRY = 'http://localhost:8982'
 const PersonSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))

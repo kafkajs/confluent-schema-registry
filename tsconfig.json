@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "src": ["./*"]
+      "*": ["src/*", "declarations/*"]
     },
     "outDir": "dist",
-    "esModuleInterop": true,
     "lib": ["es2019"],
     "module": "commonjs",
     "moduleResolution": "node",
@@ -16,8 +15,9 @@
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "declaration": true
   },
-  "include": ["./src/**/*"],
-  "exclude": ["dist", "node_modules"]
+  "include": ["./src/**/*.ts", "declarations/**/*.d.ts"],
+  "exclude": ["dist", "node_modules", "**/*.spec.ts"]
 }
