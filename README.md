@@ -1,6 +1,6 @@
 # confluent-schema-registry
 
-`confluent-schema-registry` is a library that makes it easier to interact with the Confluent schema registry, it provides convenient methods to encode, decode and register new schemas using the Apache Avro serialization format.
+`confluent-schema-registry` is a library that makes it easier to interact with the Confluent schema registry, it provides convenient methods to encode, decode and register new schemas using the Apache Avro serialization format and Confluent's [wire format](https://docs.confluent.io/current/schema-registry/docs/serializer-formatter.html#wire-format).
 
 - [Install](#install)
 - [Usage](#usage)
@@ -115,6 +115,6 @@ This glossary shall help you when reading the code and understanding Schema Regi
 
 ##### References
 
-- [Confluent wire format](https://github.com/confluentinc/schema-registry/blob/master/docs/serializer-formatter.rst)
+- [Confluent wire format](https://docs.confluent.io/current/schema-registry/docs/serializer-formatter.html#wire-format)
 - [Java version](https://github.com/confluentinc/schema-registry/tree/master/avro-serializer/src/main/java/io/confluent/kafka/serializers)
 - [Compatibility and schema evolution](https://docs.confluent.io/current/avro.html)
