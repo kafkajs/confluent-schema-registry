@@ -3,7 +3,7 @@ import { Middleware, Response } from 'mappersmith'
 const updateContentType = (response: Response) =>
   response.enhance({ headers: { 'content-type': 'application/json' } })
 
-const ConfluentEncoder: Middleware = () => ({
+const ConfluentEncoderMiddleware: Middleware = () => ({
   request: req => {
     const headers = { 'Content-Type': 'application/vnd.schemaregistry.v1+json' }
 
@@ -27,4 +27,4 @@ const ConfluentEncoder: Middleware = () => ({
       }),
 })
 
-export default ConfluentEncoder
+export default ConfluentEncoderMiddleware
