@@ -1,6 +1,7 @@
 import fs from 'fs'
 import avro from 'avsc'
 
+let cache: any
 const merge = Object.assign
 const isObject = (obj: any) => obj && typeof obj === 'object'
 const isIterable = (obj: any) => isObject(obj) && typeof obj.map !== 'undefined'
@@ -57,7 +58,6 @@ const combine = (rootType: any, types: any) => {
   return merge(rootType, { fields: combinedFields })
 }
 
-let cache: any
 export default (path: any) => {
   cache = {}
   const protocol = avro.readProtocol(fs.readFileSync(path, 'utf8'))

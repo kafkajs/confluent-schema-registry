@@ -1,6 +1,6 @@
 class ConfluentSchemaRegistryError extends Error {
-  constructor(e: any) {
-    super(e.message || e)
+  constructor(error: any) {
+    super(error.message || error)
     this.name = this.constructor.name
   }
 }
