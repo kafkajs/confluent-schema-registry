@@ -4,18 +4,38 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-- master
+  - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+variables:
+  - name: COMPOSE_FILE
+    value: docker-compose.yml
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+jobs:
+  - job: lint
+    displayName: Lint
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '8.x'
+      - bash: yarn install
+        displayName: yarn install
+      - bash: yarn lint
+        displayName: yarn lint
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+  - job: unit_tests
+    displayName: Tests
+    dependsOn: lint
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '8.x'
+      - bash: yarn install
+        displayName: yarn install
+      - bash: docker-compose -f ${COMPOSE_FILE} pull
+        displayName: docker-compose pull
+      - bash: yarn test
+        displayName: integration test with dockest
