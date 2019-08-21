@@ -17,18 +17,10 @@ const getErrorMessage = (response: Response) => {
 }
 
 class ResponseError extends Error {
-  private status: number
-  private unauthorized: boolean
-  private url: string
-
   constructor(clientName: string, response: Response) {
     super(`${clientName} - ${getErrorMessage(response)}`)
 
-    const request = response.request()
     this.name = this.constructor.name
-    this.status = response.status()
-    this.unauthorized = this.status === 401
-    this.url = `${request.method()} ${request.url()}`
   }
 }
 
