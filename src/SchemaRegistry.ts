@@ -66,7 +66,7 @@ export default class SchemaRegistry {
       body: { schema: JSON.stringify(schema) },
     })
 
-    const registeredSchema = response.data()
+    const registeredSchema: any = response.data()
     this.cache.setLatestRegistryId(subject, registeredSchema.id)
     this.cache.setSchema(registeredSchema.id, schema)
 
@@ -77,7 +77,7 @@ export default class SchemaRegistry {
     const schema = this.cache.getSchema(registryId)
     if (schema) return schema
 
-    const response = await this.api.Schema.find({ id: registryId })
+    const response: any = await this.api.Schema.find({ id: registryId })
     const rawSchema = JSON.parse(response.data().schema)
     return this.cache.setSchema(registryId, rawSchema)
   }
@@ -122,7 +122,7 @@ export default class SchemaRegistry {
   }
 
   async getRegistryId(subject: any, version: any) {
-    const response = await this.api.Subject.version({ subject, version })
+    const response: any = await this.api.Subject.version({ subject, version })
 
     return response.data().id
   }

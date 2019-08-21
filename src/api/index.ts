@@ -43,17 +43,38 @@ export default ({ host, retry = {} }: APIArgs) =>
     middleware: [ConfluentEncoder, Retry(Object.assign(DEFAULT_RETRY, retry)), ErrorMiddleware],
     resources: {
       Schema: {
-        find: { method: 'get', path: '/schemas/ids/{id}' },
+        find: {
+          method: 'get',
+          path: '/schemas/ids/{id}',
+        },
       },
       Subject: {
-        all: { method: 'get', path: '/subjects' },
-        latestVersion: { method: 'get', path: '/subjects/{subject}/versions/latest' },
-        version: { method: 'get', path: '/subjects/{subject}/versions/{version}' },
+        all: {
+          method: 'get',
+          path: '/subjects',
+        },
+        latestVersion: {
+          method: 'get',
+          path: '/subjects/{subject}/versions/latest',
+        },
+        version: {
+          method: 'get',
+          path: '/subjects/{subject}/versions/{version}',
+        },
 
-        config: { method: 'get', path: '/config/{subject}' },
-        updateConfig: { method: 'put', path: '/config/{subject}' },
+        config: {
+          method: 'get',
+          path: '/config/{subject}',
+        },
+        updateConfig: {
+          method: 'put',
+          path: '/config/{subject}',
+        },
 
-        register: { method: 'post', path: '/subjects/{subject}/versions' },
+        register: {
+          method: 'post',
+          path: '/subjects/{subject}/versions',
+        },
         compatible: {
           method: 'post',
           path: '/compatibility/subjects/{subject}/versions/{version}',
