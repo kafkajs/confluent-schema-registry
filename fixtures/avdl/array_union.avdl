@@ -1,0 +1,11 @@
+@namespace("com.org.app.track")
+protocol ArrayUnionProto {
+  record KeyValue {
+    string key;
+    string value;
+  }
+
+  record ArrayUnion {
+    union {null, array <KeyValue>} properties = null;
+  }
+}

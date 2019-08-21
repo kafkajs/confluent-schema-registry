@@ -1,0 +1,15 @@
+@namespace("com.org.domain.fixtures")
+protocol MultipleProto {
+  record Baz {
+    string bam;
+  }
+
+  record Bar {
+    Baz baz;
+  }
+
+  record Multiple {
+    string foo;
+    Bar bar;
+  }
+}

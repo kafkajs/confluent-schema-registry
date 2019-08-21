@@ -1,0 +1,11 @@
+@namespace("com.org.app.track")
+protocol ArrayProto {
+  record KeyValue {
+    string key;
+    string value;
+  }
+
+  record Array {
+    array <KeyValue> properties;
+  }
+}

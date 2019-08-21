@@ -1,0 +1,11 @@
+@namespace("com.org.domain.fixtures")
+protocol TwoProto {
+  record Bar {
+    string baz;
+  }
+
+  record Two {
+    string foo;
+    Bar bar;
+  }
+}

@@ -1,0 +1,10 @@
+@namespace("com.org.app.track")
+protocol EnumProto {
+  enum Foos {
+    foo, bar, baz
+  }
+
+  record Enum {
+    Foos foos;
+  }
+}

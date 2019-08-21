@@ -1,0 +1,20 @@
+@namespace("com.org.confluentschemaregistry")
+protocol MultipleNamespacesProto {
+  @namespace("com.org.messaging")
+  record Metadata {
+    string event_id;
+    string publisher_system_id;
+    @logicalType("timestamp-millis")
+    long occurred_at;
+    @logicalType("timestamp-millis")
+    long published_at;
+    string correlation_id;
+  }
+
+  record MultipleNamespaces {
+    com.org.messaging.Metadata metadata;
+    string id;
+    int amount;
+    string description;
+  }
+}
