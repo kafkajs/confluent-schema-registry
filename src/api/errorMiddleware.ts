@@ -1,4 +1,6 @@
-const getErrorMessage = (response: any) => {
+import { Middleware, Response } from 'mappersmith'
+
+const getErrorMessage = (response: Response) => {
   const data = response.data()
   const error = data || null
 
@@ -6,20 +8,20 @@ const getErrorMessage = (response: any) => {
     return `error, status ${response.status()}`
   }
 
-  switch (typeof error) {
-    case 'object':
-      return error.message || error.errorMessage || error.error
-    default:
-      return error
+  if (typeof error === 'object') {
+    // @ts-ignore
+    return error.message || error.errorMessage || error.error
   }
+
+  return error
 }
 
 class ResponseError extends Error {
-  status: any
-  unauthorized: any
-  url: any
+  private status: number
+  private unauthorized: boolean
+  private url: string
 
-  constructor(clientName: any, response: any) {
+  constructor(clientName: string, response: Response) {
     super(`${clientName} - ${getErrorMessage(response)}`)
 
     const request = response.request()
@@ -30,12 +32,16 @@ class ResponseError extends Error {
   }
 }
 
-export default (clientName: any) => () => ({
-  response(next: any) {
-    return new Promise((resolve, reject) => {
+const errorMiddleware: Middleware = ({ clientId }) => ({
+  response: next => {
+    return new Promise((resolve, reject) =>
       next()
         .then(resolve)
-        .catch((response: any) => reject(new ResponseError(clientName, response)))
-    })
+        .catch((response: Response) => reject(new ResponseError(clientId, response))),
+    )
   },
 })
+
+// const createErrorMiddleware = (clientName: string) => errorMiddleware()
+
+export default errorMiddleware
