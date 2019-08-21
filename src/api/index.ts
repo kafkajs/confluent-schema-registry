@@ -1,8 +1,8 @@
-const forge = require('mappersmith').default
-const Retry = require('mappersmith/middlewares/retry/v2').default
-import ErrorMiddleware from './errorMiddleware'
+import forge, { Client } from 'mappersmith'
+import Retry, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 
-const CONTENT_TYPE = 'application/vnd.schemaregistry.v1+json'
+import ErrorMiddleware from './errorMiddleware'
+import ConfluentEncoder from './ConfluentEncoder'
 
 const DEFAULT_RETRY = {
   maxRetryTimeInSecs: 5,
@@ -12,48 +12,35 @@ const DEFAULT_RETRY = {
   retries: 3, // max retries
 }
 
-const updateContentType = (response: any) =>
-  response.enhance({
-    headers: { 'content-type': 'application/json' },
-  })
+export interface APIArgs {
+  host: string
+  retry?: Partial<RetryMiddlewareOptions>
+}
 
-const ConfluentEncoder = () => ({
-  request(req: any) {
-    const headers = {
-      'Content-Type': CONTENT_TYPE,
-    }
+// export interface APIClient {
+export type APIClient = Client<{
+  Schema: {
+    find: {}
+  }
+  Subject: {
+    all: {}
+    latestVersion: {}
+    version: {}
+    config: {}
+    updateConfig: {}
+    register: {}
+    compatible: {}
+  }
+}>
 
-    try {
-      if (req.body()) {
-        return req.enhance({
-          headers,
-          body: JSON.stringify(req.body()),
-        })
-      }
-    } catch (e) {}
-
-    return req.enhance({ headers })
-  },
-
-  response(next: any) {
-    return next()
-      .then(updateContentType)
-      .catch((response: any) => {
-        throw updateContentType(response)
-      })
-  },
-})
-
-export default ({ host, retry = {} }: any) => {
-  return forge({
+export default ({ host, retry = {} }: APIArgs) =>
+  forge({
     clientId: 'Confluent_Schema_Registry',
-    host,
+    // @ts-ignore
     ignoreGlobalMiddleware: true,
-    middleware: [
-      ConfluentEncoder,
-      Retry(Object.assign(DEFAULT_RETRY, retry)),
-      ErrorMiddleware('SchemaRegistry'),
-    ],
+    host,
+
+    middleware: [ConfluentEncoder, Retry(Object.assign(DEFAULT_RETRY, retry)), ErrorMiddleware],
     resources: {
       Schema: {
         find: { method: 'get', path: '/schemas/ids/{id}' },
@@ -75,4 +62,3 @@ export default ({ host, retry = {} }: any) => {
       },
     },
   })
-}

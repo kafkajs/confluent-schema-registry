@@ -1,7 +1,7 @@
 import { encode, MAGIC_BYTE } from './encoder'
 import decode from './decoder'
 import { compatibility } from './constants'
-import API from './api'
+import API, { APIArgs, APIClient } from './api'
 import Cache from './cache'
 import {
   ConfluentSchemaRegistryArgumentError,
@@ -23,10 +23,10 @@ const collectInvalidPaths = (schema: any, jsonPayload: any) => {
 }
 
 export default class SchemaRegistry {
-  api: any
-  cache: any
+  private api: APIClient
+  public cache: Cache
 
-  constructor({ host, retry = {} }: any) {
+  constructor({ host, retry }: APIArgs) {
     this.api = API({ host, retry })
     this.cache = new Cache()
   }
@@ -51,9 +51,9 @@ export default class SchemaRegistry {
           `Compatibility does not match the configuration (${compatibility} != ${compatibilityLevel.toUpperCase()})`,
         )
       }
-    } catch (e) {
-      if (e.status !== 404) {
-        throw e
+    } catch (error) {
+      if (error.status !== 404) {
+        throw error
       }
 
       if (compatibility) {
@@ -94,9 +94,9 @@ export default class SchemaRegistry {
     let avroPayload
     try {
       avroPayload = schema.toBuffer(jsonPayload)
-    } catch (err) {
-      err.paths = collectInvalidPaths(schema, jsonPayload)
-      throw err
+    } catch (error) {
+      error.paths = collectInvalidPaths(schema, jsonPayload)
+      throw error
     }
 
     return encode(registryId, avroPayload)
