@@ -4,11 +4,13 @@ import { v4 as uuid } from 'uuid'
 import { readAVSC } from './utils'
 import SchemaRegistry from './SchemaRegistry'
 import API from './api'
-import { compatibility } from './constants'
+import { COMPATIBILITY } from './constants'
 const encodedAnotherPersonV2 = require('../fixtures/encodedAnotherPersonV2.json') // eslint-disable-line @typescript-eslint/no-var-requires
 const wrongMagicByte = require('../fixtures/wrongMagicByte.json') // eslint-disable-line @typescript-eslint/no-var-requires
 
 const REGISTRY_HOST = 'http://localhost:8982'
+const REGISTRY_CLIENT_ID = 'SchemaRegistry.spec.ts'
+const APIArgs = { clientId: REGISTRY_CLIENT_ID, host: REGISTRY_HOST }
 const PersonSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))
 const payload = { full_name: 'John Doe' } // eslint-disable-line @typescript-eslint/camelcase
 
@@ -16,7 +18,7 @@ describe('SchemaRegistry', () => {
   let schemaRegistry
 
   beforeEach(async () => {
-    schemaRegistry = new SchemaRegistry({ host: REGISTRY_HOST })
+    schemaRegistry = new SchemaRegistry(APIArgs)
     await schemaRegistry.register(PersonSchema)
   })
 
@@ -24,7 +26,7 @@ describe('SchemaRegistry', () => {
     let namespace, Schema, subject, api
 
     beforeEach(() => {
-      api = API({ host: REGISTRY_HOST })
+      api = API(APIArgs)
       namespace = `N${uuid().replace(/-/g, '_')}`
       subject = `${namespace}.RandomTest`
       Schema = JSON.parse(`
@@ -40,7 +42,7 @@ describe('SchemaRegistry', () => {
     it('uploads the new schema', async () => {
       await expect(api.Subject.latestVersion({ subject })).rejects.toHaveProperty(
         'message',
-        'SchemaRegistry - Subject not found.',
+        `${REGISTRY_CLIENT_ID} - Subject not found.`,
       )
 
       await expect(schemaRegistry.register(Schema)).resolves.toEqual({ id: expect.any(Number) })
@@ -48,19 +50,20 @@ describe('SchemaRegistry', () => {
 
     it('automatically cache the id and schema', async () => {
       const { id } = await schemaRegistry.register(Schema)
+
       expect(schemaRegistry.cache.getSchema(id)).toBeTruthy()
     })
 
     it('set the default compatibility to BACKWARD', async () => {
       await schemaRegistry.register(Schema)
       const response = await api.Subject.config({ subject })
-      expect(response.data()).toEqual({ compatibilityLevel: compatibility.BACKWARD })
+      expect(response.data()).toEqual({ compatibilityLevel: COMPATIBILITY.BACKWARD })
     })
 
     it('sets the compatibility according to param', async () => {
-      await schemaRegistry.register(Schema, { compatibility: compatibility.NONE })
+      await schemaRegistry.register(Schema, { compatibility: COMPATIBILITY.NONE })
       const response = await api.Subject.config({ subject })
-      expect(response.data()).toEqual({ compatibilityLevel: compatibility.NONE })
+      expect(response.data()).toEqual({ compatibilityLevel: COMPATIBILITY.NONE })
     })
 
     it('throws an error when schema does not have a name', async () => {
@@ -81,7 +84,7 @@ describe('SchemaRegistry', () => {
 
     it('throws an error when the configured compatibility is different than defined in the client', async () => {
       await schemaRegistry.register(Schema)
-      await api.Subject.updateConfig({ subject, body: { compatibility: compatibility.FULL } })
+      await api.Subject.updateConfig({ subject, body: { compatibility: COMPATIBILITY.FULL } })
       await expect(schemaRegistry.register(Schema)).rejects.toHaveProperty(
         'message',
         'Compatibility does not match the configuration (BACKWARD != FULL)',
@@ -128,7 +131,7 @@ describe('SchemaRegistry', () => {
   })
 
   describe('#decode', () => {
-    let registryId: any
+    let registryId
 
     beforeEach(async () => {
       registryId = (await schemaRegistry.register(PersonSchema)).id

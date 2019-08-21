@@ -1,22 +1,25 @@
 import { encode, MAGIC_BYTE } from './encoder'
 import decode from './decoder'
-import { compatibility } from './constants'
+import { COMPATIBILITY, DEFAULT_SEPERATOR } from './constants'
 import API, { APIArgs, APIClient } from './api'
 import Cache from './cache'
 import {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
 } from './errors'
+import { Schema } from 'confluent-schema-registry'
 
-const { BACKWARD } = compatibility
+interface RegisteredSchema {
+  id: number
+}
+
+const { BACKWARD } = COMPATIBILITY
 
 // Based on https://github.com/mtth/avsc/issues/140
-const collectInvalidPaths = (schema: any, jsonPayload: any) => {
+const collectInvalidPaths = (schema: Schema, jsonPayload: object) => {
   const paths: any = []
   schema.isValid(jsonPayload, {
-    errorHook: (path: any) => {
-      paths.push(path)
-    },
+    errorHook: path => paths.push(path),
   })
 
   return paths
@@ -26,12 +29,15 @@ export default class SchemaRegistry {
   private api: APIClient
   public cache: Cache
 
-  constructor({ host, retry }: APIArgs) {
-    this.api = API({ host, retry })
+  constructor({ clientId, host, retry }: APIArgs) {
+    this.api = API({ clientId, host, retry })
     this.cache = new Cache()
   }
 
-  async register(schema: any, { compatibility = BACKWARD, separator = '.' } = {}) {
+  async register(
+    schema: Schema,
+    { compatibility = BACKWARD, separator = DEFAULT_SEPERATOR } = {},
+  ): Promise<RegisteredSchema> {
     if (!schema.name) {
       throw new ConfluentSchemaRegistryArgumentError(`Invalid name: ${schema.name}`)
     }
@@ -44,7 +50,7 @@ export default class SchemaRegistry {
 
     try {
       const response = await this.api.Subject.config({ subject })
-      const { compatibilityLevel } = response.data()
+      const { compatibilityLevel }: { compatibilityLevel: COMPATIBILITY } = response.data()
 
       if (compatibilityLevel.toUpperCase() !== compatibility) {
         throw new ConfluentSchemaRegistryCompatibilityError(
@@ -66,23 +72,27 @@ export default class SchemaRegistry {
       body: { schema: JSON.stringify(schema) },
     })
 
-    const registeredSchema: any = response.data()
+    const registeredSchema: RegisteredSchema = response.data()
     this.cache.setLatestRegistryId(subject, registeredSchema.id)
     this.cache.setSchema(registeredSchema.id, schema)
 
     return registeredSchema
   }
 
-  async getSchema(registryId: any) {
+  async getSchema(registryId: number): Promise<Schema> {
     const schema = this.cache.getSchema(registryId)
-    if (schema) return schema
+    if (schema) {
+      return schema
+    }
 
-    const response: any = await this.api.Schema.find({ id: registryId })
-    const rawSchema = JSON.parse(response.data().schema)
+    const response = await this.api.Schema.find({ id: registryId })
+    const foundSchema: { schema: string } = response.data()
+    const rawSchema: Schema = JSON.parse(foundSchema.schema)
+
     return this.cache.setSchema(registryId, rawSchema)
   }
 
-  async encode(registryId: any, jsonPayload: any) {
+  async encode(registryId: number, jsonPayload: object) {
     if (!registryId) {
       throw new ConfluentSchemaRegistryArgumentError(
         `Invalid registryId: ${JSON.stringify(registryId)}`,
@@ -102,7 +112,7 @@ export default class SchemaRegistry {
     return encode(registryId, avroPayload)
   }
 
-  async decode(buffer: any) {
+  async decode(buffer: Buffer) {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -121,9 +131,10 @@ export default class SchemaRegistry {
     return schema.fromBuffer(payload)
   }
 
-  async getRegistryId(subject: any, version: any) {
-    const response: any = await this.api.Subject.version({ subject, version })
+  async getRegistryId(subject: string, version: number) {
+    const response = await this.api.Subject.version({ subject, version })
+    const { id }: { id: string } = response.data()
 
-    return response.data().id
+    return id
   }
 }

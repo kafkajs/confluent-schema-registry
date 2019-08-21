@@ -7,6 +7,9 @@ declare module 'confluent-schema-registry' {
   }
 
   export interface Schema {
+    toBuffer: (payload: object) => Buffer // FIXME:
+    fromBuffer: (payload: object) => Buffer // FIXME:
+    isValid: (payload: object, opts: { errorHook: (path: any) => void }) => void // FIXME:
     name: string
     namespace: string
   }
@@ -15,10 +18,10 @@ declare module 'confluent-schema-registry' {
     id: number
   }
 
-  export type Compatibility = 'NONE' | 'FULL' | 'BACKWARD' | 'FORWARD'
+  export type COMPATIBILITY = 'NONE' | 'FULL' | 'BACKWARD' | 'FORWARD'
 
   export interface SchemaRegistryRegisterOptions {
-    compatibility: Compatibility
+    COMPATIBILITY: COMPATIBILITY
     separator: string
   }
 
