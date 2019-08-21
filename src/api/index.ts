@@ -21,16 +21,16 @@ export interface APIArgs {
 // export interface APIClient {
 export type APIClient = Client<{
   Schema: {
-    find: any
+    find: (_: any) => any
   }
   Subject: {
-    all: any
-    latestVersion: any
-    version: any
-    config: any
-    updateConfig: any
-    register: any
-    compatible: any
+    all: (_: any) => any
+    latestVersion: (_: any) => any
+    version: (_: any) => any
+    config: (_: any) => any
+    updateConfig: (_: any) => any
+    register: (_: any) => any
+    compatible: (_: any) => any
   }
 }>
 

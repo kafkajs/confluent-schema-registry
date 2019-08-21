@@ -11,7 +11,7 @@ export default class Cache {
     this.schemasByRegistryId = {}
   }
 
-  getLatestRegistryId = (subject: string): number => this.registryIdBySubject[subject]
+  getLatestRegistryId = (subject: string): number | undefined => this.registryIdBySubject[subject]
 
   setLatestRegistryId = (subject: string, id: number): number =>
     (this.registryIdBySubject[subject] = id)

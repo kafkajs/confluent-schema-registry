@@ -7,7 +7,7 @@ import SchemaRegistry from '../SchemaRegistry'
 import avdlToAVSC from './avdlToAVSC'
 
 const registry = new SchemaRegistry({ host: 'http://localhost:8982' })
-const absolutePath = (...paths: any) => path.join(__dirname, '../..', ...paths)
+const absolutePath = (...paths: string[]) => path.join(__dirname, '../..', ...paths)
 
 const compareWithJavaImplementation = (avdlPath: string, name: string) => async () => {
   const absolutePathToAvdlToAVSC = absolutePath('./bin/avdlToAVSC.sh')

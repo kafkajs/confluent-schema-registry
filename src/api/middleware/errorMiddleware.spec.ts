@@ -36,24 +36,28 @@ describe('ErrorMiddleware', () => {
     })
 
     it('raise an error with message, errorMessage or error from the error payload', async () => {
-      let response = createResponse({ message: 'error message' })
+      let message = 'error message'
+      let response = createResponse({ message })
       await expect(
         executedMiddleware.response(() => Promise.reject(response), undefined),
-      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - error message`)
+      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - ${message}`)
 
-      response = createResponse({ error: 'error error' })
+      message = 'error error'
+      response = createResponse({ error: message })
       await expect(
         executedMiddleware.response(() => Promise.reject(response), undefined),
-      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - error error`)
+      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - ${message}`)
 
-      response = createResponse({ message: 'error errorMessage' })
+      message = 'error errorMessage'
+      response = createResponse({ message })
       await expect(
         executedMiddleware.response(() => Promise.reject(response), undefined),
-      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - error errorMessage`)
+      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - ${message}`)
     })
 
     it('raise an error with the error payload if it is a string', async () => {
       const response = createResponse('error string')
+
       await expect(
         executedMiddleware.response(() => Promise.reject(response), undefined),
       ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - error string`)
@@ -61,6 +65,7 @@ describe('ErrorMiddleware', () => {
 
     it('raise an error with a default message if the error payload is empty', async () => {
       const response = createResponse('')
+
       await expect(
         executedMiddleware.response(() => Promise.reject(response), undefined),
       ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - error, status 500`)

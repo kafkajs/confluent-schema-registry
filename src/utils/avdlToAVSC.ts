@@ -8,7 +8,9 @@ const isIterable = (obj: any) => isObject(obj) && typeof obj.map !== 'undefined'
 const isFieldArray = (field: any) => isObject(field.type) && field.type.type === 'array'
 
 const combine = (rootType: any, types: any) => {
-  if (!rootType.fields) return rootType
+  if (!rootType.fields) {
+    return rootType
+  }
 
   const find = (name: any) => {
     if (typeof name === 'string') {
@@ -17,7 +19,9 @@ const combine = (rootType: any, types: any) => {
 
     const typeToCombine = types.find((t: any) => {
       const names = []
-      if (t.namespace) names.push(`${t.namespace}.`)
+      if (t.namespace) {
+        names.push(`${t.namespace}.`)
+      }
       names.push(t.name.toLowerCase())
 
       return names.join('') === name

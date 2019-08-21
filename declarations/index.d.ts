@@ -1,6 +1,6 @@
 declare module 'confluent-schema-registry' {
   export interface SchemaRegistryCache {
-    getLatestRegistryId: (subject: string) => any
+    getLatestRegistryId: (subject: string) => number | undefined
     setLatestRegistryId: (subject: string, id: number) => void
     getSchema: (registryId: number) => Schema
     setSchema: (registryId: number, schema: Schema) => void

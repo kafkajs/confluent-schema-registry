@@ -1,22 +1,28 @@
 import { Middleware, Response } from 'mappersmith'
 
+const REQUEST_HEADERS = {
+  'Content-Type': 'application/vnd.schemaregistry.v1+json',
+}
+
 const updateContentType = (response: Response) =>
-  response.enhance({ headers: { 'content-type': 'application/json' } })
+  response.enhance({
+    headers: {
+      'content-type': 'application/json',
+    },
+  })
 
 const confluentEncoderMiddleware: Middleware = () => ({
   request: req => {
-    const headers = { 'Content-Type': 'application/vnd.schemaregistry.v1+json' }
-
     try {
       if (req.body()) {
         return req.enhance({
-          headers,
+          headers: REQUEST_HEADERS,
           body: JSON.stringify(req.body()),
         })
       }
     } catch (_) {}
 
-    return req.enhance({ headers })
+    return req.enhance({ headers: REQUEST_HEADERS })
   },
 
   response: next =>
