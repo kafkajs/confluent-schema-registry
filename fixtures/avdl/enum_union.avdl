@@ -1,0 +1,10 @@
+@namespace("com.org.app.track")
+protocol EnumUnionProto {
+  enum Foos {
+    foo, bar, baz
+  }
+
+  record EnumUnion {
+    union {null, Foos} foos = null;
+  }
+}

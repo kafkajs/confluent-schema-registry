@@ -1,0 +1,37 @@
+@namespace("com.org.app.track")
+protocol ComplexProto {
+  enum Foos {
+    foo, bar, baz
+  }
+
+  record Bam {
+    string bam;
+  }
+
+  record Array3 {
+    union {null, Bam} bam = null;
+  }
+
+  record Array2 {
+    string array2_name;
+    union {null, Foos} foos = null;
+  }
+
+  record Array1 {
+    union {null, array <Array2>} array2 = null;
+  }
+
+  record Baz {
+    union {null, array <Array1>} array1 = null;
+  }
+
+  record Bar {
+    Baz baz;
+  }
+
+  record Complex {
+    union {null, array <Array1>} array1 = null;
+    array <Array3> array3;
+    Bar bar;
+  }
+}

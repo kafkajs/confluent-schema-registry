@@ -1,0 +1,11 @@
+@namespace("com.org.domain.fixtures")
+protocol UnionProto {
+  record Bar {
+    string baz;
+  }
+
+  record Union {
+    string foo;
+    union {null, Bar} bar = null;
+  }
+}

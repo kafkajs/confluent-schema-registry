@@ -1,0 +1,6 @@
+@namespace("com.org.domain.fixtures")
+protocol SimpleProto {
+  record Simple {
+    string foo;
+  }
+}

@@ -1,0 +1,15 @@
+@namespace("com.org.domain.fixtures")
+protocol MultipleUnionProto {
+  record Baz {
+    string bam;
+  }
+
+  record Bar {
+    union {null, Baz} baz = null;
+  }
+
+  record MultipleUnion {
+    string foo;
+    union {null, Bar} bar = null;
+  }
+}
