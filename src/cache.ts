@@ -13,13 +13,19 @@ export default class Cache {
 
   getLatestRegistryId = (subject: string): number | undefined => this.registryIdBySubject[subject]
 
-  setLatestRegistryId = (subject: string, id: number): number =>
-    (this.registryIdBySubject[subject] = id)
+  setLatestRegistryId = (subject: string, id: number): number => {
+    this.registryIdBySubject[subject] = id
+
+    return this.registryIdBySubject[subject]
+  }
 
   getSchema = (registryId: number): Schema => this.schemasByRegistryId[registryId]
 
-  setSchema = (registryId: number, schema: Schema): Schema =>
-    (this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema))
+  setSchema = (registryId: number, schema: Schema): Schema => {
+    this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema)
+
+    return this.schemasByRegistryId[registryId]
+  }
 
   clear = (): void => {
     this.registryIdBySubject = {}

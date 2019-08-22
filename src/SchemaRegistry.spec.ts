@@ -10,23 +10,25 @@ const wrongMagicByte = require('../fixtures/wrongMagicByte.json') // eslint-disa
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const REGISTRY_CLIENT_ID = 'SchemaRegistry.spec.ts'
-const APIArgs = { clientId: REGISTRY_CLIENT_ID, host: REGISTRY_HOST }
-const PersonSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))
+const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
+const schemaRegistryArgs = { host: REGISTRY_HOST }
+
+const personSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))
 const payload = { full_name: 'John Doe' } // eslint-disable-line @typescript-eslint/camelcase
 
 describe('SchemaRegistry', () => {
   let schemaRegistry
 
   beforeEach(async () => {
-    schemaRegistry = new SchemaRegistry(APIArgs)
-    await schemaRegistry.register(PersonSchema)
+    schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
+    await schemaRegistry.register(personSchema)
   })
 
   describe('#register', () => {
     let namespace, Schema, subject, api
 
     beforeEach(() => {
-      api = API(APIArgs)
+      api = API(schemaRegistryAPIClientArgs)
       namespace = `N${uuid().replace(/-/g, '_')}`
       subject = `${namespace}.RandomTest`
       Schema = JSON.parse(`
@@ -94,7 +96,7 @@ describe('SchemaRegistry', () => {
 
   describe('#encode', () => {
     beforeEach(async () => {
-      await schemaRegistry.register(PersonSchema)
+      await schemaRegistry.register(personSchema)
     })
 
     it('throws an error if registryId is empty', async () => {
@@ -105,7 +107,7 @@ describe('SchemaRegistry', () => {
     })
 
     it('encodes using a defined registryId', async () => {
-      const SchemaV1 = Object.assign({}, PersonSchema, {
+      const SchemaV1 = Object.assign({}, personSchema, {
         name: 'AnotherPerson',
         fields: [{ type: 'string', name: 'full_name' }],
       })
@@ -134,7 +136,7 @@ describe('SchemaRegistry', () => {
     let registryId
 
     beforeEach(async () => {
-      registryId = (await schemaRegistry.register(PersonSchema)).id
+      registryId = (await schemaRegistry.register(personSchema)).id
     })
 
     it('decodes data', async () => {
