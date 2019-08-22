@@ -9,6 +9,9 @@ const zooKeeperRunner = new ZooKeeperRunner({
   },
 })
 
+/**
+ * Debug SchemaRegistry with CURL: https://docs.confluent.io/2.0.0/schema-registry/docs/intro.html
+ */
 const schemaRegistryRunner = new SimpleRunner({
   service: 'schemaRegistry',
   image: 'confluentinc/cp-schema-registry:5.3.0',
