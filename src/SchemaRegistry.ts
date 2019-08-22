@@ -7,7 +7,7 @@ import {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
 } from './errors'
-import { Schema } from 'confluent-schema-registry'
+import { Schema } from './@types'
 
 interface RegisteredSchema {
   id: number

@@ -1,6 +1,6 @@
 import avro from 'avsc'
 
-import { Schema } from 'confluent-schema-registry'
+import { Schema } from './@types'
 
 export default class Cache {
   registryIdBySubject: { [key: string]: number }
