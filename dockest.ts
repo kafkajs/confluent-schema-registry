@@ -1,9 +1,6 @@
-// import Dockest, { logLevel, runners } from 'dockest'
-const {
-  default: Dockest,
-  logLevel,
-  runners: { KafkaRunner, ZooKeeperRunner, SimpleRunner },
-} = require('dockest') // eslint-disable-line @typescript-eslint/no-var-requires
+import { default as Dockest, runners, logLevel } from 'dockest'
+
+const { ZooKeeperRunner, SimpleRunner, KafkaRunner } = runners
 
 const zooKeeperRunner = new ZooKeeperRunner({
   service: 'zooKeeper',
