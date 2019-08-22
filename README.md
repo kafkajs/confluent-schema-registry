@@ -64,7 +64,7 @@ It's possible to override this for the specific subject by setting it like so:
 
 ```JavaScript
 const {
-  compatibility: { NONE }
+  COMPATIBILITY: { NONE }
 } = require("confluent-schema-registry");
 await registry.register(Schema, { compatibility: NONE }); // { id: 4 }
 ```

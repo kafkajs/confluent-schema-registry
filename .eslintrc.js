@@ -7,7 +7,7 @@ module.exports = {
     'plugin:prettier/recommended', // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'no-only-tests'],
   parserOptions: {
     ecmaVersion: 2019, // Allows for the parsing of modern ECMAScript features
     sourceType: 'module', // Allows for the use of imports
@@ -20,10 +20,15 @@ module.exports = {
   },
   rules: {
     'no-console': 'error',
+    'no-only-tests/no-only-tests': [
+      'error',
+      { block: ['test', 'it', 'assert'], focus: ['only', 'focus'] },
+    ],
 
     // Typescript
     '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': 'error',
     '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/ban-ts-ignore': 'warn',
   },
 }

@@ -1,13 +1,16 @@
 import fs from 'fs'
 import avro from 'avsc'
 
+let cache: any
 const merge = Object.assign
 const isObject = (obj: any) => obj && typeof obj === 'object'
 const isIterable = (obj: any) => isObject(obj) && typeof obj.map !== 'undefined'
 const isFieldArray = (field: any) => isObject(field.type) && field.type.type === 'array'
 
 const combine = (rootType: any, types: any) => {
-  if (!rootType.fields) return rootType
+  if (!rootType.fields) {
+    return rootType
+  }
 
   const find = (name: any) => {
     if (typeof name === 'string') {
@@ -16,7 +19,9 @@ const combine = (rootType: any, types: any) => {
 
     const typeToCombine = types.find((t: any) => {
       const names = []
-      if (t.namespace) names.push(`${t.namespace}.`)
+      if (t.namespace) {
+        names.push(`${t.namespace}.`)
+      }
       names.push(t.name.toLowerCase())
 
       return names.join('') === name
@@ -57,7 +62,6 @@ const combine = (rootType: any, types: any) => {
   return merge(rootType, { fields: combinedFields })
 }
 
-let cache: any
 export default (path: any) => {
   cache = {}
   const protocol = avro.readProtocol(fs.readFileSync(path, 'utf8'))

@@ -1,31 +1,27 @@
 import avro from 'avsc'
 
+import { Schema } from 'confluent-schema-registry'
+
 export default class Cache {
-  registryIdBySubject: any
-  schemasByRegistryId: any
+  registryIdBySubject: { [key: string]: number }
+  schemasByRegistryId: { [key: string]: Schema }
 
   constructor() {
     this.registryIdBySubject = {}
     this.schemasByRegistryId = {}
   }
 
-  getLatestRegistryId(subject: any) {
-    return this.registryIdBySubject[subject]
-  }
+  getLatestRegistryId = (subject: string): number | undefined => this.registryIdBySubject[subject]
 
-  setLatestRegistryId(subject: any, id: any) {
-    this.registryIdBySubject[subject] = id
-  }
+  setLatestRegistryId = (subject: string, id: number): number =>
+    (this.registryIdBySubject[subject] = id)
 
-  getSchema(registryId: any) {
-    return this.schemasByRegistryId[registryId]
-  }
+  getSchema = (registryId: number): Schema => this.schemasByRegistryId[registryId]
 
-  setSchema(registryId: any, schema: any) {
-    return (this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema))
-  }
+  setSchema = (registryId: number, schema: Schema): Schema =>
+    (this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema))
 
-  clear() {
+  clear = (): void => {
     this.registryIdBySubject = {}
     this.schemasByRegistryId = {}
   }

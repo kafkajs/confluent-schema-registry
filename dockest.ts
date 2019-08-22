@@ -42,9 +42,9 @@ const dockest = new Dockest({
   opts: {
     logLevel: logLevel.DEBUG,
     afterSetupSleep: 35,
-  },
-  dev: {
-    // debug: true,
+    dev: {
+      // debug: true,
+    },
   },
 })
 

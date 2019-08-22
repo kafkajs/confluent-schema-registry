@@ -1,8 +1,8 @@
-const forge = require('mappersmith').default
-const Retry = require('mappersmith/middlewares/retry/v2').default
-import ErrorMiddleware from './errorMiddleware'
+import forge, { Client } from 'mappersmith'
+import Retry, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 
-const CONTENT_TYPE = 'application/vnd.schemaregistry.v1+json'
+import errorMiddlewaree from './middleware/errorMiddleware'
+import confluentEncoder from './middleware/confluentEncoderMiddleware'
 
 const DEFAULT_RETRY = {
   maxRetryTimeInSecs: 5,
@@ -12,61 +12,69 @@ const DEFAULT_RETRY = {
   retries: 3, // max retries
 }
 
-const updateContentType = (response: any) =>
-  response.enhance({
-    headers: { 'content-type': 'application/json' },
-  })
+export interface APIArgs {
+  host: string
+  clientId?: string
+  retry?: Partial<RetryMiddlewareOptions>
+}
 
-const ConfluentEncoder = () => ({
-  request(req: any) {
-    const headers = {
-      'Content-Type': CONTENT_TYPE,
-    }
+// export interface APIClient {
+export type APIClient = Client<{
+  Schema: {
+    find: (_: any) => any
+  }
+  Subject: {
+    all: (_: any) => any
+    latestVersion: (_: any) => any
+    version: (_: any) => any
+    config: (_: any) => any
+    updateConfig: (_: any) => any
+    register: (_: any) => any
+    compatible: (_: any) => any
+  }
+}>
 
-    try {
-      if (req.body()) {
-        return req.enhance({
-          headers,
-          body: JSON.stringify(req.body()),
-        })
-      }
-    } catch (e) {}
-
-    return req.enhance({ headers })
-  },
-
-  response(next: any) {
-    return next()
-      .then(updateContentType)
-      .catch((response: any) => {
-        throw updateContentType(response)
-      })
-  },
-})
-
-export default ({ host, retry = {} }: any) => {
-  return forge({
-    clientId: 'Confluent_Schema_Registry',
-    host,
+export default ({ clientId, host, retry = {} }: APIArgs) =>
+  forge({
+    clientId: clientId || 'Confluent_Schema_Registry',
+    // @ts-ignore (https://github.com/tulios/mappersmith/pull/148)
     ignoreGlobalMiddleware: true,
-    middleware: [
-      ConfluentEncoder,
-      Retry(Object.assign(DEFAULT_RETRY, retry)),
-      ErrorMiddleware('SchemaRegistry'),
-    ],
+    host,
+    middleware: [confluentEncoder, Retry(Object.assign(DEFAULT_RETRY, retry)), errorMiddlewaree],
     resources: {
       Schema: {
-        find: { method: 'get', path: '/schemas/ids/{id}' },
+        find: {
+          method: 'get',
+          path: '/schemas/ids/{id}',
+        },
       },
       Subject: {
-        all: { method: 'get', path: '/subjects' },
-        latestVersion: { method: 'get', path: '/subjects/{subject}/versions/latest' },
-        version: { method: 'get', path: '/subjects/{subject}/versions/{version}' },
+        all: {
+          method: 'get',
+          path: '/subjects',
+        },
+        latestVersion: {
+          method: 'get',
+          path: '/subjects/{subject}/versions/latest',
+        },
+        version: {
+          method: 'get',
+          path: '/subjects/{subject}/versions/{version}',
+        },
 
-        config: { method: 'get', path: '/config/{subject}' },
-        updateConfig: { method: 'put', path: '/config/{subject}' },
+        config: {
+          method: 'get',
+          path: '/config/{subject}',
+        },
+        updateConfig: {
+          method: 'put',
+          path: '/config/{subject}',
+        },
 
-        register: { method: 'post', path: '/subjects/{subject}/versions' },
+        register: {
+          method: 'post',
+          path: '/subjects/{subject}/versions',
+        },
         compatible: {
           method: 'post',
           path: '/compatibility/subjects/{subject}/versions/{version}',
@@ -75,4 +83,3 @@ export default ({ host, retry = {} }: any) => {
       },
     },
   })
-}

@@ -1,6 +1,9 @@
-export const compatibility = {
+export type COMPATIBILITY = 'NONE' | 'FULL' | 'BACKWARD' | 'FORWARD'
+export const COMPATIBILITY = {
   NONE: 'NONE',
   FULL: 'FULL',
   BACKWARD: 'BACKWARD',
   FORWARD: 'FORWARD',
 }
+
+export const DEFAULT_SEPERATOR = '.'
