@@ -13,16 +13,6 @@ interface RegisteredSchema {
   id: number
 }
 
-// Based on https://github.com/mtth/avsc/issues/140
-const collectInvalidPaths = (schema: Schema, jsonPayload: object) => {
-  const paths: any = []
-  schema.isValid(jsonPayload, {
-    errorHook: path => paths.push(path),
-  })
-
-  return paths
-}
-
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
@@ -108,15 +98,7 @@ export default class SchemaRegistry {
 
     const schema = await this.getSchema(registryId)
 
-    let avroPayload
-    try {
-      avroPayload = schema.toBuffer(jsonPayload)
-    } catch (error) {
-      error.paths = collectInvalidPaths(schema, jsonPayload)
-      throw error
-    }
-
-    return encode(registryId, avroPayload)
+    return encode(schema, registryId, jsonPayload)
   }
 
   public async decode(buffer: Buffer): Promise<any> {

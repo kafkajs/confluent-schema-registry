@@ -139,6 +139,7 @@ describe('SchemaRegistry', () => {
     it('decodes data', async () => {
       const buffer = Buffer.from(await schemaRegistry.encode(registryId, payload))
       const data = await schemaRegistry.decode(buffer)
+
       expect(data).toEqual(payload)
     })
 

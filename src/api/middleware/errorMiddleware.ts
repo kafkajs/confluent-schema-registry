@@ -41,6 +41,4 @@ const errorMiddleware: Middleware = ({ clientId }) => ({
     ),
 })
 
-// const createErrorMiddleware = (clientName: string) => errorMiddleware()
-
 export default errorMiddleware
