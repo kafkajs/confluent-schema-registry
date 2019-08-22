@@ -4,12 +4,11 @@ import { v4 as uuid } from 'uuid'
 import { readAVSC } from './utils'
 import SchemaRegistry from './SchemaRegistry'
 import API from './api'
-import { COMPATIBILITY } from './constants'
-const encodedAnotherPersonV2 = require('../fixtures/encodedAnotherPersonV2.json') // eslint-disable-line @typescript-eslint/no-var-requires
-const wrongMagicByte = require('../fixtures/wrongMagicByte.json') // eslint-disable-line @typescript-eslint/no-var-requires
+import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
+import encodedAnotherPersonV2 from '../fixtures/encodedAnotherPersonV2'
+import wrongMagicByte from '../fixtures/wrongMagicByte'
 
 const REGISTRY_HOST = 'http://localhost:8982'
-const REGISTRY_CLIENT_ID = 'SchemaRegistry.spec.ts'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
 const schemaRegistryArgs = { host: REGISTRY_HOST }
 
@@ -17,7 +16,7 @@ const personSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc
 const payload = { full_name: 'John Doe' } // eslint-disable-line @typescript-eslint/camelcase
 
 describe('SchemaRegistry', () => {
-  let schemaRegistry
+  let schemaRegistry: SchemaRegistry
 
   beforeEach(async () => {
     schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
@@ -44,7 +43,7 @@ describe('SchemaRegistry', () => {
     it('uploads the new schema', async () => {
       await expect(api.Subject.latestVersion({ subject })).rejects.toHaveProperty(
         'message',
-        `${REGISTRY_CLIENT_ID} - Subject not found.`,
+        `${DEFAULT_API_CLIENT_ID} - Subject not found.`,
       )
 
       await expect(schemaRegistry.register(Schema)).resolves.toEqual({ id: expect.any(Number) })
@@ -123,8 +122,6 @@ describe('SchemaRegistry', () => {
       expect(schema2.id).not.toEqual(schema1.id)
 
       const data = await schemaRegistry.encode(schema2.id, payload)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       expect(data).toMatchConfluentAvroEncodedPayload({
         registryId: schema2.id,
         payload: Buffer.from(encodedAnotherPersonV2),

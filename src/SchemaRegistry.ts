@@ -24,8 +24,8 @@ const collectInvalidPaths = (schema: Schema, jsonPayload: object) => {
 }
 
 interface Opts {
-  compatibility: COMPATIBILITY
-  separator: string
+  compatibility?: COMPATIBILITY
+  separator?: string
 }
 
 const DEFAULT_OPTS = {
