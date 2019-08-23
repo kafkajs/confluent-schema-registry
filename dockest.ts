@@ -1,9 +1,6 @@
-// import Dockest, { logLevel, runners } from 'dockest'
-const {
-  default: Dockest,
-  logLevel,
-  runners: { KafkaRunner, ZooKeeperRunner, SimpleRunner },
-} = require('dockest') // eslint-disable-line @typescript-eslint/no-var-requires
+import { default as Dockest, runners, logLevel } from 'dockest'
+
+const { ZooKeeperRunner, SimpleRunner, KafkaRunner } = runners
 
 const zooKeeperRunner = new ZooKeeperRunner({
   service: 'zooKeeper',
@@ -12,6 +9,9 @@ const zooKeeperRunner = new ZooKeeperRunner({
   },
 })
 
+/**
+ * Debug SchemaRegistry with CURL: https://docs.confluent.io/2.0.0/schema-registry/docs/intro.html
+ */
 const schemaRegistryRunner = new SimpleRunner({
   service: 'schemaRegistry',
   image: 'confluentinc/cp-schema-registry:5.3.0',
@@ -43,7 +43,7 @@ const dockest = new Dockest({
     logLevel: logLevel.DEBUG,
     afterSetupSleep: 35,
     dev: {
-      // debug: true,
+      debug: process.argv[2] === 'debug' || process.argv[2] === 'dev',
     },
   },
 })

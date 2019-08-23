@@ -1,19 +1,9 @@
 import { Middleware, Response } from 'mappersmith'
 
-const getErrorMessage = (response: Response) => {
-  const data = response.data()
-  const error = data || null
-
-  if (!error) {
-    return `error, status ${response.status()}`
+interface ConfluenceResponse extends Omit<Response, 'data'> {
+  data: () => {
+    message: string
   }
-
-  if (typeof error === 'object') {
-    // @ts-ignore
-    return error.message || error.errorMessage || error.error
-  }
-
-  return error
 }
 
 class ResponseError extends Error {
@@ -21,8 +11,8 @@ class ResponseError extends Error {
   unauthorized: boolean
   url: string
 
-  constructor(clientName: string, response: Response) {
-    super(`${clientName} - ${getErrorMessage(response)}`)
+  constructor(clientName: string, response: ConfluenceResponse) {
+    super(`${clientName} - ${response.data().message || `Error, status ${response.status()}`}`)
 
     const request = response.request()
     this.name = this.constructor.name
@@ -40,7 +30,5 @@ const errorMiddleware: Middleware = ({ clientId }) => ({
         .catch((response: Response) => reject(new ResponseError(clientId, response))),
     ),
 })
-
-// const createErrorMiddleware = (clientName: string) => errorMiddleware()
 
 export default errorMiddleware

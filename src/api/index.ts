@@ -1,6 +1,7 @@
 import forge, { Client } from 'mappersmith'
 import Retry, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 
+import { DEFAULT_API_CLIENT_ID } from '../constants'
 import errorMiddlewaree from './middleware/errorMiddleware'
 import confluentEncoder from './middleware/confluentEncoderMiddleware'
 
@@ -12,14 +13,13 @@ const DEFAULT_RETRY = {
   retries: 3, // max retries
 }
 
-export interface APIArgs {
+export interface SchemaRegistryAPIClientArgs {
   host: string
   clientId?: string
   retry?: Partial<RetryMiddlewareOptions>
 }
 
-// export interface APIClient {
-export type APIClient = Client<{
+export type SchemaRegistryAPIClient = Client<{
   Schema: {
     find: (_: any) => any
   }
@@ -34,9 +34,13 @@ export type APIClient = Client<{
   }
 }>
 
-export default ({ clientId, host, retry = {} }: APIArgs) =>
+export default ({
+  clientId,
+  host,
+  retry = {},
+}: SchemaRegistryAPIClientArgs): SchemaRegistryAPIClient =>
   forge({
-    clientId: clientId || 'Confluent_Schema_Registry',
+    clientId: clientId || DEFAULT_API_CLIENT_ID,
     // @ts-ignore (https://github.com/tulios/mappersmith/pull/148)
     ignoreGlobalMiddleware: true,
     host,

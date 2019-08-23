@@ -1,10 +1,7 @@
 import { MAGIC_BYTE } from './src/encoder'
 import decode from './src/decoder'
 
-const toMatchConfluentAvroEncodedPayloadFun = context => (
-  received,
-  { payload: expectedPayload },
-) => {
+const toMatchConfluentAvroEncodedPayload = context => (received, { payload: expectedPayload }) => {
   const { printExpected, printReceived, printWithType } = context.utils
 
   if (!Buffer.isBuffer(expectedPayload)) {
@@ -58,6 +55,6 @@ expect.extend({
   toMatchConfluentAvroEncodedPayload(...args) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore
-    return toMatchConfluentAvroEncodedPayloadFun(this)(...args)
+    return toMatchConfluentAvroEncodedPayload(this)(...args)
   },
 })
