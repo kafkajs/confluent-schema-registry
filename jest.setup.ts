@@ -1,15 +1,6 @@
 import { MAGIC_BYTE } from './src/encoder'
 import decode from './src/decoder'
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace jest {
-    interface Matchers<R> {
-      toMatchConfluentAvroEncodedPayload(args: { registryId: number; payload: Buffer }): R
-    }
-  }
-}
-
 const toMatchConfluentAvroEncodedPayload = context => (received, { payload: expectedPayload }) => {
   const { printExpected, printReceived, printWithType } = context.utils
 
