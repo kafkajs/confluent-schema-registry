@@ -43,7 +43,7 @@ const dockest = new Dockest({
     logLevel: logLevel.DEBUG,
     afterSetupSleep: 35,
     dev: {
-      // debug: true,
+      debug: process.argv[2] === 'debug' || process.argv[2] === 'dev',
     },
   },
 })
