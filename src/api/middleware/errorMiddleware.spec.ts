@@ -35,32 +35,13 @@ describe('ErrorMiddleware', () => {
       })),
     })
 
-    it('raise an error with message, errorMessage or error from the error payload', async () => {
-      let message = 'error message'
-      let response = createResponse({ message })
+    it('raise an error with message', async () => {
+      const message = 'error message'
+      const response = createResponse({ message })
+
       await expect(
         executedMiddleware.response(() => Promise.reject(response), undefined),
       ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - ${message}`)
-
-      message = 'error error'
-      response = createResponse({ error: message })
-      await expect(
-        executedMiddleware.response(() => Promise.reject(response), undefined),
-      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - ${message}`)
-
-      message = 'error errorMessage'
-      response = createResponse({ message })
-      await expect(
-        executedMiddleware.response(() => Promise.reject(response), undefined),
-      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - ${message}`)
-    })
-
-    it('raise an error with the error payload if it is a string', async () => {
-      const response = createResponse('error string')
-
-      await expect(
-        executedMiddleware.response(() => Promise.reject(response), undefined),
-      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - error string`)
     })
 
     it('raise an error with a default message if the error payload is empty', async () => {
@@ -68,7 +49,7 @@ describe('ErrorMiddleware', () => {
 
       await expect(
         executedMiddleware.response(() => Promise.reject(response), undefined),
-      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - error, status 500`)
+      ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - Error, status 500`)
     })
   })
 })
