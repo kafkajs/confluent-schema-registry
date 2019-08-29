@@ -4,6 +4,6 @@
 
 ## Docs
 
-Check out the [website](https://kafkajs.github.com/confluent-schema-registry).
+Check out the [website](https://kafkajs.github.io/confluent-schema-registry/).
 
 [![Build Status](https://dev.azure.com/tulios/ConfluentSchemaRegistry/_apis/build/status/kafkajs.confluent-schema-registry?branchName=master)](https://dev.azure.com/tulios/ConfluentSchemaRegistry/_build/latest?definitionId=3&branchName=master)
