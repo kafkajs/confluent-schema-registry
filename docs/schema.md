@@ -1,4 +1,8 @@
-# Schemas
+---
+id: schemas
+title: Schemas
+sidebar_label: Schemas
+---
 
 ## Unions with null
 
