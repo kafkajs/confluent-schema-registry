@@ -23,20 +23,20 @@
   },
   "dependencies": {
     "avsc": "^5.4.13",
-    "mappersmith": "^2.29.3"
+    "mappersmith": "^2.30.0"
   },
   "devDependencies": {
     "@types/execa": "^2.0.0",
     "@types/fs-extra": "^8.0.0",
     "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.2",
+    "@types/node": "^12.7.3",
     "@types/prettier": "^1.18.2",
     "@types/uuid": "^3.4.5",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "@typescript-eslint/typescript-estree": "^2.0.0",
-    "dockest": "^1.0.2",
-    "eslint": "^6.2.1",
+    "dockest": "^1.0.3",
+    "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-no-only-tests": "^2.3.1",
     "eslint-plugin-prettier": "^3.1.0",
@@ -47,7 +47,7 @@
     "prettier-eslint": "^9.0.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.3",
+    "typescript": "^3.6.2",
     "uuid": "^3.3.3"
   }
 }
