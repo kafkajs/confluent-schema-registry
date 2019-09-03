@@ -41,7 +41,6 @@ export default ({
 }: SchemaRegistryAPIClientArgs): SchemaRegistryAPIClient =>
   forge({
     clientId: clientId || DEFAULT_API_CLIENT_ID,
-    // @ts-ignore (https://github.com/tulios/mappersmith/pull/148)
     ignoreGlobalMiddleware: true,
     host,
     middleware: [confluentEncoder, Retry(Object.assign(DEFAULT_RETRY, retry)), errorMiddlewaree],
