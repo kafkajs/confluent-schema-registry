@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "avsc": "^5.4.13",
-    "mappersmith": "^2.30.0"
+    "mappersmith": "^2.30.1"
   },
   "devDependencies": {
     "@types/execa": "^2.0.0",
@@ -32,9 +32,9 @@
     "@types/node": "^12.7.3",
     "@types/prettier": "^1.18.2",
     "@types/uuid": "^3.4.5",
-    "@typescript-eslint/eslint-plugin": "^2.0.0",
-    "@typescript-eslint/parser": "^2.0.0",
-    "@typescript-eslint/typescript-estree": "^2.0.0",
+    "@typescript-eslint/eslint-plugin": "^2.1.0",
+    "@typescript-eslint/parser": "^2.1.0",
+    "@typescript-eslint/typescript-estree": "^2.1.0",
     "dockest": "^1.0.3",
     "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.1.0",
