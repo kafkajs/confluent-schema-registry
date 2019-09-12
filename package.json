@@ -22,8 +22,8 @@
     "lint": "eslint ./src/**/*.ts"
   },
   "dependencies": {
-    "avsc": "^5.4.13",
-    "mappersmith": "^2.30.1"
+    "avsc": ">= 5.4.13 < 6",
+    "mappersmith": ">= 2.30.1 < 3"
   },
   "devDependencies": {
     "@types/execa": "^2.0.0",

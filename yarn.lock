@@ -669,7 +669,7 @@ atob@^2.1.1:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-avsc@^5.4.13:
+"avsc@>= 5.4.13 < 6":
   version "5.4.13"
   resolved "https://registry.yarnpkg.com/avsc/-/avsc-5.4.13.tgz#2e55d92e461eb9634019a28df511cc60dd19f8a7"
   integrity sha512-OLS+OPfvBIJA+Vn4JpjDiMt4UNvw0v54TBKp3oR0YvnDyjBqAdm3V2t/SfdUk6rwUZxBPDoykOG59lXMxNllbg==
@@ -2799,7 +2799,7 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-mappersmith@^2.30.1:
+"mappersmith@>= 2.30.1 < 3":
   version "2.30.1"
   resolved "https://registry.yarnpkg.com/mappersmith/-/mappersmith-2.30.1.tgz#8312b1664f64aca522cd9540d33b0d6b5d761941"
   integrity sha512-5SqfMjtnsDOqpniu4l8Cig1HZYUKKPwabjMgFge7DNZ8JZ0nVd4NlpWVZHZNVgwdialu1PZ5YMY+HA5anljQBg==

@@ -5,7 +5,7 @@
       "*": ["src/*", "declarations/*"]
     },
     "outDir": "dist",
-    "lib": ["es2019", "dom"], // due to mappersmith's typings (e.g. XMLHttpRequest, GlobalFetch)
+    "lib": ["es2019", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
