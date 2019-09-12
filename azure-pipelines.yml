@@ -59,6 +59,8 @@ jobs:
       - task: NodeTool@0
         inputs:
           versionSpec: '8.x'
+      - bash: yarn install
+        displayName: yarn install
       - task: Npm@1
         inputs:
           command: publish
