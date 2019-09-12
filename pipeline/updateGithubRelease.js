@@ -20,7 +20,7 @@ if (TAG.startsWith('refs/tags/')) {
 
 console.log(`-> Updating release ${TAG}`)
 
-const changelog = fs.readFileSync(path.join(__dirname, '../../CHANGELOG.md'), 'utf-8')
+const changelog = fs.readFileSync(path.join(__dirname, '../CHANGELOG.md'), 'utf-8')
 const lines = changelog.split('\n')
 
 const USER_AGENT = 'kafkajs/confluent-schema-registry Azure pipeline'
