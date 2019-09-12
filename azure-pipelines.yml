@@ -1,12 +1,19 @@
-# Node.js
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
-  - master
+  tags:
+    include:
+      - 'v*'
+
+  branches:
+    include:
+      - master
+
+pr:
+  branches:
+    include:
+      - master
 
 variables:
+  - group: secrets
   - name: COMPOSE_FILE
     value: docker-compose.yml
 
@@ -39,3 +46,56 @@ jobs:
         displayName: docker-compose pull
       - bash: yarn test
         displayName: integration test with dockest
+
+  - job: npm_release
+    displayName: 'NPM release'
+    condition: and(succeeded(), contains(variables['Build.SourceBranch'], 'refs/tags/'))
+    dependsOn:
+      - lint
+      - unit_tests
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '8.x'
+      - task: Npm@1
+        inputs:
+          command: publish
+          publishEndpoint: npm_registry
+      - bash: TOKEN=${GH_TOKEN} TAG=$(Build.SourceBranch) ./pipeline/updateGithubRelease.js
+        displayName: github release
+        env:
+          GH_TOKEN: $(GH_TOKEN)
+
+  - job: website_deploy
+    displayName: 'Website'
+    condition: and(succeeded(), contains(variables['Build.SourceBranch'], 'refs/heads/master'))
+    dependsOn:
+      - lint
+      - unit_tests
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '8.x'
+      - bash: git config core.autocrlf true || test true
+        displayName: git config core.autocrlf
+      - bash: git config --global user.name "${GH_NAME}" || test true
+        displayName: git config username
+        env:
+          GH_NAME: $(GH_NAME)
+      - bash: git config --global user.email "${GH_EMAIL}" || test true
+        displayName: git config email
+        env:
+          GH_EMAIL: $(GH_EMAIL)
+      - bash: echo "machine github.com login ${GH_NAME} password ${GH_TOKEN}" > ~/.netrc || test true
+        displayName: git config machine
+        env:
+          GH_NAME: $(GH_NAME)
+          GH_TOKEN: $(GH_TOKEN)
+      - bash: cd website && yarn install && GIT_USER="${GH_NAME}" yarn run publish-gh-pages || test true
+        displayName: publish to gh-pages
+        env:
+          GH_NAME: $(GH_NAME)
