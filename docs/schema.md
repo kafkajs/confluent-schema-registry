@@ -1,7 +1,7 @@
 ---
 id: schemas
-title: Schemas
-sidebar_label: Schemas
+title: Example Schemas
+sidebar_label: Example Schemas
 ---
 
 ## Unions with null

@@ -10,7 +10,7 @@
 
 const siteConfig = {
   title: 'Confluent schema registry', // Title for your website.
-  tagline: 'a library that makes it easier to interact with the Confluent schema registry',
+  tagline: 'A library that makes it easier to interact with the Confluent schema registry',
   url: 'https://kafkajs.github.io', // Your website URL
   baseUrl: '/confluent-schema-registry/', // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
