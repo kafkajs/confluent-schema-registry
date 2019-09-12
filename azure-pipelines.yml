@@ -63,7 +63,9 @@ jobs:
         displayName: yarn install
       - task: Npm@1
         inputs:
-          command: publish
+          command: custom
+          customCommand: publish --access public
+          customEndpoint: npm_registry
           publishEndpoint: npm_registry
       - bash: TOKEN=${GH_TOKEN} TAG=$(Build.SourceBranch) ./pipeline/updateGithubRelease.js
         displayName: github release
