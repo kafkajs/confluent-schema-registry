@@ -61,10 +61,12 @@ jobs:
           versionSpec: '8.x'
       - bash: yarn install
         displayName: yarn install
+      - bash: yarn prepare:release
+        displayName: yarn prepare:release
       - task: Npm@1
         inputs:
           command: custom
-          customCommand: publish --access public
+          customCommand: publish release/ --access public
           customEndpoint: npm_registry
           publishEndpoint: npm_registry
       - bash: TOKEN=${GH_TOKEN} TAG=$(Build.SourceBranch) ./pipeline/updateGithubRelease.js

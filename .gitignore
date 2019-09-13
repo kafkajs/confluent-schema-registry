@@ -22,6 +22,7 @@ trash
 #
 tmp
 dist
+release
 
 # website
 #
