@@ -26,6 +26,7 @@ const run = async () => {
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       const decodedValue = await registry.decode(message.value)
+      const decodedKey = await registry.decode(message.key)
       console.log(decodedValue)
     },
   })
