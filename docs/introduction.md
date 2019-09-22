@@ -51,7 +51,7 @@ await registry.register(utils.readAVSC('path/to/schema.avsc')) // { id: 2 }
 await registry.register(utils.avdlToAVSC('path/to/protocol.avdl')) // { id: 3 }
 ```
 
-The compatibility of the schema will be whatever the global default is (typically `BACKWARD`).
+The [compatibility](https://docs.confluent.io/current/schema-registry/avro.html#compatibility-types) of the schema will be whatever the global default is (typically `BACKWARD`).
 It's possible to override this for the specific subject by setting it like so:
 
 ```JavaScript
