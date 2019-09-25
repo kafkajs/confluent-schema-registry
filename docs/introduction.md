@@ -42,13 +42,13 @@ const registry = new SchemaRegistry({
 ### Uploading schemas
 
 ```JavaScript
-const { utils } = require('@kafkajs/confluent-schema-registry')
+const { readAVSC } = require('@kafkajs/confluent-schema-registry')
 
 // From a avsc file
-await registry.register(utils.readAVSC('path/to/schema.avsc')) // { id: 2 }
+await registry.register(readAVSC('path/to/schema.avsc')) // { id: 2 }
 
 // From a avdl file
-await registry.register(utils.avdlToAVSC('path/to/protocol.avdl')) // { id: 3 }
+await registry.register(avdlToAVSC('path/to/protocol.avdl')) // { id: 3 }
 ```
 
 The [compatibility](https://docs.confluent.io/current/schema-registry/avro.html#compatibility-types) of the schema will be whatever the global default is (typically `BACKWARD`).
