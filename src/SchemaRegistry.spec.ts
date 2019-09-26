@@ -55,6 +55,12 @@ describe('SchemaRegistry', () => {
       expect(schemaRegistry.cache.getSchema(id)).toBeTruthy()
     })
 
+    it('fetch and validate the latest schema id after registering a new schema', async () => {
+      const { id } = await schemaRegistry.register(Schema)
+      const latestSchemaId = await schemaRegistry.getLatestRegistryId(subject);
+      expect(id).toBe(latestSchemaId);
+    })
+
     it('set the default compatibility to BACKWARD', async () => {
       await schemaRegistry.register(Schema)
       const response = await api.Subject.config({ subject })
