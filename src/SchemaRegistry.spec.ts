@@ -57,7 +57,7 @@ describe('SchemaRegistry', () => {
 
     it('fetch and validate the latest schema id after registering a new schema', async () => {
       const { id } = await schemaRegistry.register(Schema)
-      const latestSchemaId = await schemaRegistry.getLatestRegistryId(subject);
+      const latestSchemaId = await schemaRegistry.getLatestSchemaId(subject);
       expect(id).toBe(latestSchemaId);
     })
 

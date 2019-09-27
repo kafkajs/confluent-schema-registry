@@ -127,7 +127,7 @@ export default class SchemaRegistry {
     return id
   }
 
-  public async getLatestRegistryId(subject: string): Promise<number> {
+  public async getLatestSchemaId(subject: string): Promise<number> {
     const response = await this.api.Subject.latestVersion({ subject})
     const { id }: { id: number } = response.data()
 
