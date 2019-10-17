@@ -16,6 +16,7 @@ interface RegisteredSchema {
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
+  subject?: string
 }
 
 const DEFAULT_OPTS = {
@@ -43,7 +44,13 @@ export default class SchemaRegistry {
       throw new ConfluentSchemaRegistryArgumentError(`Invalid namespace: ${schema.namespace}`)
     }
 
-    const subject = [schema.namespace, schema.name].join(separator)
+    /* !note: allow user to decide the subject name */
+    let subject: string;
+    if (userOpts && userOpts.subject) {
+        subject = userOpts.subject
+    } else {
+        subject = [schema.namespace, schema.name].join(separator)
+    }
 
     try {
       const response = await this.api.Subject.config({ subject })
