@@ -39,6 +39,20 @@ const registry = new SchemaRegistry({
 })
 ```
 
+### Basic auth
+
+It's also possible to configure basic auth:
+
+```js
+const registry = new SchemaRegistry({
+  host: 'http://localhost:2181',
+  auth: {
+    username: '***',
+    password: '***',
+  },
+})
+```
+
 ### Uploading schemas
 
 ```js
