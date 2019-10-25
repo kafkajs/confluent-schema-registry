@@ -17,7 +17,7 @@ npm install @kafkajs/confluent-schema-registry
 
 ### Creating the registry client
 
-```JavaScript
+```js
 const { SchemaRegistry } = require('@kafkajs/confluent-schema-registry')
 const registry = new SchemaRegistry({ host: 'http://localhost:2181' })
 ```
@@ -26,7 +26,7 @@ const registry = new SchemaRegistry({ host: 'http://localhost:2181' })
 
 By default, all `GET` requests will retry three times in case of failure. If you want to tweak this config you can do:
 
-```JavaScript
+```js
 const registry = new SchemaRegistry({
   host: 'http://localhost:2181',
   retry: {
@@ -34,14 +34,14 @@ const registry = new SchemaRegistry({
     initialRetryTimeInSecs: 0.1,
     factor: 0.2, // randomization factor
     multiplier: 2, // exponential factor
-    retries: 3 // max retries
-  }
+    retries: 3, // max retries
+  },
 })
 ```
 
 ### Uploading schemas
 
-```JavaScript
+```js
 const { readAVSC } = require('@kafkajs/confluent-schema-registry')
 
 // From a avsc file
@@ -54,10 +54,10 @@ await registry.register(avdlToAVSC('path/to/protocol.avdl')) // { id: 3 }
 The [compatibility](https://docs.confluent.io/current/schema-registry/avro.html#compatibility-types) of the schema will be whatever the global default is (typically `BACKWARD`).
 It's possible to override this for the specific subject by setting it like so:
 
-```JavaScript
+```js
 const {
-  COMPATIBILITY: { NONE }
-} = require('@kafkajs/confluent-schema-registry');
+  COMPATIBILITY: { NONE },
+} = require('@kafkajs/confluent-schema-registry')
 await registry.register(Schema, { compatibility: NONE }) // { id: 4 }
 ```
 
@@ -67,7 +67,7 @@ the client will throw and error (`ConfluentSchemaRegistryCompatibilityError`)
 
 ### Encoding data
 
-```JavaScript
+```js
 const payload = { full_name: 'John Doe' }
 await registry.encode(300, payload, { separator: '-' })
 // The Default `separator` is `.` (dot).
@@ -75,7 +75,7 @@ await registry.encode(300, payload, { separator: '-' })
 
 ### Decoding data
 
-```JavaScript
+```js
 const payload = await registry.decode(buffer)
 // { full_name: 'John Doe' }
 ```

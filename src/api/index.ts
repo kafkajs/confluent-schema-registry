@@ -1,8 +1,9 @@
-import forge, { Client } from 'mappersmith'
-import Retry, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
+import forge, { Client, Authorization } from 'mappersmith'
+import RetryMiddleware, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
+import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
 
 import { DEFAULT_API_CLIENT_ID } from '../constants'
-import errorMiddlewaree from './middleware/errorMiddleware'
+import errorMiddleware from './middleware/errorMiddleware'
 import confluentEncoder from './middleware/confluentEncoderMiddleware'
 
 const DEFAULT_RETRY = {
@@ -15,10 +16,12 @@ const DEFAULT_RETRY = {
 
 export interface SchemaRegistryAPIClientArgs {
   host: string
+  auth?: Authorization
   clientId?: string
   retry?: Partial<RetryMiddlewareOptions>
 }
 
+// TODO: Improve typings
 export type SchemaRegistryAPIClient = Client<{
   Schema: {
     find: (_: any) => any
@@ -35,6 +38,7 @@ export type SchemaRegistryAPIClient = Client<{
 }>
 
 export default ({
+  auth,
   clientId,
   host,
   retry = {},
@@ -43,7 +47,12 @@ export default ({
     clientId: clientId || DEFAULT_API_CLIENT_ID,
     ignoreGlobalMiddleware: true,
     host,
-    middleware: [confluentEncoder, Retry(Object.assign(DEFAULT_RETRY, retry)), errorMiddlewaree],
+    middleware: [
+      confluentEncoder,
+      RetryMiddleware(Object.assign(DEFAULT_RETRY, retry)),
+      errorMiddleware,
+      ...(auth ? [BasicAuthMiddleware(auth)] : []),
+    ],
     resources: {
       Schema: {
         find: {
