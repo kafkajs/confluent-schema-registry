@@ -28,8 +28,8 @@ export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
   public cache: Cache
 
-  constructor({ clientId, host, retry }: SchemaRegistryAPIClientArgs) {
-    this.api = API({ clientId, host, retry })
+  constructor({ auth, clientId, host, retry }: SchemaRegistryAPIClientArgs) {
+    this.api = API({ auth, clientId, host, retry })
     this.cache = new Cache()
   }
 
@@ -135,11 +135,9 @@ export default class SchemaRegistry {
   }
 
   public async getLatestSchemaId(subject: string): Promise<number> {
-    const response = await this.api.Subject.latestVersion({ subject})
+    const response = await this.api.Subject.latestVersion({ subject })
     const { id }: { id: number } = response.data()
 
     return id
   }
-
-
 }
