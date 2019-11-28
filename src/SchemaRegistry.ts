@@ -44,12 +44,11 @@ export default class SchemaRegistry {
       throw new ConfluentSchemaRegistryArgumentError(`Invalid namespace: ${schema.namespace}`)
     }
 
-    /* !note: allow user to decide the subject name */
-    let subject: string;
+    let subject: string
     if (userOpts && userOpts.subject) {
-        subject = userOpts.subject
+      subject = userOpts.subject
     } else {
-        subject = [schema.namespace, schema.name].join(separator)
+      subject = [schema.namespace, schema.name].join(separator)
     }
 
     try {
