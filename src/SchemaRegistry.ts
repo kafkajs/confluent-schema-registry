@@ -126,7 +126,7 @@ export default class SchemaRegistry {
     return schema.fromBuffer(payload)
   }
 
-  public async getRegistryId(subject: string, version: number): Promise<number> {
+  public async getRegistryId(subject: string, version: number | string): Promise<number> {
     const response = await this.api.Subject.version({ subject, version })
     const { id }: { id: number } = response.data()
 
