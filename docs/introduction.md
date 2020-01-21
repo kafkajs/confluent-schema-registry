@@ -19,7 +19,7 @@ npm install @kafkajs/confluent-schema-registry
 
 ```js
 const { SchemaRegistry } = require('@kafkajs/confluent-schema-registry')
-const registry = new SchemaRegistry({ host: 'http://localhost:2181' })
+const registry = new SchemaRegistry({ host: 'http://localhost:8081' })
 ```
 
 ### Retry
@@ -28,7 +28,7 @@ By default, all `GET` requests will retry three times in case of failure. If you
 
 ```js
 const registry = new SchemaRegistry({
-  host: 'http://localhost:2181',
+  host: 'http://localhost:8081',
   retry: {
     maxRetryTimeInSecs: 5,
     initialRetryTimeInSecs: 0.1,
@@ -45,7 +45,7 @@ It's also possible to configure basic auth:
 
 ```js
 const registry = new SchemaRegistry({
-  host: 'http://localhost:2181',
+  host: 'http://localhost:8081',
   auth: {
     username: '***',
     password: '***',

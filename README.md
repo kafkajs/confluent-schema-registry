@@ -16,7 +16,7 @@ const { Kafka } = require('kafkajs')
 const { SchemaRegistry } = require('@kafkajs/confluent-schema-registry')
 
 const kafka = new Kafka({ clientId: 'my-app', brokers: ['kafka1:9092'] })
-const registry = new SchemaRegistry({ host: 'http://registry:2181/' })
+const registry = new SchemaRegistry({ host: 'http://registry:8081/' })
 const consumer = kafka.consumer({ groupId: 'test-group' })
 
 const run = async () => {
