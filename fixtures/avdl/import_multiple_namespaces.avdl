@@ -1,0 +1,8 @@
+@namespace("com.org.domain.fixtures")
+protocol ImportMultipleNamespacesProto {
+  import idl "multiple_namespaces.avdl";
+
+  record ImportMultipleNamespaces {
+    com.org.messaging.Metadata metadata;
+  }
+}

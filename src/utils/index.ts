@@ -1,2 +1,2 @@
-export { default as avdlToAVSC } from './avdlToAVSC'
-export { default as readAVSC } from './readAVSC'
+export { avdlToAVSC, avdlToAVSCAsync } from './avdlToAVSC'
+export { readAVSC, readAVSCAsync } from './readAVSC'
