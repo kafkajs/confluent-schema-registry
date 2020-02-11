@@ -21,7 +21,8 @@ export default class Cache {
 
   getSchema = (registryId: number): Schema => this.schemasByRegistryId[registryId]
 
-  setSchema = (registryId: number, schema: Schema): Schema => {
+  setSchema = (registryId: number, schema: Schema) => {
+    // @ts-ignore TODO: Fix typings for Schema...
     this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema)
 
     return this.schemasByRegistryId[registryId]

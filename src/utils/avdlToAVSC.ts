@@ -1,12 +1,31 @@
 import * as fs from 'fs'
-import { AssembleProtocolError, assembleProtocol, readProtocol } from 'avsc'
+import { assembleProtocol, readProtocol } from 'avsc'
+
 import { ConfluentSchemaRegistryError } from '../errors'
+
+interface AssembleProtocolError extends Error {
+  path: string
+}
+interface Obj {
+  [key: string]: any
+}
+interface Iterable extends Obj {
+  map: any
+}
+interface Field {
+  type: {
+    type: string
+    items: any
+  }
+}
 
 let cache: any
 const merge = Object.assign
-const isObject = (obj: any) => obj && typeof obj === 'object'
-const isIterable = (obj: any) => isObject(obj) && typeof obj.map !== 'undefined'
-const isFieldArray = (field: any) => isObject(field.type) && field.type.type === 'array'
+const isObject = (obj: unknown): obj is Obj => obj && typeof obj === 'object'
+const isIterable = (obj: unknown): obj is Iterable =>
+  isObject(obj) && typeof obj.map !== 'undefined'
+const isFieldArray = (field: unknown): field is Field =>
+  isObject(field) && isObject(field.type) && field.type.type === 'array'
 
 const combine = (rootType: any, types: any) => {
   if (!rootType.fields) {
@@ -73,8 +92,8 @@ export function avdlToAVSC(path: any) {
 export async function avdlToAVSCAsync(path: string) {
   cache = {}
 
-  const protocol: any = await new Promise((resolve, reject) => {
-    assembleProtocol(path, (err: AssembleProtocolError, schema: object) => {
+  const protocol: { [key: string]: any } = await new Promise((resolve, reject) => {
+    assembleProtocol(path, (err: AssembleProtocolError, schema) => {
       if (err) {
         reject(new ConfluentSchemaRegistryError(`${err.message}. Caused by: ${err.path}`))
       } else {
