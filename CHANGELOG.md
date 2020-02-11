@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2020-02-11
+
+### Added
+
+- Support sharing of types between protocols [#43](https://github.com/kafkajs/confluent-schema-registry/pull/43)
+
+### Fixed
+
+- Fix SchemaRegistry host port [#40](https://github.com/kafkajs/confluent-schema-registry/pull/40)
+- Add string as possible type for subject version [#38](https://github.com/kafkajs/confluent-schema-registry/pull/38)
+
 ## [1.0.2] - 2019-11-28
 
 ### Added
