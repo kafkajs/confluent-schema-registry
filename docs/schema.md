@@ -87,3 +87,28 @@ or
   }
 }
 ```
+
+## Imported schemas
+
+Schemas can be imported from other AVDL or AVSC files using [the import declaration](https://avro.apache.org/docs/1.8.2/idl.html#imports). **Note** that this only works using `avdlToAVSCAsync`, not `avdlToAVSC`. Import paths are defined relative to the AVDL file they are imported from. In the following example, `person.avdl` is located next to this AVDL file.
+
+```avdl
+@namespace("com.org.domain.examples")
+protocol MyProtocol {
+  // AVDL files can be imported with "import idl"
+  import idl 'person.avdl';
+
+  // AVSC files can be imported with "import schema"
+  import schema 'place.avsc';
+
+  record Picture {
+    string url;
+  }
+
+  record Event {
+    Picture picture;
+    com.org.domain.examples.Person person;
+    com.org.domain.examples.Place place;
+  }
+}
+```

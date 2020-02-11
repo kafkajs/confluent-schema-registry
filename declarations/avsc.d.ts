@@ -1,3 +1,7 @@
-declare module 'avsc'
+import * as avsc from 'avsc';
 
-// The alternative to this is including "dom" in the tsconfig's `lib` (https://github.com/arangodb/arangojs/issues/577)
+declare module 'avsc' {
+    interface AssembleProtocolError extends Error {
+        path: string;
+    }
+}

@@ -4,7 +4,7 @@ import execa from 'execa'
 import avro from 'avsc'
 
 import SchemaRegistry from '../SchemaRegistry'
-import avdlToAVSC from './avdlToAVSC'
+import { avdlToAVSCAsync } from './avdlToAVSC'
 
 const registry = new SchemaRegistry({ host: 'http://localhost:8982' })
 const absolutePath = (...paths: string[]) => path.join(__dirname, '../..', ...paths)
@@ -22,7 +22,8 @@ const compareWithJavaImplementation = (avdlPath: string, name: string) => async 
     throw error
   }
 
-  const avsc = avdlToAVSC(absolutePath('./fixtures/avdl', avdlPath))
+  const avsc = await avdlToAVSCAsync(absolutePath('./fixtures/avdl', avdlPath))
+
   expect(avsc).toEqual(expectedAVSC)
   expect(avro.Type.forSchema(avsc)).toBeTruthy()
   expect(await registry.register(avsc)).toBeTruthy()
@@ -59,4 +60,20 @@ test('protocol with really complex stuff', compareWithJavaImplementation('comple
 test(
   'protocol with multiple namespaces',
   compareWithJavaImplementation('multiple_namespaces.avdl', 'MultipleNamespaces'),
+)
+
+/*
+ * AVSC includes the namespace of imported records even if they are being imported
+ * into the same namespace, causing a difference against the Java version.
+ *
+ * @issue: https://github.com/mtth/avsc/issues/281
+ */
+test.skip(
+  'protocol with import from same namespace',
+  compareWithJavaImplementation('import.avdl', 'Import'),
+)
+
+test(
+  'protocol with import from different namespace',
+  compareWithJavaImplementation('import_multiple_namespaces.avdl', 'ImportMultipleNamespaces'),
 )
