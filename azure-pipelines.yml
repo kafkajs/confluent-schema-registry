@@ -31,6 +31,19 @@ jobs:
       - bash: yarn lint
         displayName: yarn lint
 
+  - job: build
+    displayName: Build
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '8.x'
+      - bash: yarn install
+        displayName: yarn install
+      - bash: yarn build
+        displayName: yarn build
+
   - job: unit_tests
     displayName: Tests
     dependsOn: lint
@@ -52,6 +65,7 @@ jobs:
     condition: and(succeeded(), contains(variables['Build.SourceBranch'], 'refs/tags/'))
     dependsOn:
       - lint
+      - build
       - unit_tests
     pool:
       vmImage: 'Ubuntu 16.04'
