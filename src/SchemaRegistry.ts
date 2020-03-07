@@ -1,7 +1,7 @@
 import { encode, MAGIC_BYTE } from './encoder'
 import decode from './decoder'
 import { COMPATIBILITY, DEFAULT_SEPERATOR } from './constants'
-import API, { SchemaRegistryAPIClientArgs, SchemaRegistryAPIClient } from './api'
+import API, { SchemaRegistryAPIClientArgs, SchemaRegistryAPIClientOptions, SchemaRegistryAPIClient } from './api'
 import Cache from './cache'
 import {
   ConfluentSchemaRegistryArgumentError,
@@ -28,9 +28,9 @@ export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
   public cache: Cache
 
-  constructor({ auth, clientId, host, retry }: SchemaRegistryAPIClientArgs) {
+  constructor({ auth, clientId, host, retry }: SchemaRegistryAPIClientArgs, options?: SchemaRegistryAPIClientOptions) {
     this.api = API({ auth, clientId, host, retry })
-    this.cache = new Cache()
+    this.cache = new Cache(options?.forSchemaOptions)
   }
 
   public async register(schema: Schema, userOpts?: Opts): Promise<RegisteredSchema> {
