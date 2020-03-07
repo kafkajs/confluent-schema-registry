@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Support ForSchemaOption to call avro.Type.forSchema() (#47)
+- Support ForSchemaOption to call avro.Type.forSchema() [#47](https://github.com/kafkajs/confluent-schema-registry/pull/47)
 
 ## [1.0.3] - 2020-02-11
 
