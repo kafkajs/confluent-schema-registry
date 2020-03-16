@@ -29,7 +29,7 @@ const DEFAULT_OPTS = {
 
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
-  private cacheMissRequests: Map<RegistryId, Promise<Response>> = new Map()
+  private cacheMissRequests: { [key: number]: Promise<Response> } = {}
   
   public cache: Cache
 
