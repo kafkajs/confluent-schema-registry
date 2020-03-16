@@ -26,7 +26,6 @@ const DEFAULT_OPTS = {
   separator: DEFAULT_SEPERATOR,
 }
 
-type RegistryId = number
 
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
