@@ -146,15 +146,16 @@ export default class SchemaRegistry {
     return id
   }
 
-  private getSchemaOriginRequest(registryId: number): Promise<Response> {
+  private getSchemaOriginRequest(registryId: number) {
     // ensure that cache-misses result in a single origin request
-    if (this.cacheMissRequests.has(registryId)) {
-      return this.cacheMissRequests.get(registryId)!
+    if (this.cacheMissRequests[registryId]) {
+      return this.cacheMissRequests[registryId]
     } else {
-      const request = this.api.Schema.find({ id: registryId })
-      .finally(() => { this.cacheMissRequests.delete(registryId) })
+      const request = this.api.Schema.find({ id: registryId }).finally(() => {
+        delete this.cacheMissRequests[registryId]
+      })
 
-      this.cacheMissRequests.set(registryId, request)
+      this.cacheMissRequests[registryId] = request
 
       return request
     }
