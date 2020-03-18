@@ -167,6 +167,22 @@ describe('SchemaRegistry', () => {
       expect(schemaRegistry.cache.getSchema(registryId)).toBeTruthy()
     })
 
+    it('creates a single origin request for a schema cache-miss', async () => {
+      const buffer = Buffer.from(await schemaRegistry.encode(registryId, payload))
+
+      schemaRegistry.cache.clear()
+
+      const spy = jest.spyOn((schemaRegistry as any).api.Schema, 'find')
+      
+      await Promise.all([
+        schemaRegistry.decode(buffer),
+        schemaRegistry.decode(buffer),
+        schemaRegistry.decode(buffer),
+      ])
+
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
     describe('when the cache is populated', () => {
       it('uses the cache data', async () => {
         const buffer = Buffer.from(await schemaRegistry.encode(registryId, payload))

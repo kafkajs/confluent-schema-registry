@@ -1,3 +1,5 @@
+import { Response } from 'mappersmith'
+
 import { encode, MAGIC_BYTE } from './encoder'
 import decode from './decoder'
 import { COMPATIBILITY, DEFAULT_SEPERATOR } from './constants'
@@ -24,8 +26,11 @@ const DEFAULT_OPTS = {
   separator: DEFAULT_SEPERATOR,
 }
 
+
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
+  private cacheMissRequests: { [key: number]: Promise<Response> } = {}
+  
   public cache: Cache
 
   constructor({ auth, clientId, host, retry }: SchemaRegistryAPIClientArgs, options?: SchemaRegistryAPIClientOptions) {
@@ -84,11 +89,12 @@ export default class SchemaRegistry {
 
   public async getSchema(registryId: number): Promise<Schema> {
     const schema = this.cache.getSchema(registryId)
+    
     if (schema) {
       return schema
     }
 
-    const response = await this.api.Schema.find({ id: registryId })
+    const response = await this.getSchemaOriginRequest(registryId)
     const foundSchema: { schema: string } = response.data()
     const rawSchema: Schema = JSON.parse(foundSchema.schema)
 
@@ -138,5 +144,20 @@ export default class SchemaRegistry {
     const { id }: { id: number } = response.data()
 
     return id
+  }
+
+  private getSchemaOriginRequest(registryId: number) {
+    // ensure that cache-misses result in a single origin request
+    if (this.cacheMissRequests[registryId]) {
+      return this.cacheMissRequests[registryId]
+    } else {
+      const request = this.api.Schema.find({ id: registryId }).finally(() => {
+        delete this.cacheMissRequests[registryId]
+      })
+
+      this.cacheMissRequests[registryId] = request
+
+      return request
+    }
   }
 }
