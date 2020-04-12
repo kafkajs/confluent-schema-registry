@@ -15,11 +15,25 @@ npm install @kafkajs/confluent-schema-registry
 
 ## Usage
 
-### Creating the registry client
+### Example
 
 ```js
+const path = require('path')
 const { SchemaRegistry } = require('@kafkajs/confluent-schema-registry')
+const { readAVSCAsync, avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
+
 const registry = new SchemaRegistry({ host: 'http://localhost:8081' })
+
+// Upload a schema to the registry
+const schema = await avdlToAVSCAsync(path.join(__dirname, 'schema.avdl'))
+const { id } = await registry.register(schema)
+
+// Encode using the uploaded schema
+const payload = { full_name: 'John Doe' }
+const encodedPayload = await registry.encode(id, payload)
+
+// Decode the payload
+const decodedPayload = await registry.decode(encodedPayload)
 ```
 
 ### Retry

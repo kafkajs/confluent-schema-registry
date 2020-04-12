@@ -3,19 +3,15 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "a library that makes it easier to interact with the Confluent schema registry",
+    "tagline": "A library that makes it easier to interact with the Confluent schema registry",
     "docs": {
-      "development": {
-        "title": "Development",
-        "sidebar_label": "Development"
-      },
       "introduction": {
         "title": "Introduction",
         "sidebar_label": "Introduction"
       },
       "schemas": {
-        "title": "Schemas",
-        "sidebar_label": "Schemas"
+        "title": "Example Schemas",
+        "sidebar_label": "Example Schemas"
       }
     },
     "links": {
