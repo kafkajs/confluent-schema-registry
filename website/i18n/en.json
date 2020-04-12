@@ -21,6 +21,10 @@
         "title": "Example Schemas",
         "sidebar_label": "Example Schemas"
       },
+      "usage-with-kafkajs": {
+        "title": "Usage with KafkaJS",
+        "sidebar_label": "Usage with KafkaJS"
+      },
       "usage": {
         "title": "Usage",
         "sidebar_label": "Usage"
