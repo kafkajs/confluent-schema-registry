@@ -15,7 +15,7 @@ Schemas can be defined in either `AVSC` or `AVDL` format, and are read using
 
 Once read, the schemas can be registered with the schema registry using
 `registry.register(schema)`, which resolves to an object containing the
-registry id. This registry id is later [used when encoding](#encoding-data).
+schema id. This schema id is later [used when encoding](#encoding-data).
 
 ```js
 const { readAVSCAsync, avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
@@ -76,7 +76,7 @@ await registry.register(schema, { separator: '-' })
 
 ## Encoding data
 
-To encode data, call `registry.encode` with the registry id and the payload to encode.
+To encode data, call `registry.encode` with the schema id and the payload to encode.
 
 ```js
 const payload = { full_name: 'John Doe' }
@@ -85,7 +85,7 @@ await registry.encode(id, payload)
 
 ## Decoding data
 
-The encoded payload contains the registry id of the schema used to decode it,
+The encoded payload contains the schema id of the schema used to decode it,
 so to decode, simply call `registry.decode` with the encoded payload. The
 corresponding schema will be downloaded from the registry if needed in order
 to decode the payload.
