@@ -19,8 +19,7 @@ For more detailed explanations, [see usage](./usage.md).
 
 ```js
 const path = require('path')
-const { SchemaRegistry } = require('@kafkajs/confluent-schema-registry')
-const { readAVSCAsync, avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
+const { SchemaRegistry, readAVSCAsync, avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
 
 const registry = new SchemaRegistry({ host: 'http://localhost:8081' })
 

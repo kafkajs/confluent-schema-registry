@@ -8,6 +8,16 @@ Typical usage consists of [uploading one or more schemas](#uploading-schemas) to
 data](#encoding-data) using the registered schemas, and/or [decoding encoded data](#decoding-data) by getting
 the schemas from the registry.
 
+## Creating the registry client
+
+```js
+const { SchemaRegistry } = require('@kafkajs/confluent-schema-registry')
+
+const registry = new SchemaRegistry({ host: 'http://localhost:8081' })
+```
+
+For more configuration options, [see configuration](#configuration).
+
 ## Uploading schemas
 
 Schemas can be defined in either `AVSC` or `AVDL` format, and are read using
