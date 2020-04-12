@@ -5,6 +5,10 @@
     "previous": "Previous",
     "tagline": "A library that makes it easier to interact with the Confluent schema registry",
     "docs": {
+      "advanced-usage": {
+        "title": "Advanced Usage",
+        "sidebar_label": "Advanced Usage"
+      },
       "development": {
         "title": "Development",
         "sidebar_label": "Development"
