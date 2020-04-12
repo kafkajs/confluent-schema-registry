@@ -59,7 +59,7 @@ const registry = new SchemaRegistry({
 const { readAVSCAsync, avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
 
 // From an avsc file
-const schema = await readAVSCASync('path/to/schema.avsc')
+const schema = await readAVSCAsync('path/to/schema.avsc')
 await registry.register(schema) // { id: 2 }
 
 // From an avdl file
