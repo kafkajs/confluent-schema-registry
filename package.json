@@ -19,7 +19,8 @@
     "test:unit": "jest",
     "test": "ts-node ./dockest.ts",
     "test:debug": "ts-node ./dockest.ts debug",
-    "lint": "eslint ./src/**/*.ts"
+    "lint": "eslint ./src/**/*.ts",
+    "format": "yarn lint --fix"
   },
   "dependencies": {
     "avsc": ">= 5.4.13 < 6",
