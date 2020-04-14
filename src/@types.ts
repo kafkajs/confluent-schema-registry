@@ -9,7 +9,7 @@ export interface Schema {
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
-    interface Matchers<R> {
+    interface Matchers<R, T = {}> {
       toMatchConfluentAvroEncodedPayload(args: { registryId: number; payload: Buffer }): R
     }
   }
