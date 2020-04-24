@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Usage · Confluent schema registry</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Typical usage consists of [uploading one or more schemas](#uploading-schemas) to the registry, [encoding"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Usage · Confluent schema registry"/><meta property="og:type" content="website"/><meta property="og:url" content="https://kafkajs.github.io/confluent-schema-registry/"/><meta property="og:description" content="Typical usage consists of [uploading one or more schemas](#uploading-schemas) to the registry, [encoding"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/confluent-schema-registry/img/kafkajs-logoV2.svg"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/confluent-schema-registry/js/scrollSpy.js"></script><link rel="stylesheet" href="/confluent-schema-registry/css/main.css"/><script src="/confluent-schema-registry/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/confluent-schema-registry/"><img class="logo" src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry"/><h2 class="headerTitleWithLogo">Confluent schema registry</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/confluent-schema-registry/docs/introduction" target="_self">Docs</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Getting started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/introduction">Introduction</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/confluent-schema-registry/docs/usage">Usage</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/advanced-usage">Advanced Usage</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/usage-with-kafkajs">Usage with KafkaJS</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/development">Development</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/schemas">Example Schemas</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Usage</h1></header><article><div><span><p>Typical usage consists of <a href="#uploading-schemas">uploading one or more schemas</a> to the registry, <a href="#encoding-data">encoding
+data</a> using the registered schemas, and/or <a href="#decoding-data">decoding encoded data</a> by getting
+the schemas from the registry.</p>
+<h2><a class="anchor" aria-hidden="true" id="creating-the-registry-client"></a><a href="#creating-the-registry-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Creating the registry client</h2>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { SchemaRegistry } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+
+<span class="hljs-keyword">const</span> registry = <span class="hljs-keyword">new</span> SchemaRegistry({ <span class="hljs-attr">host</span>: <span class="hljs-string">'http://localhost:8081'</span> })
+</code></pre>
+<p>For more configuration options, <a href="#configuration">see configuration</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="uploading-schemas"></a><a href="#uploading-schemas" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Uploading schemas</h2>
+<p>Schemas can be defined in either <code>AVSC</code> or <code>AVDL</code> format, and are read using
+<code>readAVSCAsync</code> and <code>avdlToAVSCAsync</code> respectively.</p>
+<p>Once read, the schemas can be registered with the schema registry using
+<code>registry.register(schema)</code>, which resolves to an object containing the
+schema id. This schema id is later <a href="#encoding-data">used when encoding</a>.</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { readAVSCAsync, avdlToAVSCAsync } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+
+<span class="hljs-comment">// From an avsc file</span>
+<span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> readAVSCAsync(<span class="hljs-string">'path/to/schema.avsc'</span>)
+<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register(schema) <span class="hljs-comment">// { id: 2 }</span>
+
+<span class="hljs-comment">// From an avdl file</span>
+<span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> avdlToAVSCAsync(<span class="hljs-string">'path/to/protocol.avdl'</span>)
+<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register(schema) <span class="hljs-comment">// { id: 3 }</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="compatibility"></a><a href="#compatibility" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Compatibility</h3>
+<p>The <a href="https://docs.confluent.io/current/schema-registry/avro.html#compatibility-types">compatibility</a> of the schema will be whatever the global default is (typically <code>BACKWARD</code>).
+It's possible to override this for the specific subject by setting it like so:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> {
+  <span class="hljs-attr">COMPATIBILITY</span>: { NONE },
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+<span class="hljs-keyword">await</span> registry.register(schema, { <span class="hljs-attr">compatibility</span>: NONE })
+</code></pre>
+<p><strong>NOTE:</strong>
+If the subject already has an overridden compatibility setting and it's different,
+the client will throw and error (<code>ConfluentSchemaRegistryCompatibilityError</code>)</p>
+<h3><a class="anchor" aria-hidden="true" id="overriding-subject"></a><a href="#overriding-subject" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overriding subject</h3>
+<p>Each schema is registered under a <a href="https://docs.confluent.io/current/schema-registry/serializer-formatter.html#sr-avro-subject-name-strategy">subject</a>.
+By default, this subject is generated by concatenating the schema namespace and the schema name
+with a separator. For example, the following schema would get the subject <code>com.example.Simple</code>:</p>
+<pre><code class="hljs css language-avdl">@namespace(<span class="hljs-string">"com.example"</span>)
+protocol SimpleProto {
+  <span class="hljs-built_in">record</span> Simple {
+    <span class="hljs-built_in">string</span> foo;
+  }
+}
+</code></pre>
+<p><code>registry.register</code> accepts a <code>subject</code> option to override the subject entirely:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">await</span> registry.register(schema, { <span class="hljs-attr">subject</span>: <span class="hljs-string">'my-fixed-subject'</span> })
+</code></pre>
+<p>If you just want to change the separator used when automatically creating the subject, use
+the <code>separator</code> option:</p>
+<pre><code class="hljs css language-js"><span class="hljs-comment">// This would result in "com.example-Simple"</span>
+<span class="hljs-keyword">await</span> registry.register(schema, { <span class="hljs-attr">separator</span>: <span class="hljs-string">'-'</span> })
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="encoding-data"></a><a href="#encoding-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Encoding data</h2>
+<p>To encode data, call <code>registry.encode</code> with the schema id and the payload to encode.</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> payload = { <span class="hljs-attr">full_name</span>: <span class="hljs-string">'John Doe'</span> }
+<span class="hljs-keyword">await</span> registry.encode(id, payload)
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="decoding-data"></a><a href="#decoding-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Decoding data</h2>
+<p>The encoded payload contains the schema id of the schema used to decode it,
+so to decode, simply call <code>registry.decode</code> with the encoded payload. The
+corresponding schema will be downloaded from the registry if needed in order
+to decode the payload.</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> payload = <span class="hljs-keyword">await</span> registry.decode(buffer)
+<span class="hljs-comment">// { full_name: 'John Doe' }</span>
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="configuration"></a><a href="#configuration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuration</h2>
+<h3><a class="anchor" aria-hidden="true" id="retry"></a><a href="#retry" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retry</h3>
+<p>By default, all <code>GET</code> requests will retry three times in case of failure. If you want to tweak this config you can do:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> registry = <span class="hljs-keyword">new</span> SchemaRegistry({
+  <span class="hljs-attr">host</span>: <span class="hljs-string">'http://localhost:8081'</span>,
+  <span class="hljs-attr">retry</span>: {
+    <span class="hljs-attr">maxRetryTimeInSecs</span>: <span class="hljs-number">5</span>,
+    <span class="hljs-attr">initialRetryTimeInSecs</span>: <span class="hljs-number">0.1</span>,
+    <span class="hljs-attr">factor</span>: <span class="hljs-number">0.2</span>, <span class="hljs-comment">// randomization factor</span>
+    multiplier: <span class="hljs-number">2</span>, <span class="hljs-comment">// exponential factor</span>
+    retries: <span class="hljs-number">3</span>, <span class="hljs-comment">// max retries</span>
+  },
+})
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="basic-auth"></a><a href="#basic-auth" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Basic auth</h3>
+<p>It's also possible to configure basic auth:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> registry = <span class="hljs-keyword">new</span> SchemaRegistry({
+  <span class="hljs-attr">host</span>: <span class="hljs-string">'http://localhost:8081'</span>,
+  <span class="hljs-attr">auth</span>: {
+    <span class="hljs-attr">username</span>: <span class="hljs-string">'***'</span>,
+    <span class="hljs-attr">password</span>: <span class="hljs-string">'***'</span>,
+  },
+})
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/confluent-schema-registry/docs/introduction"><span class="arrow-prev">← </span><span>Introduction</span></a><a class="docs-next button" href="/confluent-schema-registry/docs/advanced-usage"><span>Advanced Usage</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#creating-the-registry-client">Creating the registry client</a></li><li><a href="#uploading-schemas">Uploading schemas</a><ul class="toc-headings"><li><a href="#compatibility">Compatibility</a></li><li><a href="#overriding-subject">Overriding subject</a></li></ul></li><li><a href="#encoding-data">Encoding data</a></li><li><a href="#decoding-data">Decoding data</a></li><li><a href="#configuration">Configuration</a><ul class="toc-headings"><li><a href="#retry">Retry</a></li><li><a href="#basic-auth">Basic auth</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/confluent-schema-registry/" class="nav-home"><img src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry" width="66" height="58"/></a><div><a href="https://github.com/kafkajs/confluent-schema-registry">GitHub</a><a class="github-button" href="https://github.com/kafkajs/confluent-schema-registry" data-icon="octicon-star" data-count-href="/kafkajs/confluent-schema-registry" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div><div style="text-align:right"><a href="https://github.com/kafkajs/confluent-schema-registry/blob/master/LICENSE"><img alt="licence" src="https://img.shields.io/github/license/kafkajs/confluent-schema-registry?style=flat"/></a></div></section><section class="copyright">Copyright © 2020 Kafkajs</section></footer></div></body></html>

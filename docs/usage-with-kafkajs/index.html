@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Usage with KafkaJS · Confluent schema registry</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Although Confluent Schema Registry can be used with any Kafka client, or outside"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Usage with KafkaJS · Confluent schema registry"/><meta property="og:type" content="website"/><meta property="og:url" content="https://kafkajs.github.io/confluent-schema-registry/"/><meta property="og:description" content="Although Confluent Schema Registry can be used with any Kafka client, or outside"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/confluent-schema-registry/img/kafkajs-logoV2.svg"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/confluent-schema-registry/js/scrollSpy.js"></script><link rel="stylesheet" href="/confluent-schema-registry/css/main.css"/><script src="/confluent-schema-registry/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/confluent-schema-registry/"><img class="logo" src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry"/><h2 class="headerTitleWithLogo">Confluent schema registry</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/confluent-schema-registry/docs/introduction" target="_self">Docs</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Getting started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/introduction">Introduction</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/usage">Usage</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/advanced-usage">Advanced Usage</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/confluent-schema-registry/docs/usage-with-kafkajs">Usage with KafkaJS</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/development">Development</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/schemas">Example Schemas</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Usage with KafkaJS</h1></header><article><div><span><p>Although Confluent Schema Registry can be used with any Kafka client, or outside
+of Kafka entirely, it is commonly used together with <a href="https://kafka.js.org">KafkaJS</a>.</p>
+<p>The following is an example of an application that consumes from a topic of
+AVRO encoded messages and produces to another topic after encoding the messages
+with a different schema.</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>)
+<span class="hljs-keyword">const</span> { Kafka } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'kafkajs'</span>)
+<span class="hljs-keyword">const</span> { avdlToAVSCAsync } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+
+<span class="hljs-keyword">const</span> registry = <span class="hljs-keyword">new</span> SchemaRegistry({ <span class="hljs-attr">host</span>: <span class="hljs-string">'http://localhost:8081'</span> })
+<span class="hljs-keyword">const</span> kafka = <span class="hljs-keyword">new</span> Kafka({
+  <span class="hljs-attr">brokers</span>: [<span class="hljs-string">'localhost:9092'</span>],
+  <span class="hljs-attr">clientId</span>: <span class="hljs-string">'example-consumer'</span>,
+})
+<span class="hljs-keyword">const</span> consumer = kafka.consumer({ <span class="hljs-attr">groupId</span>: <span class="hljs-string">'test-group'</span> })
+<span class="hljs-keyword">const</span> producer = kafka.producer()
+
+<span class="hljs-keyword">const</span> incomingTopic = <span class="hljs-string">'incoming'</span>
+<span class="hljs-keyword">const</span> outgoingTopic = <span class="hljs-string">'outgoing'</span>
+
+<span class="hljs-keyword">const</span> run = <span class="hljs-keyword">async</span> () =&gt; {
+  <span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> avdlToAVSCAsync(path.join(__dirname, <span class="hljs-string">'schema.avdl'</span>))
+  <span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register(schema)
+
+  <span class="hljs-keyword">await</span> consumer.connect()
+  <span class="hljs-keyword">await</span> producer.connect()
+
+  <span class="hljs-keyword">await</span> consumer.subscribe({ <span class="hljs-attr">topic</span>: incomingTopic })
+
+  <span class="hljs-keyword">await</span> consumer.run({
+    <span class="hljs-attr">eachMessage</span>: <span class="hljs-keyword">async</span> ({ topic, partition, message }) =&gt; {
+      <span class="hljs-keyword">const</span> decodedMessage = {
+        ...message,
+        <span class="hljs-attr">value</span>: <span class="hljs-keyword">await</span> registry.decode(message.value)
+      }
+
+      <span class="hljs-keyword">const</span> outgoingMessage = {
+        <span class="hljs-attr">key</span>: message.key,
+        <span class="hljs-attr">value</span>: <span class="hljs-keyword">await</span> registry.encode(id, decodedMessage.value)
+      }
+
+      <span class="hljs-keyword">await</span> producer.send({
+        <span class="hljs-attr">topic</span>: outgoingTopic,
+        <span class="hljs-attr">messages</span>: [ outgoingMessage ]
+      })
+    },
+  })
+}
+
+run().catch(<span class="hljs-keyword">async</span> e =&gt; {
+  <span class="hljs-built_in">console</span>.error(e)
+  consumer &amp;&amp; <span class="hljs-keyword">await</span> consumer.disconnect()
+  producer &amp;&amp; <span class="hljs-keyword">await</span> producer.disconnect()
+  process.exit(<span class="hljs-number">1</span>)
+})
+</code></pre>
+<p>Note that this example is only intended as a simple visualization of how
+to use Confluent Schema Registry together with KafkaJS. It is not necessarily
+intended to be a production-ready application.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/confluent-schema-registry/docs/advanced-usage"><span class="arrow-prev">← </span><span>Advanced Usage</span></a><a class="docs-next button" href="/confluent-schema-registry/docs/development"><span>Development</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/confluent-schema-registry/" class="nav-home"><img src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry" width="66" height="58"/></a><div><a href="https://github.com/kafkajs/confluent-schema-registry">GitHub</a><a class="github-button" href="https://github.com/kafkajs/confluent-schema-registry" data-icon="octicon-star" data-count-href="/kafkajs/confluent-schema-registry" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div><div style="text-align:right"><a href="https://github.com/kafkajs/confluent-schema-registry/blob/master/LICENSE"><img alt="licence" src="https://img.shields.io/github/license/kafkajs/confluent-schema-registry?style=flat"/></a></div></section><section class="copyright">Copyright © 2020 Kafkajs</section></footer></div></body></html>
