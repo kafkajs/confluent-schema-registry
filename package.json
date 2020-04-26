@@ -15,11 +15,12 @@
     "prepare:release": "./pipeline/prepareRelease.sh",
     "build": "rm -rf ./dist && tsc",
     "build:watch": "rm -rf ./dist && tsc --watch",
-    "test:unit:watch": "yarn test:unit -- --watch",
+    "test:unit:watch": "yarn test:unit --watch",
     "test:unit": "jest",
     "test": "ts-node ./dockest.ts",
     "test:debug": "ts-node ./dockest.ts debug",
-    "lint": "eslint ./src/**/*.ts"
+    "lint": "eslint './src/**/*.ts'",
+    "format": "yarn lint --fix"
   },
   "dependencies": {
     "avsc": ">= 5.4.13 < 6",
@@ -44,7 +45,6 @@
     "fs-extra": "^8.1.0",
     "jest": "^25.2.7",
     "prettier": "^1.18.2",
-    "prettier-eslint": "^9.0.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.6.2",
