@@ -195,4 +195,51 @@ describe('SchemaRegistry', () => {
       })
     })
   })
+
+  describe('#getRegistryIdBySchema', () => {
+    let namespace, Schema, subject
+
+    beforeEach(() => {
+      namespace = `N${uuid().replace(/-/g, '_')}`
+      subject = `${namespace}.RandomTest`
+      Schema = JSON.parse(`
+        {
+          "type": "record",
+          "name": "RandomTest",
+          "namespace": "${namespace}",
+          "fields": [{ "type": "string", "name": "full_name" }]
+        }
+      `)
+    })
+
+    it('returns the registry id if the schema has already been registered under that subject', async () => {
+      const { id } = await schemaRegistry.register(Schema, { subject })
+
+      await expect(schemaRegistry.getRegistryIdBySchema(subject, Schema)).resolves.toEqual(id)
+    })
+
+    it('throws an error if the subject does not exist', async () => {
+      await expect(schemaRegistry.getRegistryIdBySchema(subject, Schema)).rejects.toHaveProperty(
+        'message',
+        'Confluent_Schema_Registry - Subject not found.',
+      )
+    })
+
+    it('throws an error if the schema has not been registered under that subject', async () => {
+      const otherSchema = JSON.parse(`
+      {
+        "type": "record",
+        "name": "RandomTest",
+        "namespace": "${namespace}",
+        "fields": [{ "type": "string", "name": "not_full_name" }]
+      }
+    `)
+      await schemaRegistry.register(otherSchema, { subject })
+
+      await expect(schemaRegistry.getRegistryIdBySchema(subject, Schema)).rejects.toHaveProperty(
+        'message',
+        'Confluent_Schema_Registry - Schema not found',
+      )
+    })
+  })
 })

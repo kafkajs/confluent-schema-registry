@@ -38,6 +38,7 @@ export type SchemaRegistryAPIClient = Client<{
     config: (_: any) => any
     updateConfig: (_: any) => any
     register: (_: any) => any
+    registered: (_: any) => any
     compatible: (_: any) => any
   }
 }>
@@ -77,6 +78,10 @@ export default ({
         version: {
           method: 'get',
           path: '/subjects/{subject}/versions/{version}',
+        },
+        registered: {
+          method: 'post',
+          path: '/subjects/{subject}',
         },
 
         config: {

@@ -10,6 +10,7 @@ import API, {
 } from './api'
 import Cache from './cache'
 import {
+  ConfluentSchemaRegistryError,
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
 } from './errors'
@@ -143,6 +144,24 @@ export default class SchemaRegistry {
     const { id }: { id: number } = response.data()
 
     return id
+  }
+
+  public async getRegistryIdBySchema(subject: string, schema: Schema): Promise<number> {
+    try {
+      const response = await this.api.Subject.registered({
+        subject,
+        body: { schema: JSON.stringify(schema) },
+      })
+      const { id }: { id: number } = response.data()
+
+      return id
+    } catch (error) {
+      if (error.status && error.status === 404) {
+        throw new ConfluentSchemaRegistryError(error)
+      }
+
+      throw error
+    }
   }
 
   public async getLatestSchemaId(subject: string): Promise<number> {
