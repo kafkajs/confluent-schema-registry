@@ -25,6 +25,21 @@ const id = await registry.getRegistryId(subject, version)
 
 > *Note:* Currently there is no way to list versions by subject.
 
+## Get schema id by schema
+
+Returns the schema id if the schema has already been registered for the provided
+subject.
+
+If a matching schema does not exist for the subject, it throws a
+`ConfluentSchemaRegistryError`
+
+```js
+const subject = 'com.example.Simple'
+const schema = await avdlToAVSCAsync('path/to/protocol.avdl')
+
+const id = await registry.getRegistryIdBySchema(subject, schema)
+```
+
 ## Getting schema by schema id
 
 Normally Confluent Schema Registry keeps the schemas internally and don't require
