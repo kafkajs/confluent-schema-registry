@@ -3,7 +3,11 @@ import { Response } from 'mappersmith'
 import { encode, MAGIC_BYTE } from './encoder'
 import decode from './decoder'
 import { COMPATIBILITY, DEFAULT_SEPERATOR } from './constants'
-import API, { SchemaRegistryAPIClientArgs, SchemaRegistryAPIClientOptions, SchemaRegistryAPIClient } from './api'
+import API, {
+  SchemaRegistryAPIClientArgs,
+  SchemaRegistryAPIClientOptions,
+  SchemaRegistryAPIClient,
+} from './api'
 import Cache from './cache'
 import {
   ConfluentSchemaRegistryArgumentError,
@@ -26,14 +30,16 @@ const DEFAULT_OPTS = {
   separator: DEFAULT_SEPERATOR,
 }
 
-
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
   private cacheMissRequests: { [key: number]: Promise<Response> } = {}
-  
+
   public cache: Cache
 
-  constructor({ auth, clientId, host, retry }: SchemaRegistryAPIClientArgs, options?: SchemaRegistryAPIClientOptions) {
+  constructor(
+    { auth, clientId, host, retry }: SchemaRegistryAPIClientArgs,
+    options?: SchemaRegistryAPIClientOptions,
+  ) {
     this.api = API({ auth, clientId, host, retry })
     this.cache = new Cache(options?.forSchemaOptions)
   }
@@ -89,7 +95,7 @@ export default class SchemaRegistry {
 
   public async getSchema(registryId: number): Promise<Schema> {
     const schema = this.cache.getSchema(registryId)
-    
+
     if (schema) {
       return schema
     }

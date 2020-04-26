@@ -173,7 +173,7 @@ describe('SchemaRegistry', () => {
       schemaRegistry.cache.clear()
 
       const spy = jest.spyOn((schemaRegistry as any).api.Schema, 'find')
-      
+
       await Promise.all([
         schemaRegistry.decode(buffer),
         schemaRegistry.decode(buffer),
