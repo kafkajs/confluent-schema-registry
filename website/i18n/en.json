@@ -3,8 +3,12 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "a library that makes it easier to interact with the Confluent schema registry",
+    "tagline": "A library that makes it easier to interact with the Confluent schema registry",
     "docs": {
+      "advanced-usage": {
+        "title": "Advanced Usage",
+        "sidebar_label": "Advanced Usage"
+      },
       "development": {
         "title": "Development",
         "sidebar_label": "Development"
@@ -14,8 +18,16 @@
         "sidebar_label": "Introduction"
       },
       "schemas": {
-        "title": "Schemas",
-        "sidebar_label": "Schemas"
+        "title": "Example Schemas",
+        "sidebar_label": "Example Schemas"
+      },
+      "usage-with-kafkajs": {
+        "title": "Usage with KafkaJS",
+        "sidebar_label": "Usage with KafkaJS"
+      },
+      "usage": {
+        "title": "Usage",
+        "sidebar_label": "Usage"
       }
     },
     "links": {

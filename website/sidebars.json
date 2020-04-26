@@ -1,5 +1,5 @@
 {
   "docs": {
-    "Getting started": ["introduction", "schemas"]
+    "Getting started": ["introduction", "usage", "advanced-usage", "usage-with-kafkajs", "development", "schemas"]
   }
 }
