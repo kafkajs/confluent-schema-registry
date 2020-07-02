@@ -5,11 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2020-07-02
+
+### Added
+
+- Support pre registered schemas by adding method `getRegistryIdBySchema` [#58](https://github.com/kafkajs/confluent-schema-registry/pull/58)
+
 ## [1.0.5] - 2020-03-18
 
 ### Added
 
-Prevent Unnecessary Requests on Cache Misses [#48](https://github.com/kafkajs/confluent-schema-registry/pull/48)
+- Prevent Unnecessary Requests on Cache Misses [#48](https://github.com/kafkajs/confluent-schema-registry/pull/48)
 
 ## [1.0.4] - 2020-03-07
 
