@@ -1,5 +1,5 @@
-import { MAGIC_BYTE } from './src/encoder'
-import decode from './src/decoder'
+import { MAGIC_BYTE } from './src/wireEncoder'
+import decode from './src/wireDecoder'
 
 const toMatchConfluentAvroEncodedPayload = context => (received, { payload: expectedPayload }) => {
   const { printExpected, printReceived, printWithType } = context.utils

@@ -1,16 +1,12 @@
-import avro, { ForSchemaOptions } from 'avsc'
-
-import { Schema } from './@types'
+import { ConfluentSchema } from './@types'
 
 export default class Cache {
   registryIdBySubject: { [key: string]: number }
-  schemasByRegistryId: { [key: string]: Schema }
-  forSchemaOptions?: Partial<ForSchemaOptions>
+  schemasByRegistryId: { [key: string]: ConfluentSchema }
 
-  constructor(forSchemaOptions?: Partial<ForSchemaOptions>) {
+  constructor() {
     this.registryIdBySubject = {}
     this.schemasByRegistryId = {}
-    this.forSchemaOptions = forSchemaOptions
   }
 
   getLatestRegistryId = (subject: string): number | undefined => this.registryIdBySubject[subject]
@@ -21,11 +17,10 @@ export default class Cache {
     return this.registryIdBySubject[subject]
   }
 
-  getSchema = (registryId: number): Schema => this.schemasByRegistryId[registryId]
+  getSchema = (registryId: number): ConfluentSchema => this.schemasByRegistryId[registryId]
 
-  setSchema = (registryId: number, schema: Schema) => {
-    // @ts-ignore TODO: Fix typings for Schema...
-    this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema, this.forSchemaOptions)
+  setSchema = (registryId: number, schema: ConfluentSchema) => {
+    this.schemasByRegistryId[registryId] = schema
 
     return this.schemasByRegistryId[registryId]
   }
