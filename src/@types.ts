@@ -3,10 +3,20 @@ import { Resolver } from 'avsc'
 
 export enum SchemaType {
   AVRO = 'AVRO',
+  UNKNOWN = 'UNKNOWN'
 }
 
+export const schemaTypeFromString = (schemaTypeString: string) => {
+  switch (schemaTypeString) {
+    case "AVRO":
+      return SchemaType.AVRO
+    default:
+      return SchemaType.UNKNOWN
+  }
+}
+
+
 export interface Serdes {
-  type: SchemaType
   serialize(schema: ConfluentSchema, payload: any) : Buffer
   deserialize(schema: ConfluentSchema, buffer: Buffer) : any 
 }

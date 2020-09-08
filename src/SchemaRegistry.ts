@@ -10,7 +10,7 @@ import {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
 } from './errors'
-import { ConfluentSchema, ConfluentSubject, SchemaType, Serdes } from './@types'
+import { ConfluentSchema, ConfluentSubject, Serdes, schemaTypeFromString } from './@types'
 import AvroSerdes from './AvroSerdes'
 
 interface RegisteredSchema {
@@ -95,7 +95,7 @@ export default class SchemaRegistry {
     const response = await this.getSchemaOriginRequest(registryId)
     const foundSchema: { schema: string; schemaType: string } = response.data()
     const rawSchema = foundSchema.schema
-    const confluentSchema: ConfluentSchema = { type: this.serdes.type, schemaString: rawSchema }
+    const confluentSchema: ConfluentSchema = { type: schemaTypeFromString(foundSchema.schemaType), schemaString: rawSchema }
     return this.cache.setSchema(registryId, confluentSchema)
   }
 
