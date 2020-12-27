@@ -40,6 +40,10 @@ describe('SchemaRegistry', () => {
       `)
     })
 
+    it('fetch cluster metadata', async () => {
+      await expect(api.Cluster.metadata({})).resolves.toHaveProperty('id', 'scope')
+    })
+
     it('uploads the new schema', async () => {
       await expect(api.Subject.latestVersion({ subject })).rejects.toHaveProperty(
         'message',
