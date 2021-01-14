@@ -41,14 +41,15 @@ describe('SchemaRegistry', () => {
     })
 
     it('fetch cluster metadata', async () => {
-      await expect(api.Cluster.metadata({})).resolves.toHaveProperty('id', 'scope')
+      const response = await api.Cluster.metadata({})
+      const data = response.data()
+      expect(data).toHaveProperty('id', '')
     })
 
     it('uploads the new schema', async () => {
-      await expect(api.Subject.latestVersion({ subject })).rejects.toHaveProperty(
-        'message',
-        `${DEFAULT_API_CLIENT_ID} - Subject not found.`,
-      )
+      await api.Subject.latestVersion({ subject }).catch(err => {
+        expect(err.message).toMatch(/Confluent_Schema_Registry - Subject .+? not found\./)
+      })
 
       await expect(schemaRegistry.register(Schema)).resolves.toEqual({ id: expect.any(Number) })
     })
@@ -223,10 +224,9 @@ describe('SchemaRegistry', () => {
     })
 
     it('throws an error if the subject does not exist', async () => {
-      await expect(schemaRegistry.getRegistryIdBySchema(subject, Schema)).rejects.toHaveProperty(
-        'message',
-        'Confluent_Schema_Registry - Subject not found.',
-      )
+      await schemaRegistry.getRegistryIdBySchema(subject, Schema).catch(err => {
+        expect(err.message).toMatch(/Confluent_Schema_Registry - Subject .+? not found\./)
+      })
     })
 
     it('throws an error if the schema has not been registered under that subject', async () => {

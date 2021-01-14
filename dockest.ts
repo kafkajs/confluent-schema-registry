@@ -14,7 +14,7 @@ const zooKeeperRunner = new ZooKeeperRunner({
  */
 const schemaRegistryRunner = new SimpleRunner({
   service: 'schemaRegistry',
-  image: 'confluentinc/cp-schema-registry:5.3.0',
+  image: 'confluentinc/cp-schema-registry:6.0.0',
   ports: {
     '8982': '8081',
   },
