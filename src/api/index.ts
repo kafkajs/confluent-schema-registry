@@ -28,6 +28,9 @@ export interface SchemaRegistryAPIClientOptions {
 
 // TODO: Improve typings
 export type SchemaRegistryAPIClient = Client<{
+  Cluster: {
+    metadata: (_: any) => any
+  }
   Schema: {
     find: (_: any) => any
   }
@@ -60,6 +63,12 @@ export default ({
       ...(auth ? [BasicAuthMiddleware(auth)] : []),
     ],
     resources: {
+      Cluster: {
+        metadata: {
+          method: 'get',
+          path: '/v1/metadata/id',
+        },
+      },
       Schema: {
         find: {
           method: 'get',

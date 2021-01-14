@@ -20,6 +20,17 @@ interface RegisteredSchema {
   id: number
 }
 
+interface ClusterMetadata {
+  id: string
+  scope: {
+    path: any[]
+    clusters: {
+      'kafka-cluster': string
+      'schema-registry-cluster': string
+    }
+  }
+}
+
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
@@ -43,6 +54,11 @@ export default class SchemaRegistry {
   ) {
     this.api = API({ auth, clientId, host, retry })
     this.cache = new Cache(options?.forSchemaOptions)
+  }
+
+  public async metadata(): Promise<ClusterMetadata> {
+    const response = await this.api.Cluster.metadata({})
+    return response.data()
   }
 
   public async register(schema: Schema, userOpts?: Opts): Promise<RegisteredSchema> {
