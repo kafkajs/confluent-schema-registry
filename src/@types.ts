@@ -1,29 +1,28 @@
 import { Resolver } from 'avsc'
 
-
 export enum SchemaType {
   AVRO = 'AVRO',
-  UNKNOWN = 'UNKNOWN'
+  UNKNOWN = 'UNKNOWN',
 }
 
 export const schemaTypeFromString = (schemaTypeString: string) => {
   switch (schemaTypeString) {
-    case "AVRO":
+    case 'AVRO':
+    case undefined:
       return SchemaType.AVRO
     default:
       return SchemaType.UNKNOWN
   }
 }
 
-
 export interface Serdes {
-  serialize(schema: ConfluentSchema, payload: any) : Buffer
-  deserialize(schema: ConfluentSchema, buffer: Buffer) : any 
+  serialize(schema: ConfluentSchema, payload: any): Buffer
+  deserialize(schema: ConfluentSchema, buffer: Buffer): any
 }
 
 export interface AvroSchema {
   toBuffer: (payload: object) => Buffer // FIXME:
-  fromBuffer(buffer: Buffer, resolver?: Resolver, noCheck?: boolean): any;
+  fromBuffer(buffer: Buffer, resolver?: Resolver, noCheck?: boolean): any
   isValid: (payload: object, opts: { errorHook: (path: any) => void }) => void // FIXME:
   name: string | undefined
 }

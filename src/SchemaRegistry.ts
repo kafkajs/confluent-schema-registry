@@ -10,8 +10,8 @@ import {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
 } from './errors'
-import { ConfluentSchema, ConfluentSubject, Serdes, schemaTypeFromString } from './@types'
-import AvroSerdes from './AvroSerdes'
+import { ConfluentSchema, ConfluentSubject, schemaTypeFromString } from './@types'
+import { serdesTypeFromSchemaType } from './serdes'
 
 interface RegisteredSchema {
   id: number
@@ -31,17 +31,12 @@ const DEFAULT_OPTS = {
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
   private cacheMissRequests: { [key: number]: Promise<Response> } = {}
-  private serdes: Serdes
 
   public cache: Cache
 
-  constructor(
-    { auth, clientId, host, retry }: SchemaRegistryAPIClientArgs,
-    serdes: Serdes = new AvroSerdes(),
-  ) {
+  constructor({ auth, clientId, host, retry }: SchemaRegistryAPIClientArgs) {
     this.api = API({ auth, clientId, host, retry })
     this.cache = new Cache()
-    this.serdes = serdes
   }
 
   public async register(
@@ -95,7 +90,10 @@ export default class SchemaRegistry {
     const response = await this.getSchemaOriginRequest(registryId)
     const foundSchema: { schema: string; schemaType: string } = response.data()
     const rawSchema = foundSchema.schema
-    const confluentSchema: ConfluentSchema = { type: schemaTypeFromString(foundSchema.schemaType), schemaString: rawSchema }
+    const confluentSchema: ConfluentSchema = {
+      type: schemaTypeFromString(foundSchema.schemaType),
+      schemaString: rawSchema,
+    }
     return this.cache.setSchema(registryId, confluentSchema)
   }
 
@@ -108,7 +106,8 @@ export default class SchemaRegistry {
 
     const schema = await this.getSchema(registryId)
 
-    const serializedPayload = this.serdes.serialize(schema, payload)
+    const serdes = serdesTypeFromSchemaType(schema.type)
+    const serializedPayload = serdes.serialize(schema, payload)
 
     return encode(registryId, serializedPayload)
   }
@@ -128,7 +127,8 @@ export default class SchemaRegistry {
     }
 
     const schema = await this.getSchema(registryId)
-    return this.serdes.deserialize(schema, payload)
+    const serdes = serdesTypeFromSchemaType(schema.type)
+    return serdes.deserialize(schema, payload)
   }
 
   public async getRegistryId(subject: string, version: number | string): Promise<number> {

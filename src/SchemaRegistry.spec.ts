@@ -14,8 +14,11 @@ const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
 const schemaRegistryArgs = { host: REGISTRY_HOST }
 
 const personSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))
-const subject: ConfluentSubject = { name: [personSchema.namespace, personSchema.name].join(".") }
-const schema: ConfluentSchema = { type: SchemaType.AVRO, schemaString: JSON.stringify(personSchema) }
+const subject: ConfluentSubject = { name: [personSchema.namespace, personSchema.name].join('.') }
+const schema: ConfluentSchema = {
+  type: SchemaType.AVRO,
+  schemaString: JSON.stringify(personSchema),
+}
 
 const payload = { full_name: 'John Doe' } // eslint-disable-line @typescript-eslint/camelcase
 
@@ -28,7 +31,12 @@ describe('SchemaRegistry', () => {
   })
 
   describe('#register', () => {
-    let namespace, Schema, subject, api, confluentSubject: ConfluentSubject, confluentSchema: ConfluentSchema
+    let namespace,
+      Schema,
+      subject,
+      api,
+      confluentSubject: ConfluentSubject,
+      confluentSchema: ConfluentSchema
 
     beforeEach(() => {
       api = API(schemaRegistryAPIClientArgs)
@@ -43,7 +51,7 @@ describe('SchemaRegistry', () => {
         }
       `
       confluentSubject = { name: subject }
-      confluentSchema = { type: SchemaType.AVRO, schemaString: Schema}
+      confluentSchema = { type: SchemaType.AVRO, schemaString: Schema }
     })
 
     it('uploads the new schema', async () => {
@@ -52,7 +60,9 @@ describe('SchemaRegistry', () => {
         `${DEFAULT_API_CLIENT_ID} - Subject '${subject}' not found.`,
       )
 
-      await expect(schemaRegistry.register(confluentSchema, confluentSubject)).resolves.toEqual({ id: expect.any(Number) })
+      await expect(schemaRegistry.register(confluentSchema, confluentSubject)).resolves.toEqual({
+        id: expect.any(Number),
+      })
     })
 
     it('automatically cache the id and schema', async () => {
@@ -75,7 +85,9 @@ describe('SchemaRegistry', () => {
     })
 
     it('sets the compatibility according to param', async () => {
-      await schemaRegistry.register(confluentSchema, confluentSubject, { compatibility: COMPATIBILITY.NONE })
+      await schemaRegistry.register(confluentSchema, confluentSubject, {
+        compatibility: COMPATIBILITY.NONE,
+      })
       const response = await api.Subject.config({ subject })
       expect(response.data()).toEqual({ compatibilityLevel: COMPATIBILITY.NONE })
     })
@@ -83,7 +95,9 @@ describe('SchemaRegistry', () => {
     it('throws an error when the configured compatibility is different than defined in the client', async () => {
       await schemaRegistry.register(confluentSchema, confluentSubject)
       await api.Subject.updateConfig({ subject, body: { compatibility: COMPATIBILITY.FULL } })
-      await expect(schemaRegistry.register(confluentSchema, confluentSubject)).rejects.toHaveProperty(
+      await expect(
+        schemaRegistry.register(confluentSchema, confluentSubject),
+      ).rejects.toHaveProperty(
         'message',
         'Compatibility does not match the configuration (BACKWARD != FULL)',
       )
@@ -114,11 +128,17 @@ describe('SchemaRegistry', () => {
         ],
       })
 
-      const confluentSchemaV1: ConfluentSchema = { type: SchemaType.AVRO, schemaString: JSON.stringify(SchemaV1)}
-      const confluentSchemaV2: ConfluentSchema = { type: SchemaType.AVRO, schemaString: JSON.stringify(SchemaV2)}
+      const confluentSchemaV1: ConfluentSchema = {
+        type: SchemaType.AVRO,
+        schemaString: JSON.stringify(SchemaV1),
+      }
+      const confluentSchemaV2: ConfluentSchema = {
+        type: SchemaType.AVRO,
+        schemaString: JSON.stringify(SchemaV2),
+      }
 
-      const schema1 = await schemaRegistry.register(confluentSchemaV1, { name: "test1"})
-      const schema2 = await schemaRegistry.register(confluentSchemaV2, { name: "test2"})
+      const schema1 = await schemaRegistry.register(confluentSchemaV1, { name: 'test1' })
+      const schema2 = await schemaRegistry.register(confluentSchemaV2, { name: 'test2' })
       expect(schema2.id).not.toEqual(schema1.id)
 
       const data = await schemaRegistry.encode(schema2.id, payload)
@@ -211,11 +231,15 @@ describe('SchemaRegistry', () => {
     it('returns the registry id if the schema has already been registered under that subject', async () => {
       const { id } = await schemaRegistry.register(confluentSchema, confluentSubject)
 
-      await expect(schemaRegistry.getRegistryIdBySchema(confluentSubject.name, confluentSchema)).resolves.toEqual(id)
+      await expect(
+        schemaRegistry.getRegistryIdBySchema(confluentSubject.name, confluentSchema),
+      ).resolves.toEqual(id)
     })
 
     it('throws an error if the subject does not exist', async () => {
-      await expect(schemaRegistry.getRegistryIdBySchema(confluentSubject.name, confluentSchema)).rejects.toHaveProperty(
+      await expect(
+        schemaRegistry.getRegistryIdBySchema(confluentSubject.name, confluentSchema),
+      ).rejects.toHaveProperty(
         'message',
         `Confluent_Schema_Registry - Subject '${confluentSubject.name}' not found.`,
       )
@@ -230,14 +254,16 @@ describe('SchemaRegistry', () => {
         "fields": [{ "type": "string", "name": "not_full_name" }]
       }
     `
-      const confluentOtherSchema: ConfluentSchema = { type: SchemaType.AVRO, schemaString: otherSchema }
-      
+      const confluentOtherSchema: ConfluentSchema = {
+        type: SchemaType.AVRO,
+        schemaString: otherSchema,
+      }
+
       await schemaRegistry.register(confluentOtherSchema, confluentSubject)
 
-      await expect(schemaRegistry.getRegistryIdBySchema(confluentSubject.name, confluentSchema)).rejects.toHaveProperty(
-        'message',
-        'Confluent_Schema_Registry - Schema not found',
-      )
+      await expect(
+        schemaRegistry.getRegistryIdBySchema(confluentSubject.name, confluentSchema),
+      ).rejects.toHaveProperty('message', 'Confluent_Schema_Registry - Schema not found')
     })
   })
 })

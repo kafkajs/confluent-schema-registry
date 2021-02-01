@@ -24,11 +24,16 @@ const compareWithJavaImplementation = (avdlPath: string, name: string) => async 
   }
 
   const avsc = await avdlToAVSCAsync(absolutePath('./fixtures/avdl', avdlPath))
-  const confluentSchema: ConfluentSchema = { type: SchemaType.AVRO, schemaString: JSON.stringify(avsc)}
+  const confluentSchema: ConfluentSchema = {
+    type: SchemaType.AVRO,
+    schemaString: JSON.stringify(avsc),
+  }
 
   expect(avsc).toEqual(expectedAVSC)
   expect(avro.Type.forSchema(avsc)).toBeTruthy()
-  expect(await registry.register(confluentSchema, {name: `${avsc.namespace}.${avsc.name}`})).toBeTruthy()
+  expect(
+    await registry.register(confluentSchema, { name: `${avsc.namespace}.${avsc.name}` }),
+  ).toBeTruthy()
 }
 
 beforeAll(async () => {

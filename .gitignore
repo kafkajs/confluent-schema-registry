@@ -27,3 +27,5 @@ release
 # website
 #
 build
+*.swp
+*~
