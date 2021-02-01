@@ -2,6 +2,8 @@ import { Resolver } from 'avsc'
 
 export enum SchemaType {
   AVRO = 'AVRO',
+  JSON = 'JSON',
+  PROTOBUF = 'PROTOBUF',
   UNKNOWN = 'UNKNOWN',
 }
 

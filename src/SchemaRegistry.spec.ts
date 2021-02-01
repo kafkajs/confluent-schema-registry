@@ -38,90 +38,118 @@ describe('SchemaRegistry', () => {
       confluentSubject: ConfluentSubject,
       confluentSchema: ConfluentSchema
 
-    beforeEach(() => {
-      api = API(schemaRegistryAPIClientArgs)
-      namespace = `N${uuid().replace(/-/g, '_')}`
-      subject = `${namespace}.RandomTest`
-      Schema = `
+    const schemaStringsByType = {
+      [SchemaType.AVRO.toString()]: namespace => `
         {
           "type": "record",
           "name": "RandomTest",
           "namespace": "${namespace}",
           "fields": [{ "type": "string", "name": "full_name" }]
         }
-      `
-      confluentSubject = { name: subject }
-      confluentSchema = { type: SchemaType.AVRO, schemaString: Schema }
-    })
+      `,
+      [SchemaType.JSON.toString()]: namespace => `
+        {
+          "definitions" : {
+            "record:${namespace}.RandomTest" : {
+              "type" : "object",
+              "required" : [ "full_name" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "full_name" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "$ref" : "#/definitions/record:${namespace}.RandomTest"
+        }
+      `,
+    }
+    const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
 
-    it('uploads the new schema', async () => {
-      await expect(api.Subject.latestVersion({ subject })).rejects.toHaveProperty(
-        'message',
-        `${DEFAULT_API_CLIENT_ID} - Subject '${subject}' not found.`,
-      )
+    types.forEach(type =>
+      describe(`${type.toString()}`, () => {
+        beforeEach(() => {
+          api = API(schemaRegistryAPIClientArgs)
+          namespace = `N${uuid().replace(/-/g, '_')}`
+          subject = `${namespace}.RandomTest`
+          Schema = schemaStringsByType[type.toString()](namespace)
+          confluentSubject = { name: subject }
+          confluentSchema = { type, schemaString: Schema }
+        })
 
-      await expect(schemaRegistry.register(confluentSchema, confluentSubject)).resolves.toEqual({
-        id: expect.any(Number),
-      })
-    })
+        it('uploads the new schema', async () => {
+          await expect(api.Subject.latestVersion({ subject })).rejects.toHaveProperty(
+            'message',
+            `${DEFAULT_API_CLIENT_ID} - Subject '${subject}' not found.`,
+          )
 
-    it('automatically cache the id and schema', async () => {
-      const { id } = await schemaRegistry.register(confluentSchema, confluentSubject)
+          await expect(schemaRegistry.register(confluentSchema, confluentSubject)).resolves.toEqual(
+            {
+              id: expect.any(Number),
+            },
+          )
+        })
 
-      expect(schemaRegistry.cache.getSchema(id)).toBeTruthy()
-    })
+        it('automatically cache the id and schema', async () => {
+          const { id } = await schemaRegistry.register(confluentSchema, confluentSubject)
 
-    it('fetch and validate the latest schema id after registering a new schema', async () => {
-      const { id } = await schemaRegistry.register(confluentSchema, confluentSubject)
-      const latestSchemaId = await schemaRegistry.getLatestSchemaId(subject)
+          expect(schemaRegistry.cache.getSchema(id)).toBeTruthy()
+        })
 
-      expect(id).toBe(latestSchemaId)
-    })
+        it('fetch and validate the latest schema id after registering a new schema', async () => {
+          const { id } = await schemaRegistry.register(confluentSchema, confluentSubject)
+          const latestSchemaId = await schemaRegistry.getLatestSchemaId(subject)
 
-    it('set the default compatibility to BACKWARD', async () => {
-      await schemaRegistry.register(confluentSchema, confluentSubject)
-      const response = await api.Subject.config({ subject })
-      expect(response.data()).toEqual({ compatibilityLevel: COMPATIBILITY.BACKWARD })
-    })
+          expect(id).toBe(latestSchemaId)
+        })
 
-    it('sets the compatibility according to param', async () => {
-      await schemaRegistry.register(confluentSchema, confluentSubject, {
-        compatibility: COMPATIBILITY.NONE,
-      })
-      const response = await api.Subject.config({ subject })
-      expect(response.data()).toEqual({ compatibilityLevel: COMPATIBILITY.NONE })
-    })
+        it('set the default compatibility to BACKWARD', async () => {
+          await schemaRegistry.register(confluentSchema, confluentSubject)
+          const response = await api.Subject.config({ subject })
+          expect(response.data()).toEqual({ compatibilityLevel: COMPATIBILITY.BACKWARD })
+        })
 
-    it('throws an error when the configured compatibility is different than defined in the client', async () => {
-      await schemaRegistry.register(confluentSchema, confluentSubject)
-      await api.Subject.updateConfig({ subject, body: { compatibility: COMPATIBILITY.FULL } })
-      await expect(
-        schemaRegistry.register(confluentSchema, confluentSubject),
-      ).rejects.toHaveProperty(
-        'message',
-        'Compatibility does not match the configuration (BACKWARD != FULL)',
-      )
-    })
+        it('sets the compatibility according to param', async () => {
+          await schemaRegistry.register(confluentSchema, confluentSubject, {
+            compatibility: COMPATIBILITY.NONE,
+          })
+          const response = await api.Subject.config({ subject })
+          expect(response.data()).toEqual({ compatibilityLevel: COMPATIBILITY.NONE })
+        })
 
-    it('throws an error when the given schema string is invalid', async () => {
-      const invalidSchema = `
+        it('throws an error when the configured compatibility is different than defined in the client', async () => {
+          await schemaRegistry.register(confluentSchema, confluentSubject)
+          await api.Subject.updateConfig({ subject, body: { compatibility: COMPATIBILITY.FULL } })
+          await expect(
+            schemaRegistry.register(confluentSchema, confluentSubject),
+          ).rejects.toHaveProperty(
+            'message',
+            'Compatibility does not match the configuration (BACKWARD != FULL)',
+          )
+        })
+
+        it('throws an error when the given schema string is invalid', async () => {
+          const invalidSchema = `
         {
           "type": "record",
           "name": "RandomTest",
           "namespace": "${namespace}",
         }
       `
-      const invalidConfluentSchema: ConfluentSchema = {
-        type: SchemaType.AVRO,
-        schemaString: invalidSchema,
-      }
-      await expect(
-        schemaRegistry.register(invalidConfluentSchema, confluentSubject),
-      ).rejects.toHaveProperty(
-        'message',
-        'Confluent_Schema_Registry - Either the input schema or one its references is invalid',
-      )
-    })
+          const invalidConfluentSchema: ConfluentSchema = {
+            type,
+            schemaString: invalidSchema,
+          }
+          await expect(
+            schemaRegistry.register(invalidConfluentSchema, confluentSubject),
+          ).rejects.toHaveProperty(
+            'message',
+            'Confluent_Schema_Registry - Either the input schema or one its references is invalid',
+          )
+        })
+      }),
+    )
   })
 
   describe('#encode', () => {
