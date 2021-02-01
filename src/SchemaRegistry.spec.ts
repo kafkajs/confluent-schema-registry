@@ -102,6 +102,26 @@ describe('SchemaRegistry', () => {
         'Compatibility does not match the configuration (BACKWARD != FULL)',
       )
     })
+
+    it('throws an error when the given schema string is invalid', async () => {
+      const invalidSchema = `
+        {
+          "type": "record",
+          "name": "RandomTest",
+          "namespace": "${namespace}",
+        }
+      `
+      const invalidConfluentSchema: ConfluentSchema = {
+        type: SchemaType.AVRO,
+        schemaString: invalidSchema,
+      }
+      await expect(
+        schemaRegistry.register(invalidConfluentSchema, confluentSubject),
+      ).rejects.toHaveProperty(
+        'message',
+        'Confluent_Schema_Registry - Either the input schema or one its references is invalid',
+      )
+    })
   })
 
   describe('#encode', () => {
