@@ -64,6 +64,11 @@ describe('SchemaRegistry', () => {
           "$ref" : "#/definitions/record:${namespace}.RandomTest"
         }
       `,
+      [SchemaType.PROTOBUF.toString()]: namespace => `
+        message RandomTest {
+          required string full_name = 1;
+        }
+      `,
     }
     const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
 
