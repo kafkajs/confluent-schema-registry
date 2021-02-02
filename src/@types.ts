@@ -17,8 +17,8 @@ export const schemaTypeFromString = (schemaTypeString: string) => {
 
 
 export interface Serdes {
-  serialize(schema: ConfluentSchema, payload: any) : Buffer
-  deserialize(schema: ConfluentSchema, buffer: Buffer) : any 
+  serialize(schema: ConfluentSchema, payload: any, opts: {}) : Buffer
+  deserialize(schema: ConfluentSchema, buffer: Buffer, opts: {}) : any 
 }
 
 export interface AvroSchema {
