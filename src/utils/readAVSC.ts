@@ -19,7 +19,7 @@ function isValidSchema(rawSchema: any): rawSchema is RawSchema {
 function validatedSchema(path: string, rawSchema: any): RawSchema {
   if (!isValidSchema(rawSchema)) {
     throw new ConfluentSchemaRegistryInvalidSchemaError(
-      `${path} is not recognized as a valid AVSC file (expecting top level name, type and fields attributes)`,
+      `${path} is not recognized as a valid AVSC file (expecting valid top-level name, type and fields attributes)`,
     )
   }
   return rawSchema
