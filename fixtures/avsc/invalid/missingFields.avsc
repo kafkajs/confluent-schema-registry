@@ -1,0 +1,5 @@
+{
+  "type": "record",
+  "name": "MissingFields",
+  "namespace": "com.org.domain.fixtures"
+}
