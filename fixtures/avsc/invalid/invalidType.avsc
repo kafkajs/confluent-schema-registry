@@ -1,7 +1,7 @@
 {
   "type": "invalid",
   "name": "InvalidType",
-  "namespace": "com.org.domain.fixtures"
+  "namespace": "com.org.domain.fixtures",
   "fields": [
     {
       "type": "string",

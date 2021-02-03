@@ -32,9 +32,9 @@ describe('SchemaRegistry', () => {
       namespace = `N${uuid().replace(/-/g, '_')}`
       subject = `${namespace}.RandomTest`
       Schema = {
+        namespace,
         type: 'record',
         name: 'RandomTest',
-        namespace: '${namespace}',
         fields: [{ type: 'string', name: 'full_name' }],
       }
     })
@@ -81,10 +81,18 @@ describe('SchemaRegistry', () => {
       )
     })
 
-    it('accepts schema without a namespace', async () => {
+    it('throws an error when schema does not have a namespace', async () => {
       delete Schema.namespace
-      const nonNamespaced = readAVSC('../fixtures/avsc/non_namespaced.avsc')
-      await expect(schemaRegistry.register(nonNamespaced)).resolves.toEqual({
+      await expect(schemaRegistry.register(Schema)).rejects.toHaveProperty(
+        'message',
+        'Invalid namespace: undefined',
+      )
+    })
+
+    it('accepts schema without a namespace when subject is specified', async () => {
+      delete Schema.namespace
+      const nonNamespaced = readAVSC(path.join(__dirname, '../fixtures/avsc/non_namespaced.avsc'))
+      await expect(schemaRegistry.register(nonNamespaced, { subject })).resolves.toEqual({
         id: expect.any(Number),
       })
     })

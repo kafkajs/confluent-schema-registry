@@ -4,9 +4,9 @@ import { readAVSC, readAVSCAsync } from './readAVSC'
 import { ConfluentSchemaRegistryInvalidSchemaError } from '../errors'
 
 describe('readAVSC', () => {
-  it('throws an exception for invalid schema definitions', () => {
-    const invalidSchemaFiles = ['invalidType', 'missingFields', 'missingName', 'missingType']
-    invalidSchemaFiles.forEach(schemaName => {
+  const invalidSchemaFiles = ['invalidType', 'missingFields', 'missingName', 'missingType']
+  invalidSchemaFiles.forEach(schemaName => {
+    it(`throws an exception for invalid schema definitions - ${schemaName}`, () => {
       expect(() =>
         readAVSC(path.join(__dirname, `../../fixtures/avsc/invalid/${schemaName}.avsc`)),
       ).toThrow(ConfluentSchemaRegistryInvalidSchemaError)
