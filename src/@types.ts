@@ -6,6 +6,14 @@ export interface Schema {
   namespace: string
 }
 
+export interface SchemaReference {
+  name: string
+  subject: string
+  version: number | string
+}
+
+export type SchemaRef = Omit<SchemaReference, 'name'>
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
