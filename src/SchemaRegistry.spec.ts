@@ -7,6 +7,7 @@ import API from './api'
 import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2 from '../fixtures/encodedAnotherPersonV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
+import { RawSchema } from './@types'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
@@ -24,20 +25,18 @@ describe('SchemaRegistry', () => {
   })
 
   describe('#register', () => {
-    let namespace, Schema, subject, api
+    let namespace, Schema: RawSchema, subject, api
 
     beforeEach(() => {
       api = API(schemaRegistryAPIClientArgs)
       namespace = `N${uuid().replace(/-/g, '_')}`
       subject = `${namespace}.RandomTest`
-      Schema = JSON.parse(`
-        {
-          "type": "record",
-          "name": "RandomTest",
-          "namespace": "${namespace}",
-          "fields": [{ "type": "string", "name": "full_name" }]
-        }
-      `)
+      Schema = {
+        namespace,
+        type: 'record',
+        name: 'RandomTest',
+        fields: [{ type: 'string', name: 'full_name' }],
+      }
     })
 
     it('uploads the new schema', async () => {
@@ -88,6 +87,14 @@ describe('SchemaRegistry', () => {
         'message',
         'Invalid namespace: undefined',
       )
+    })
+
+    it('accepts schema without a namespace when subject is specified', async () => {
+      delete Schema.namespace
+      const nonNamespaced = readAVSC(path.join(__dirname, '../fixtures/avsc/non_namespaced.avsc'))
+      await expect(schemaRegistry.register(nonNamespaced, { subject })).resolves.toEqual({
+        id: expect.any(Number),
+      })
     })
 
     it('throws an error when the configured compatibility is different than defined in the client', async () => {

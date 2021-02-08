@@ -1,0 +1,11 @@
+{
+  "type": "invalid",
+  "name": "InvalidType",
+  "namespace": "com.org.domain.fixtures",
+  "fields": [
+    {
+      "type": "string",
+      "name": "full_name"
+    }
+  ]
+}
