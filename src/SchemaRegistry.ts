@@ -1,4 +1,6 @@
+/* eslint-disable prettier/prettier */
 import { Response } from 'mappersmith'
+import { types } from 'avsc'
 
 import { encode, MAGIC_BYTE } from './encoder'
 import decode from './decoder'
@@ -14,7 +16,7 @@ import {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
 } from './errors'
-import { Schema, RawSchema } from './@types'
+import { RawSchema, Schema, SchemaReference } from './@types'
 
 interface RegisteredSchema {
   id: number
@@ -102,10 +104,21 @@ export default class SchemaRegistry {
     }
 
     const response = await this.getSchemaOriginRequest(registryId)
-    const foundSchema: { schema: string } = response.data()
+    const foundSchema: { schema: string; references?: Array<SchemaReference> } = response.data()
     const rawSchema: RawSchema = JSON.parse(foundSchema.schema)
+    let logicalTypes: Record<string, new () => types.LogicalType> | undefined
+    if (foundSchema.references) {
+      logicalTypes = Object.fromEntries(
+        await Promise.all(
+          foundSchema.references.map(async ({ name, subject, version }) => {
+            const schemaType = await this.getSchema(await this.getRegistryId(subject, version))
 
-    return this.cache.setSchema(registryId, rawSchema)
+            return [ name, schemaType ];
+          }),
+        ),
+      )
+    }
+    return this.cache.setSchema(registryId, rawSchema, logicalTypes)
   }
 
   public async encode(registryId: number, jsonPayload: any): Promise<Buffer> {
@@ -140,8 +153,13 @@ export default class SchemaRegistry {
   }
 
   public async getRegistryId(subject: string, version: number | string): Promise<number> {
+    const cached = this.cache.getRegistryIdBySchemaRef({subject, version});
+    if (cached) {
+        return cached;
+    }
     const response = await this.api.Subject.version({ subject, version })
     const { id }: { id: number } = response.data()
+    this.cache.setRegistryIdBySchemaRef({subject, version}, id);
 
     return id
   }

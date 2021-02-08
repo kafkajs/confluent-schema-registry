@@ -10,6 +10,14 @@ export interface Schema extends RawSchema {
   isValid: (payload: object, opts: { errorHook: (path: any) => void }) => void // FIXME:
 }
 
+export interface SchemaReference {
+  name: string
+  subject: string
+  version: number | string
+}
+
+export type SchemaRef = Omit<SchemaReference, 'name'>
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
