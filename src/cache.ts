@@ -45,20 +45,20 @@ export default class Cache {
     this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema, {
       ...this.forSchemaOptions,
       typeHook:
-        typeof this.forSchemaOptions?.typeHook === 'function'
-          ? this.forSchemaOptions?.typeHook
-          : (attr, opts) => {
-              if (typeof attr == 'string') {
-                if (attr in opts.logicalTypes) {
-                  return (opts.logicalTypes[attr] as unknown) as avro.Type
-                }
-                // if we map this as 'namespace.type'.
-                const qualifiedName = `${opts.namespace}.${attr}`
-                if (qualifiedName in opts.logicalTypes) {
-                  return (opts.logicalTypes[qualifiedName] as unknown) as avro.Type
-                }
-              }
-            },
+        this.forSchemaOptions?.typeHook ||
+        function(attr, opts) {
+          if (typeof attr == 'string') {
+            if (attr in opts.logicalTypes) {
+              return (opts.logicalTypes[attr] as unknown) as avro.Type
+            }
+            // if we map this as 'namespace.type'.
+            const qualifiedName = `${opts.namespace}.${attr}`
+            if (qualifiedName in opts.logicalTypes) {
+              return (opts.logicalTypes[qualifiedName] as unknown) as avro.Type
+            }
+          }
+          return (undefined as unknown) as avro.Type
+        },
       logicalTypes: {
         ...this.forSchemaOptions?.logicalTypes,
         ...logicalTypesExtra,
