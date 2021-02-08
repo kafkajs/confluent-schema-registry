@@ -1,6 +1,6 @@
 import avro, { ForSchemaOptions } from 'avsc'
 
-import { Schema, SchemaRef } from './@types'
+import { RawSchema, Schema, SchemaRef } from './@types'
 
 export default class Cache {
   registryIdBySubject: { [key: string]: number }
@@ -38,7 +38,7 @@ export default class Cache {
 
   setSchema = (
     registryId: number,
-    schema: Schema,
+    schema: RawSchema,
     logicalTypesExtra: Record<string, Schema> = {},
   ) => {
     // @ts-ignore TODO: Fix typings for Schema...

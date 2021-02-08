@@ -1,0 +1,10 @@
+{
+  "name": "MissingType",
+  "namespace": "com.org.domain.fixtures",
+  "fields": [
+    {
+      "type": "string",
+      "name": "full_name"
+    }
+  ]
+}

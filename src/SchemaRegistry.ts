@@ -15,7 +15,7 @@ import {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
 } from './errors'
-import { Schema, SchemaReference } from './@types'
+import { RawSchema, Schema, SchemaReference } from './@types'
 
 interface RegisteredSchema {
   id: number
@@ -46,21 +46,21 @@ export default class SchemaRegistry {
     this.cache = new Cache(options?.forSchemaOptions)
   }
 
-  public async register(schema: Schema, userOpts?: Opts): Promise<RegisteredSchema> {
+  public async register(schema: RawSchema, userOpts?: Opts): Promise<RegisteredSchema> {
     const { compatibility, separator } = { ...DEFAULT_OPTS, ...userOpts }
 
     if (!schema.name) {
       throw new ConfluentSchemaRegistryArgumentError(`Invalid name: ${schema.name}`)
     }
 
-    if (!schema.namespace) {
-      throw new ConfluentSchemaRegistryArgumentError(`Invalid namespace: ${schema.namespace}`)
-    }
-
     let subject: string
     if (userOpts && userOpts.subject) {
       subject = userOpts.subject
     } else {
+      if (!schema.namespace) {
+        throw new ConfluentSchemaRegistryArgumentError(`Invalid namespace: ${schema.namespace}`)
+      }
+
       subject = [schema.namespace, schema.name].join(separator)
     }
 
@@ -104,7 +104,7 @@ export default class SchemaRegistry {
 
     const response = await this.getSchemaOriginRequest(registryId)
     const foundSchema: { schema: string; references?: Array<SchemaReference> } = response.data()
-    const rawSchema: Schema = JSON.parse(foundSchema.schema)
+    const rawSchema: RawSchema = JSON.parse(foundSchema.schema)
     let logicalTypes
     if (foundSchema.references) {
       logicalTypes = Object.fromEntries(
