@@ -31,7 +31,8 @@ describe('SchemaRegistry', () => {
   })
 
   const schemaStringsByType = {
-    [SchemaType.AVRO.toString()]: namespace => `
+    [SchemaType.AVRO.toString()]: {
+      random: namespace => `
       {
         "type": "record",
         "name": "RandomTest",
@@ -39,7 +40,31 @@ describe('SchemaRegistry', () => {
         "fields": [{ "type": "string", "name": "full_name" }]
       }
     `,
-    [SchemaType.JSON.toString()]: namespace => `
+      v1: JSON.stringify(
+        Object.assign({}, personSchema, {
+          name: 'AnotherPerson',
+          fields: [{ type: 'string', name: 'full_name' }],
+        }),
+      ),
+      v2: JSON.stringify(
+        Object.assign(
+          {},
+          personSchema,
+          {
+            name: 'AnotherPerson',
+            fields: [{ type: 'string', name: 'full_name' }],
+          },
+          {
+            fields: [
+              { type: 'string', name: 'full_name' },
+              { type: 'string', name: 'city', default: 'Stockholm' },
+            ],
+          },
+        ),
+      ),
+    },
+    /*[SchemaType.JSON.toString()]: {
+      random: namespace => `
       {
         "definitions" : {
           "record:${namespace}.RandomTest" : {
@@ -55,12 +80,15 @@ describe('SchemaRegistry', () => {
         },
         "$ref" : "#/definitions/record:${namespace}.RandomTest"
       }
-    `,
-    [SchemaType.PROTOBUF.toString()]: namespace => `
+    `
+    },*/
+    [SchemaType.PROTOBUF.toString()]: {
+      random: namespace => `
       message RandomTest {
         required string full_name = 1;
       }
     `,
+    },
   }
   const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
 
@@ -78,7 +106,7 @@ describe('SchemaRegistry', () => {
           api = API(schemaRegistryAPIClientArgs)
           namespace = `N${uuid().replace(/-/g, '_')}`
           subject = `${namespace}.RandomTest`
-          Schema = schemaStringsByType[type.toString()](namespace)
+          Schema = schemaStringsByType[type.toString()].random(namespace)
           confluentSubject = { name: subject }
           confluentSchema = { type, schemaString: Schema }
         })
@@ -168,24 +196,13 @@ describe('SchemaRegistry', () => {
         })
 
         it('encodes using a defined registryId', async () => {
-          const SchemaV1 = Object.assign({}, personSchema, {
-            name: 'AnotherPerson',
-            fields: [{ type: 'string', name: 'full_name' }],
-          })
-          const SchemaV2 = Object.assign({}, SchemaV1, {
-            fields: [
-              { type: 'string', name: 'full_name' },
-              { type: 'string', name: 'city', default: 'Stockholm' },
-            ],
-          })
-
           const confluentSchemaV1: ConfluentSchema = {
             type,
-            schemaString: JSON.stringify(SchemaV1),
+            schemaString: schemaStringsByType[type.toString()].v1,
           }
           const confluentSchemaV2: ConfluentSchema = {
             type,
-            schemaString: JSON.stringify(SchemaV2),
+            schemaString: schemaStringsByType[type.toString()].v2,
           }
 
           const schema1 = await schemaRegistry.register(confluentSchemaV1, { name: 'test1' })
