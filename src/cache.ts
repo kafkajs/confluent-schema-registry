@@ -1,4 +1,4 @@
-import avro, { ForSchemaOptions } from 'avsc'
+import avro, { ForSchemaOptions, types } from 'avsc'
 
 import { RawSchema, Schema, SchemaRef } from './@types'
 
@@ -39,7 +39,7 @@ export default class Cache {
   setSchema = (
     registryId: number,
     schema: RawSchema,
-    logicalTypesExtra: Record<string, Schema> = {},
+    logicalTypesExtra: Record<string, new () => types.LogicalType> = {},
   ) => {
     // @ts-ignore TODO: Fix typings for Schema...
     this.schemasByRegistryId[registryId] = avro.Type.forSchema(schema, {
@@ -50,12 +50,12 @@ export default class Cache {
           : (attr, opts) => {
               if (typeof attr == 'string') {
                 if (attr in opts.logicalTypes) {
-                  return opts.logicalTypes[attr]
+                  return (opts.logicalTypes[attr] as unknown) as avro.Type
                 }
                 // if we map this as 'namespace.type'.
                 const qualifiedName = `${opts.namespace}.${attr}`
                 if (qualifiedName in opts.logicalTypes) {
-                  return opts.logicalTypes[qualifiedName]
+                  return (opts.logicalTypes[qualifiedName] as unknown) as avro.Type
                 }
               }
             },

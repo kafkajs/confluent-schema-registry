@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Response } from 'mappersmith'
+import { types } from 'avsc'
 
 import { encode, MAGIC_BYTE } from './encoder'
 import decode from './decoder'
@@ -105,14 +106,15 @@ export default class SchemaRegistry {
     const response = await this.getSchemaOriginRequest(registryId)
     const foundSchema: { schema: string; references?: Array<SchemaReference> } = response.data()
     const rawSchema: RawSchema = JSON.parse(foundSchema.schema)
-    let logicalTypes
+    let logicalTypes: Record<string, new () => types.LogicalType> | undefined
     if (foundSchema.references) {
       logicalTypes = Object.fromEntries(
         await Promise.all(
-          foundSchema.references.map(async ({ name, subject, version }) => [
-            name,
-            await this.getSchema(await this.getRegistryId(subject, version)),
-          ]),
+          foundSchema.references.map(async ({ name, subject, version }) => {
+            const schemaType = await this.getSchema(await this.getRegistryId(subject, version))
+
+            return [ name, schemaType ];
+          }),
         ),
       )
     }
