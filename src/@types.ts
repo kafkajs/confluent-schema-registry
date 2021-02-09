@@ -12,6 +12,8 @@ export const schemaTypeFromString = (schemaTypeString: string) => {
     case 'AVRO':
     case undefined:
       return SchemaType.AVRO
+    case 'PROTOBUF':
+      return SchemaType.PROTOBUF
     default:
       return SchemaType.UNKNOWN
   }
