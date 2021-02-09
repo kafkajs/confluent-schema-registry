@@ -6,7 +6,8 @@ import SchemaRegistry from './SchemaRegistry'
 import { ConfluentSubject, ConfluentSchema, SchemaType } from './@types'
 import API from './api'
 import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
-import encodedAnotherPersonV2 from '../fixtures/encodedAnotherPersonV2'
+import encodedAnotherPersonV2Avro from '../fixtures/avro/encodedAnotherPersonV2'
+import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
 
 const REGISTRY_HOST = 'http://localhost:8982'
@@ -55,8 +56,9 @@ describe('SchemaRegistry', () => {
           ],
         }),
       ),
+      encodedAnotherPersonV2: encodedAnotherPersonV2Avro,
     },
-    [SchemaType.JSON.toString()]: {
+    /*[SchemaType.JSON.toString()]: {
       random: namespace => `
       {
         "definitions" : {
@@ -108,7 +110,7 @@ describe('SchemaRegistry', () => {
         }
       }
       `,
-    },
+    },*/
     [SchemaType.PROTOBUF.toString()]: {
       random: namespace => `
       message RandomTest {
@@ -128,6 +130,7 @@ describe('SchemaRegistry', () => {
         optional string city = 2 [default = "Stockholm"];
       }
       `,
+      encodedAnotherPersonV2: encodedAnotherPersonV2Proto,
     },
   }
   const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
@@ -257,7 +260,7 @@ describe('SchemaRegistry', () => {
 
           expect(data).toMatchConfluentAvroEncodedPayload({
             registryId: schema2.id,
-            payload: Buffer.from(encodedAnotherPersonV2),
+            payload: Buffer.from(schemaStringsByType[type.toString()].encodedAnotherPersonV2),
           })
         })
       })
