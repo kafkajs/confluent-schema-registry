@@ -20,7 +20,7 @@ const schema: ConfluentSchema = {
   schemaString: JSON.stringify(personSchema),
 }
 
-const payload = { full_name: 'John Doe' } // eslint-disable-line @typescript-eslint/camelcase
+const payload = { fullName: 'John Doe' }
 
 describe('SchemaRegistry', () => {
   let schemaRegistry: SchemaRegistry
@@ -37,42 +37,35 @@ describe('SchemaRegistry', () => {
         "type": "record",
         "name": "RandomTest",
         "namespace": "${namespace}",
-        "fields": [{ "type": "string", "name": "full_name" }]
+        "fields": [{ "type": "string", "name": "fullName" }]
       }
     `,
       v1: JSON.stringify(
         Object.assign({}, personSchema, {
           name: 'AnotherPerson',
-          fields: [{ type: 'string', name: 'full_name' }],
+          fields: [{ type: 'string', name: 'fullName' }],
         }),
       ),
       v2: JSON.stringify(
-        Object.assign(
-          {},
-          personSchema,
-          {
-            name: 'AnotherPerson',
-            fields: [{ type: 'string', name: 'full_name' }],
-          },
-          {
-            fields: [
-              { type: 'string', name: 'full_name' },
-              { type: 'string', name: 'city', default: 'Stockholm' },
-            ],
-          },
-        ),
+        Object.assign({}, personSchema, {
+          name: 'AnotherPerson',
+          fields: [
+            { type: 'string', name: 'fullName' },
+            { type: 'string', name: 'city', default: 'Stockholm' },
+          ],
+        }),
       ),
     },
-    /*[SchemaType.JSON.toString()]: {
+    [SchemaType.JSON.toString()]: {
       random: namespace => `
       {
         "definitions" : {
           "record:${namespace}.RandomTest" : {
             "type" : "object",
-            "required" : [ "full_name" ],
+            "required" : [ "fullName" ],
             "additionalProperties" : false,
             "properties" : {
-              "full_name" : {
+              "fullName" : {
                 "type" : "string"
               }
             }
@@ -80,14 +73,61 @@ describe('SchemaRegistry', () => {
         },
         "$ref" : "#/definitions/record:${namespace}.RandomTest"
       }
-    `
-    },*/
+    `,
+      v1: `
+      {
+        "title": "AnotherPerson",
+        "type": "object",
+        "required": [
+          "fullName"
+        ],
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "pattern": "^.*$"
+          }
+        }
+      }
+      `,
+      v2: `
+      {
+        "title": "AnotherPerson",
+        "type": "object",
+        "required": [
+          "fullName"
+        ],
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "pattern": "^.*$"
+          },
+          "city": {
+            "type": "string",
+            "pattern": "^.*$"
+          }
+        }
+      }
+      `,
+    },
     [SchemaType.PROTOBUF.toString()]: {
       random: namespace => `
       message RandomTest {
         required string full_name = 1;
       }
     `,
+      v1: `
+      syntax = "proto2";
+      message AnotherPerson {
+        required string full_name = 1;
+      }
+      `,
+      v2: `
+      syntax = "proto2";
+      message AnotherPerson {
+        required string full_name = 1;
+        optional string city = 2 [default = "Stockholm"];
+      }
+      `,
     },
   }
   const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
@@ -205,8 +245,12 @@ describe('SchemaRegistry', () => {
             schemaString: schemaStringsByType[type.toString()].v2,
           }
 
-          const schema1 = await schemaRegistry.register(confluentSchemaV1, { name: 'test1' })
-          const schema2 = await schemaRegistry.register(confluentSchemaV2, { name: 'test2' })
+          const schema1 = await schemaRegistry.register(confluentSchemaV1, {
+            name: `${type.toString()}_test1`,
+          })
+          const schema2 = await schemaRegistry.register(confluentSchemaV2, {
+            name: `${type.toString()}_test2`,
+          })
           expect(schema2.id).not.toEqual(schema1.id)
 
           const data = await schemaRegistry.encode(schema2.id, payload)

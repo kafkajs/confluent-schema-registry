@@ -1,4 +1,5 @@
 import AvroSerdes from './AvroSerdes'
+import ProtoSerdes from './ProtoSerdes'
 import { SchemaType, Serdes } from './@types'
 
 const serdesTypeFromSchemaTypeMap: Record<string, Serdes> = {}
@@ -11,6 +12,10 @@ export const serdesTypeFromSchemaType = (schemaType: SchemaType): Serdes => {
     switch (schemaType) {
       case SchemaType.AVRO: {
         serdes = new AvroSerdes()
+        break
+      }
+      case SchemaType.PROTOBUF: {
+        serdes = new ProtoSerdes()
         break
       }
       default:
