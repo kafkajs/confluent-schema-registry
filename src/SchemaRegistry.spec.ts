@@ -15,21 +15,11 @@ const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
 const schemaRegistryArgs = { host: REGISTRY_HOST }
 
 const personSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))
-const subject: ConfluentSubject = { name: [personSchema.namespace, personSchema.name].join('.') }
-const schema: ConfluentSchema = {
-  type: SchemaType.AVRO,
-  schemaString: JSON.stringify(personSchema),
-}
 
 const payload = { fullName: 'John Doe' }
 
 describe('SchemaRegistry', () => {
   let schemaRegistry: SchemaRegistry
-
-  beforeEach(async () => {
-    schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
-    await schemaRegistry.register(schema, subject)
-  })
 
   const schemaStringsByType = {
     [SchemaType.AVRO.toString()]: {
@@ -114,19 +104,19 @@ describe('SchemaRegistry', () => {
     [SchemaType.PROTOBUF.toString()]: {
       random: namespace => `
       message RandomTest {
-        required string full_name = 1;
+        required string fullName = 1;
       }
     `,
       v1: `
       syntax = "proto2";
       message AnotherPerson {
-        required string full_name = 1;
+        required string fullName = 1;
       }
       `,
       v2: `
       syntax = "proto2";
       message AnotherPerson {
-        required string full_name = 1;
+        required string fullName = 1;
         optional string city = 2 [default = "Stockholm"];
       }
       `,
@@ -137,6 +127,19 @@ describe('SchemaRegistry', () => {
 
   types.forEach(type =>
     describe(`${type.toString()}`, () => {
+      const subject: ConfluentSubject = {
+        name: [type.toString(), personSchema.namespace, personSchema.name].join('.'),
+      }
+      const schema: ConfluentSchema = {
+        type,
+        schemaString: schemaStringsByType[type.toString()].v1,
+      }
+
+      beforeEach(async () => {
+        schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
+        await schemaRegistry.register(schema, subject)
+      })
+
       describe('#register', () => {
         let namespace,
           Schema,
@@ -206,13 +209,7 @@ describe('SchemaRegistry', () => {
         })
 
         it('throws an error when the given schema string is invalid', async () => {
-          const invalidSchema = `
-        {
-          "type": "record",
-          "name": "RandomTest",
-          "namespace": "${namespace}",
-        }
-      `
+          const invalidSchema = `asdf`
           const invalidConfluentSchema: ConfluentSchema = {
             type,
             schemaString: invalidSchema,
@@ -258,7 +255,7 @@ describe('SchemaRegistry', () => {
 
           const data = await schemaRegistry.encode(schema2.id, payload)
 
-          expect(data).toMatchConfluentAvroEncodedPayload({
+          expect(data).toMatchConfluentEncodedPayload({
             registryId: schema2.id,
             payload: Buffer.from(schemaStringsByType[type.toString()].encodedAnotherPersonV2),
           })
@@ -336,7 +333,7 @@ describe('SchemaRegistry', () => {
           "type": "record",
           "name": "RandomTest",
           "namespace": "${namespace}",
-          "fields": [{ "type": "string", "name": "full_name" }]
+          "fields": [{ "type": "string", "name": "fullName" }]
         }
       `
           confluentSubject = { name: subject }
@@ -366,7 +363,7 @@ describe('SchemaRegistry', () => {
         "type": "record",
         "name": "RandomTest",
         "namespace": "${namespace}",
-        "fields": [{ "type": "string", "name": "not_full_name" }]
+        "fields": [{ "type": "string", "name": "notFullName" }]
       }
     `
           const confluentOtherSchema: ConfluentSchema = {
