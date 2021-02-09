@@ -14,8 +14,6 @@ const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
 const schemaRegistryArgs = { host: REGISTRY_HOST }
 
-const personSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))
-
 const payload = { fullName: 'John Doe' }
 
 describe('SchemaRegistry', () => {
@@ -31,21 +29,31 @@ describe('SchemaRegistry', () => {
         "fields": [{ "type": "string", "name": "fullName" }]
       }
     `,
-      v1: JSON.stringify(
-        Object.assign({}, personSchema, {
-          name: 'AnotherPerson',
-          fields: [{ type: 'string', name: 'fullName' }],
-        }),
-      ),
-      v2: JSON.stringify(
-        Object.assign({}, personSchema, {
-          name: 'AnotherPerson',
-          fields: [
-            { type: 'string', name: 'fullName' },
-            { type: 'string', name: 'city', default: 'Stockholm' },
-          ],
-        }),
-      ),
+      otherRandom: namespace => `
+      {
+        "type": "record",
+        "name": "RandomTest",
+        "namespace": "${namespace}",
+        "fields": [{ "type": "string", "name": "notFullName" }]
+      }
+    `,
+      v1: `{
+        "type": "record",
+        "name": "AnotherPerson",
+        "namespace": "com.org.domain.fixtures",
+        "fields": [
+          { "type": "string", "name": "fullName" }
+        ]
+      }`,
+      v2: `{
+        "type": "record",
+        "name": "AnotherPerson",
+        "namespace": "com.org.domain.fixtures",
+        "fields": [
+          { "type": "string", "name": "fullName" },
+          { "type": "string", "name": "city", "default": "Stockholm" }
+        ]
+      }`,
       encodedAnotherPersonV2: encodedAnotherPersonV2Avro,
     },
     /*[SchemaType.JSON.toString()]: {
@@ -103,18 +111,27 @@ describe('SchemaRegistry', () => {
     },*/
     [SchemaType.PROTOBUF.toString()]: {
       random: namespace => `
+      package ${namespace};
       message RandomTest {
         required string fullName = 1;
       }
     `,
+      otherRandom: namespace => `
+      package ${namespace};
+      message RandomTest {
+        required string notFullName = 1;
+      }
+    `,
       v1: `
       syntax = "proto2";
+      package com.org.domain.fixtures;
       message AnotherPerson {
         required string fullName = 1;
       }
       `,
       v2: `
       syntax = "proto2";
+      package com.org.domain.fixtures;
       message AnotherPerson {
         required string fullName = 1;
         optional string city = 2 [default = "Stockholm"];
@@ -128,7 +145,7 @@ describe('SchemaRegistry', () => {
   types.forEach(type =>
     describe(`${type.toString()}`, () => {
       const subject: ConfluentSubject = {
-        name: [type.toString(), personSchema.namespace, personSchema.name].join('.'),
+        name: [type.toString(), 'com.org.domain.fixtures', 'AnotherPerson'].join('.'),
       }
       const schema: ConfluentSchema = {
         type,
@@ -327,15 +344,8 @@ describe('SchemaRegistry', () => {
 
         beforeEach(() => {
           namespace = `N${uuid().replace(/-/g, '_')}`
-          const subject = `${namespace}.RandomTest`
-          const schema = `
-        {
-          "type": "record",
-          "name": "RandomTest",
-          "namespace": "${namespace}",
-          "fields": [{ "type": "string", "name": "fullName" }]
-        }
-      `
+          const subject = `${type.toString()}.${namespace}.RandomTest`
+          const schema = schemaStringsByType[type.toString()].random(namespace)
           confluentSubject = { name: subject }
           confluentSchema = { type, schemaString: schema }
         })
@@ -358,14 +368,7 @@ describe('SchemaRegistry', () => {
         })
 
         it('throws an error if the schema has not been registered under that subject', async () => {
-          const otherSchema = `
-      {
-        "type": "record",
-        "name": "RandomTest",
-        "namespace": "${namespace}",
-        "fields": [{ "type": "string", "name": "notFullName" }]
-      }
-    `
+          const otherSchema = schemaStringsByType[type.toString()].otherRandom(namespace)
           const confluentOtherSchema: ConfluentSchema = {
             type,
             schemaString: otherSchema,
