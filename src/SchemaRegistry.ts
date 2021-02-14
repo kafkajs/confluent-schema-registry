@@ -97,7 +97,7 @@ export default class SchemaRegistry {
     return this.cache.setSchema(registryId, confluentSchema)
   }
 
-  public async encode(registryId: number, payload: any): Promise<Buffer> {
+  public async encode(registryId: number, payload: any, serdesOpts?: {}): Promise<Buffer> {
     if (!registryId) {
       throw new ConfluentSchemaRegistryArgumentError(
         `Invalid registryId: ${JSON.stringify(registryId)}`,
@@ -107,12 +107,12 @@ export default class SchemaRegistry {
     const schema = await this.getSchema(registryId)
 
     const serdes = serdesTypeFromSchemaType(schema.type)
-    const serializedPayload = serdes.serialize(schema, payload)
+    const serializedPayload = serdes.serialize(schema, payload, serdesOpts)
 
     return encode(registryId, serializedPayload)
   }
 
-  public async decode(buffer: Buffer): Promise<any> {
+  public async decode(buffer: Buffer, serdesOpts?: {}): Promise<any> {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -128,7 +128,7 @@ export default class SchemaRegistry {
 
     const schema = await this.getSchema(registryId)
     const serdes = serdesTypeFromSchemaType(schema.type)
-    return serdes.deserialize(schema, payload)
+    return serdes.deserialize(schema, payload, serdesOpts)
   }
 
   public async getRegistryId(subject: string, version: number | string): Promise<number> {
