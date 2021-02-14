@@ -9,6 +9,7 @@ import {
   ConfluentSchemaRegistryError,
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
+  ConfluentSchemaRegistrySerdesError,
 } from './errors'
 import { ConfluentSchema, ConfluentSubject, schemaTypeFromString } from './@types'
 import { serdesTypeFromSchemaType } from './serdes'
@@ -107,7 +108,12 @@ export default class SchemaRegistry {
     const schema = await this.getSchema(registryId)
 
     const serdes = serdesTypeFromSchemaType(schema.type)
-    const serializedPayload = serdes.serialize(schema, payload, serdesOpts)
+    let serializedPayload
+    try {
+      serializedPayload = serdes.serialize(schema, payload, serdesOpts)
+    } catch (error) {
+      throw new ConfluentSchemaRegistrySerdesError(error)
+    }
 
     return encode(registryId, serializedPayload)
   }
@@ -128,7 +134,11 @@ export default class SchemaRegistry {
 
     const schema = await this.getSchema(registryId)
     const serdes = serdesTypeFromSchemaType(schema.type)
-    return serdes.deserialize(schema, payload, serdesOpts)
+    try {
+      return serdes.deserialize(schema, payload, serdesOpts)
+    } catch (error) {
+      throw new ConfluentSchemaRegistrySerdesError(error)
+    }
   }
 
   public async getRegistryId(subject: string, version: number | string): Promise<number> {

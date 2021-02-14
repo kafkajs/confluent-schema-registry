@@ -296,6 +296,23 @@ describe('SchemaRegistry', () => {
             payload: Buffer.from(schemaStringsByType[type.toString()].encodedAnotherPersonV2),
           })
         })
+
+        it('throws an error if the payload does not match the schema', async () => {
+          const confluentSchema: ConfluentSchema = {
+            type,
+            schemaString: schemaStringsByType[type.toString()].v1,
+          }
+          const schema = await schemaRegistry.register(confluentSchema, {
+            name: `${type.toString()}_test`,
+          })
+
+          const badPayload = { asdf: 123 }
+
+          await expect(schemaRegistry.encode(schema.id, badPayload)).rejects.toHaveProperty(
+            'name',
+            'ConfluentSchemaRegistrySerdesError',
+          )
+        })
       })
 
       describe('#decode', () => {
@@ -317,6 +334,17 @@ describe('SchemaRegistry', () => {
           await expect(schemaRegistry.decode(buffer)).rejects.toHaveProperty(
             'message',
             'Message encoded with magic byte {"type":"Buffer","data":[48]}, expected {"type":"Buffer","data":[0]}',
+          )
+        })
+
+        it.skip('throws an error if the payload does not match the schema', async () => {
+          const badPayload = { asdf: 123 }
+          // TODO: find a way to encode the bad payload with the registryId
+          const buffer = Buffer.from(await schemaRegistry.encode(registryId, badPayload))
+
+          await expect(schemaRegistry.decode(buffer)).rejects.toHaveProperty(
+            'name',
+            'ConfluentSchemaRegistrySerdesError',
           )
         })
 

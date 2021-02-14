@@ -7,9 +7,11 @@ class ConfluentSchemaRegistryError extends Error {
 
 class ConfluentSchemaRegistryArgumentError extends ConfluentSchemaRegistryError {}
 class ConfluentSchemaRegistryCompatibilityError extends ConfluentSchemaRegistryError {}
+class ConfluentSchemaRegistrySerdesError extends ConfluentSchemaRegistryError {}
 
 export {
   ConfluentSchemaRegistryError,
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
+  ConfluentSchemaRegistrySerdesError,
 }
