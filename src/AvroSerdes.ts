@@ -2,13 +2,16 @@ import { AvroSchema, ConfluentSchema, Serdes } from './@types'
 import avro from 'avsc'
 
 export default class AvroSerdes implements Serdes {
-  public serialize(schema: ConfluentSchema, payload: any): Buffer {
+  private getAvroSchema(schema: ConfluentSchema) {
     const avroSchema: AvroSchema = avro.Type.forSchema(JSON.parse(schema.schemaString))
-    return avroSchema.toBuffer(payload)
+    return avroSchema
+  }
+
+  public serialize(schema: ConfluentSchema, payload: any): Buffer {
+    return this.getAvroSchema(schema).toBuffer(payload)
   }
 
   public deserialize(schema: ConfluentSchema, buffer: Buffer): any {
-    const avroSchema: AvroSchema = avro.Type.forSchema(JSON.parse(schema.schemaString))
-    return avroSchema.fromBuffer(buffer)
+    return this.getAvroSchema(schema).fromBuffer(buffer)
   }
 }

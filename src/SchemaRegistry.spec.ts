@@ -7,6 +7,7 @@ import { ConfluentSubject, ConfluentSchema, SchemaType } from './@types'
 import API from './api'
 import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2Avro from '../fixtures/avro/encodedAnotherPersonV2'
+import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
 
@@ -56,7 +57,7 @@ describe('SchemaRegistry', () => {
       }`,
       encodedAnotherPersonV2: encodedAnotherPersonV2Avro,
     },
-    /*[SchemaType.JSON.toString()]: {
+    [SchemaType.JSON.toString()]: {
       random: namespace => `
       {
         "definitions" : {
@@ -66,6 +67,23 @@ describe('SchemaRegistry', () => {
             "additionalProperties" : false,
             "properties" : {
               "fullName" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "$ref" : "#/definitions/record:${namespace}.RandomTest"
+      }
+    `,
+      otherRandom: namespace => `
+      {
+        "definitions" : {
+          "record:${namespace}.RandomTest" : {
+            "type" : "object",
+            "required" : [ "notFullName" ],
+            "additionalProperties" : false,
+            "properties" : {
+              "notFullName" : {
                 "type" : "string"
               }
             }
@@ -108,7 +126,8 @@ describe('SchemaRegistry', () => {
         }
       }
       `,
-    },*/
+      encodedAnotherPersonV2: encodedAnotherPersonV2Json,
+    },
     [SchemaType.PROTOBUF.toString()]: {
       random: namespace => `
       package ${namespace};
@@ -344,7 +363,7 @@ describe('SchemaRegistry', () => {
 
         beforeEach(() => {
           namespace = `N${uuid().replace(/-/g, '_')}`
-          const subject = `${type.toString()}.${namespace}.RandomTest`
+          const subject = `${namespace}.RandomTest`
           const schema = schemaStringsByType[type.toString()].random(namespace)
           confluentSubject = { name: subject }
           confluentSchema = { type, schemaString: schema }

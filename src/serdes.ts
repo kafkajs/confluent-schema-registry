@@ -1,4 +1,5 @@
 import AvroSerdes from './AvroSerdes'
+import JsonSerdes from './JsonSerdes'
 import ProtoSerdes from './ProtoSerdes'
 import { SchemaType, Serdes } from './@types'
 
@@ -12,6 +13,10 @@ export const serdesTypeFromSchemaType = (schemaType: SchemaType): Serdes => {
     switch (schemaType) {
       case SchemaType.AVRO: {
         serdes = new AvroSerdes()
+        break
+      }
+      case SchemaType.JSON: {
+        serdes = new JsonSerdes()
         break
       }
       case SchemaType.PROTOBUF: {
