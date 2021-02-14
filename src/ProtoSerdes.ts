@@ -1,19 +1,21 @@
 import { ConfluentSchema, Serdes } from './@types'
 import protobuf from 'protobufjs'
-import { IParserResult, Root } from 'protobufjs/light'
+import { IParserResult, ReflectionObject, Namespace } from 'protobufjs/light'
 
 export default class ProtoSerdes implements Serdes {
-  private getNestedTypeName(root: Root): string {
-    const nested = root.nested
-    if (!nested) throw Error('no nested fields')
-    const keys = Object.keys(nested)
+  private getNestedTypeName(parent: { [k: string]: ReflectionObject } | undefined): string {
+    if (!parent) throw Error('no nested fields')
+    const keys = Object.keys(parent)
+    const reflection = parent[keys[0]]
+    if (reflection instanceof Namespace && reflection.nested)
+      return this.getNestedTypeName(reflection.nested)
     return keys[0]
   }
 
   private getTypeName(parsedMessage: IParserResult, opts: { messageName: string }): string {
     const root = parsedMessage.root
     const pkg = parsedMessage.package
-    const name = opts && opts.messageName ? opts.messageName : this.getNestedTypeName(root)
+    const name = opts && opts.messageName ? opts.messageName : this.getNestedTypeName(root.nested)
     return `${pkg ? pkg + '.' : ''}.${name}`
   }
 
