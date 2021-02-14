@@ -152,7 +152,10 @@ export default class SchemaRegistry {
     try {
       const response = await this.api.Subject.registered({
         subject,
-        body: { schema: schema.schemaString },
+        body: {
+          schemaType: schema.type,
+          schema: schema.schemaString,
+        },
       })
       const { id }: { id: number } = response.data()
 
