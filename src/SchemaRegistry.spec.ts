@@ -157,6 +157,19 @@ describe('SchemaRegistry', () => {
       }
       `,
       encodedAnotherPersonV2: encodedAnotherPersonV2Proto,
+      v3: `
+      syntax = "proto2";
+      package com.org.domain.fixtures;
+      message SomeOtherMessage {
+        required string bla = 1;
+        required string foo = 2;
+      }
+      message AnotherPerson {
+        required string fullName = 1;
+        optional string city = 2 [default = "Stockholm"];
+      }
+      `,
+      v3SerdesOpts: { messageName: 'AnotherPerson' },
     },
   }
   const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
@@ -313,6 +326,27 @@ describe('SchemaRegistry', () => {
             'ConfluentSchemaRegistrySerdesError',
           )
         })
+
+        if (schemaStringsByType[type.toString()].v3) {
+          it('encodes using serdesOpts', async () => {
+            const confluentSchemaV3: ConfluentSchema = {
+              type,
+              schemaString: schemaStringsByType[type.toString()].v3,
+            }
+
+            const schema3 = await schemaRegistry.register(confluentSchemaV3, {
+              name: `${type.toString()}_test3`,
+            })
+
+            const serdesOpts = schemaStringsByType[type.toString()].v3SerdesOpts
+            const data = await schemaRegistry.encode(schema3.id, payload, serdesOpts)
+
+            expect(data).toMatchConfluentEncodedPayload({
+              registryId: schema3.id,
+              payload: Buffer.from(schemaStringsByType[type.toString()].encodedAnotherPersonV2),
+            })
+          })
+        }
       })
 
       describe('#decode', () => {
@@ -328,6 +362,25 @@ describe('SchemaRegistry', () => {
 
           expect(data).toEqual(payload)
         })
+
+        if (schemaStringsByType[type.toString()].v3) {
+          it('encodes using serdesOpts', async () => {
+            const confluentSchemaV3: ConfluentSchema = {
+              type,
+              schemaString: schemaStringsByType[type.toString()].v3,
+            }
+
+            const schema3 = await schemaRegistry.register(confluentSchemaV3, {
+              name: `${type.toString()}_test3`,
+            })
+
+            const serdesOpts = schemaStringsByType[type.toString()].v3SerdesOpts
+            const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload, serdesOpts))
+            const data = await schemaRegistry.decode(buffer, serdesOpts)
+
+            expect(data).toEqual(payload)
+          })
+        }
 
         it('throws an error if the magic byte is not supported', async () => {
           const buffer = Buffer.from(wrongMagicByte)
