@@ -26,11 +26,17 @@ export interface Serdes {
   deserialize(schema: ConfluentSchema, buffer: Buffer, opts?: {}): any
 }
 
-export interface AvroSchema {
+export interface RawAvroSchema {
+  name: string
+  namespace?: string
+  type: 'record'
+  fields: any[]
+}
+
+export interface AvroSchema extends RawAvroSchema {
   toBuffer: (payload: object) => Buffer // FIXME:
   fromBuffer(buffer: Buffer, resolver?: Resolver, noCheck?: boolean): any
   isValid: (payload: object, opts: { errorHook: (path: any) => void }) => void // FIXME:
-  name: string | undefined
 }
 
 export interface ConfluentSubject {
