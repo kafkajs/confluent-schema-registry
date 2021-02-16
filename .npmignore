@@ -27,3 +27,5 @@ azure-pipelines.yml
 *.tgz
 .vscode/
 .tsconfig.json
+*.swp
+*~
