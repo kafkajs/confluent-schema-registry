@@ -1,4 +1,4 @@
-import { ConfluentSchema, Serdes } from './@types'
+import { ConfluentSchema, Serdes, ConfluentSubject } from './@types'
 import protobuf from 'protobufjs'
 import { IParserResult, ReflectionObject, Namespace } from 'protobufjs/light'
 
@@ -17,6 +17,15 @@ export default class ProtoSerdes implements Serdes {
     const pkg = parsedMessage.package
     const name = opts && opts.messageName ? opts.messageName : this.getNestedTypeName(root.nested)
     return `${pkg ? pkg + '.' : ''}.${name}`
+  }
+
+  public validate(schema: ConfluentSchema): void {
+    protobuf.parse(schema.schemaString)
+  }
+
+  // @ts-ignore
+  public getSubject(schema: ConfluentSchema, separator: string): ConfluentSubject {
+    throw Error('not implemented yet')
   }
 
   public serialize(schema: ConfluentSchema, payload: any, opts: { messageName: string }): Buffer {

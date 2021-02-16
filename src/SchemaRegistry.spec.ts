@@ -42,9 +42,7 @@ describe('SchemaRegistry', () => {
         "type": "record",
         "name": "AnotherPerson",
         "namespace": "com.org.domain.fixtures",
-        "fields": [
-          { "type": "string", "name": "fullName" }
-        ]
+        "fields": [ { "type": "string", "name": "fullName" } ]
       }`,
       v2: `{
         "type": "record",
@@ -157,19 +155,6 @@ describe('SchemaRegistry', () => {
       }
       `,
       encodedAnotherPersonV2: encodedAnotherPersonV2Proto,
-      v3: `
-      syntax = "proto2";
-      package com.org.domain.fixtures;
-      message SomeOtherMessage {
-        required string bla = 1;
-        required string foo = 2;
-      }
-      message AnotherPerson {
-        required string fullName = 1;
-        optional string city = 2 [default = "Stockholm"];
-      }
-      `,
-      v3SerdesOpts: { messageName: 'AnotherPerson' },
     },
   }
   const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
@@ -326,27 +311,6 @@ describe('SchemaRegistry', () => {
             'ConfluentSchemaRegistrySerdesError',
           )
         })
-
-        if (schemaStringsByType[type.toString()].v3) {
-          it('encodes using serdesOpts', async () => {
-            const confluentSchemaV3: ConfluentSchema = {
-              type,
-              schemaString: schemaStringsByType[type.toString()].v3,
-            }
-
-            const schema3 = await schemaRegistry.register(confluentSchemaV3, {
-              name: `${type.toString()}_test3`,
-            })
-
-            const serdesOpts = schemaStringsByType[type.toString()].v3SerdesOpts
-            const data = await schemaRegistry.encode(schema3.id, payload, serdesOpts)
-
-            expect(data).toMatchConfluentEncodedPayload({
-              registryId: schema3.id,
-              payload: Buffer.from(schemaStringsByType[type.toString()].encodedAnotherPersonV2),
-            })
-          })
-        }
       })
 
       describe('#decode', () => {
@@ -362,25 +326,6 @@ describe('SchemaRegistry', () => {
 
           expect(data).toEqual(payload)
         })
-
-        if (schemaStringsByType[type.toString()].v3) {
-          it('encodes using serdesOpts', async () => {
-            const confluentSchemaV3: ConfluentSchema = {
-              type,
-              schemaString: schemaStringsByType[type.toString()].v3,
-            }
-
-            const schema3 = await schemaRegistry.register(confluentSchemaV3, {
-              name: `${type.toString()}_test3`,
-            })
-
-            const serdesOpts = schemaStringsByType[type.toString()].v3SerdesOpts
-            const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload, serdesOpts))
-            const data = await schemaRegistry.decode(buffer, serdesOpts)
-
-            expect(data).toEqual(payload)
-          })
-        }
 
         it('throws an error if the magic byte is not supported', async () => {
           const buffer = Buffer.from(wrongMagicByte)
@@ -483,4 +428,105 @@ describe('SchemaRegistry', () => {
       })
     }),
   )
+
+  describe('AVRO tests', () => {
+    let namespace,
+      Schema,
+      subject,
+      api,
+      confluentSubject: ConfluentSubject,
+      confluentSchema: ConfluentSchema
+
+    beforeEach(() => {
+      api = API(schemaRegistryAPIClientArgs)
+      namespace = `N${uuid().replace(/-/g, '_')}`
+      subject = `${namespace}.RandomTest`
+      Schema = {
+        namespace,
+        type: 'record',
+        name: 'RandomTest',
+        fields: [{ type: 'string', name: 'full_name' }],
+      }
+      confluentSubject = { name: subject }
+    })
+
+    it('throws an error when schema does not have a name', async () => {
+      delete Schema.name
+      confluentSchema = { schemaString: JSON.stringify(Schema) }
+      await expect(schemaRegistry.register(confluentSchema)).rejects.toHaveProperty(
+        'message',
+        'Invalid name: undefined',
+      )
+    })
+
+    it('throws an error when schema does not have a namespace', async () => {
+      delete Schema.namespace
+      confluentSchema = { schemaString: JSON.stringify(Schema) }
+      await expect(schemaRegistry.register(confluentSchema)).rejects.toHaveProperty(
+        'message',
+        'Invalid namespace: undefined',
+      )
+    })
+
+    it('accepts schema without a namespace when subject is specified', async () => {
+      const nonNamespaced = readAVSC(path.join(__dirname, '../fixtures/avsc/non_namespaced.avsc'))
+      confluentSchema = { schemaString: JSON.stringify(nonNamespaced) }
+      await expect(schemaRegistry.register(confluentSchema, confluentSubject)).resolves.toEqual({
+        id: expect.any(Number),
+      })
+    })
+  })
+
+  describe('PROTOBUF tests', () => {
+    const v3 = `
+      syntax = "proto2";
+      package com.org.domain.fixtures;
+      message SomeOtherMessage {
+        required string bla = 1;
+        required string foo = 2;
+      }
+      message AnotherPerson {
+        required string fullName = 1;
+        optional string city = 2 [default = "Stockholm"];
+      }
+      `,
+      v3SerdesOpts = { messageName: 'AnotherPerson' },
+      type = SchemaType.PROTOBUF
+
+    it('encodes using serdesOpts', async () => {
+      const confluentSchemaV3: ConfluentSchema = {
+        type,
+        schemaString: v3,
+      }
+
+      const schema3 = await schemaRegistry.register(confluentSchemaV3, {
+        name: `${type.toString()}_test3`,
+      })
+
+      const serdesOpts = v3SerdesOpts
+      const data = await schemaRegistry.encode(schema3.id, payload, serdesOpts)
+
+      expect(data).toMatchConfluentEncodedPayload({
+        registryId: schema3.id,
+        payload: Buffer.from(schemaStringsByType[type.toString()].encodedAnotherPersonV2),
+      })
+    })
+
+    it('encodes using serdesOpts', async () => {
+      const confluentSchemaV3: ConfluentSchema = {
+        type,
+        schemaString: v3,
+      }
+
+      const schema3 = await schemaRegistry.register(confluentSchemaV3, {
+        name: `${type.toString()}_test3`,
+      })
+
+      const serdesOpts = v3SerdesOpts
+      const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload, serdesOpts))
+      const data = await schemaRegistry.decode(buffer, serdesOpts)
+
+      expect(data).toEqual(payload)
+    })
+  })
 })

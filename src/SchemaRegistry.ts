@@ -42,10 +42,25 @@ export default class SchemaRegistry {
 
   public async register(
     schema: ConfluentSchema,
-    subject: ConfluentSubject,
+    subject?: ConfluentSubject,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
-    const { compatibility } = { ...DEFAULT_OPTS, ...userOpts }
+    const { compatibility, separator } = { ...DEFAULT_OPTS, ...userOpts }
+
+    const serdes = serdesTypeFromSchemaType(schema.type)
+    try {
+      serdes.validate(schema)
+    } catch (error) {
+      if (error instanceof ConfluentSchemaRegistryArgumentError) throw error
+
+      throw new ConfluentSchemaRegistryArgumentError(
+        'Confluent_Schema_Registry - Either the input schema or one its references is invalid',
+      )
+    }
+
+    if (!subject) {
+      subject = serdes.getSubject(schema, separator)
+    }
 
     try {
       const response = await this.api.Subject.config({ subject: subject.name })

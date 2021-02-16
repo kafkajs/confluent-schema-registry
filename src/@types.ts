@@ -22,6 +22,8 @@ export const schemaTypeFromString = (schemaTypeString: string) => {
 }
 
 export interface Serdes {
+  validate(schema: ConfluentSchema): void
+  getSubject(schema: ConfluentSchema, separator: string): ConfluentSubject
   serialize(schema: ConfluentSchema, payload: any, opts?: {}): Buffer
   deserialize(schema: ConfluentSchema, buffer: Buffer, opts?: {}): any
 }
@@ -44,7 +46,7 @@ export interface ConfluentSubject {
 }
 
 export interface ConfluentSchema {
-  type: SchemaType
+  type?: SchemaType
   schemaString: string
 }
 

@@ -5,7 +5,7 @@ import { SchemaType, Serdes } from './@types'
 
 const serdesTypeFromSchemaTypeMap: Record<string, Serdes> = {}
 
-export const serdesTypeFromSchemaType = (schemaType: SchemaType): Serdes => {
+export const serdesTypeFromSchemaType = (schemaType: SchemaType = SchemaType.AVRO): Serdes => {
   const schemaTypeStr = schemaType.toString()
 
   if (!serdesTypeFromSchemaTypeMap[schemaTypeStr]) {
