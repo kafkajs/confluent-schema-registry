@@ -27,3 +27,7 @@ release
 # website
 #
 build
+
+# test
+docker-compose.dockest-generated.yml
+dockest-error.json
