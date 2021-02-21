@@ -23,7 +23,7 @@ const dockestServices: DockestService[] = [
   },
   {
     serviceName: 'schemaRegistry',
-    readinessCheck: () => sleepWithLog(20, `Sleeping for Schema Registry`),
+    readinessCheck: () => sleepWithLog(25, `Sleeping for Schema Registry`),
   },
 ]
 
