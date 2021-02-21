@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "NoNamespacePerson",
+  "fields": [
+    {
+      "type": "string",
+      "name": "full_name"
+    }
+  ]
+}
