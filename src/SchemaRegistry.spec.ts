@@ -14,7 +14,7 @@ const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
 const schemaRegistryArgs = { host: REGISTRY_HOST }
 
 const personSchema = readAVSC(path.join(__dirname, '../fixtures/avsc/person.avsc'))
-const payload = { full_name: 'John Doe' } // eslint-disable-line @typescript-eslint/camelcase
+const payload = { fullName: 'John Doe' } // eslint-disable-line @typescript-eslint/camelcase
 
 describe('SchemaRegistry - old AVRO api', () => {
   let schemaRegistry: SchemaRegistry
@@ -35,14 +35,14 @@ describe('SchemaRegistry - old AVRO api', () => {
         namespace,
         type: 'record',
         name: 'RandomTest',
-        fields: [{ type: 'string', name: 'full_name' }],
+        fields: [{ type: 'string', name: 'fullName' }],
       }
     })
 
     it('uploads the new schema', async () => {
       await expect(api.Subject.latestVersion({ subject })).rejects.toHaveProperty(
         'message',
-        `${DEFAULT_API_CLIENT_ID} - Subject not found.`,
+        `${DEFAULT_API_CLIENT_ID} - Subject '${namespace}.${Schema.name}' not found.`,
       )
 
       await expect(schemaRegistry.register(Schema)).resolves.toEqual({ id: expect.any(Number) })
@@ -122,11 +122,11 @@ describe('SchemaRegistry - old AVRO api', () => {
     it('encodes using a defined registryId', async () => {
       const SchemaV1 = Object.assign({}, personSchema, {
         name: 'AnotherPerson',
-        fields: [{ type: 'string', name: 'full_name' }],
+        fields: [{ type: 'string', name: 'fullName' }],
       })
       const SchemaV2 = Object.assign({}, SchemaV1, {
         fields: [
-          { type: 'string', name: 'full_name' },
+          { type: 'string', name: 'fullName' },
           { type: 'string', name: 'city', default: 'Stockholm' },
         ],
       })
@@ -136,7 +136,7 @@ describe('SchemaRegistry - old AVRO api', () => {
       expect(schema2.id).not.toEqual(schema1.id)
 
       const data = await schemaRegistry.encode(schema2.id, payload)
-      expect(data).toMatchConfluentAvroEncodedPayload({
+      expect(data).toMatchConfluentEncodedPayload({
         registryId: schema2.id,
         payload: Buffer.from(encodedAnotherPersonV2),
       })
@@ -214,7 +214,7 @@ describe('SchemaRegistry - old AVRO api', () => {
           "type": "record",
           "name": "RandomTest",
           "namespace": "${namespace}",
-          "fields": [{ "type": "string", "name": "full_name" }]
+          "fields": [{ "type": "string", "name": "fullName" }]
         }
       `)
     })
@@ -228,7 +228,7 @@ describe('SchemaRegistry - old AVRO api', () => {
     it('throws an error if the subject does not exist', async () => {
       await expect(schemaRegistry.getRegistryIdBySchema(subject, Schema)).rejects.toHaveProperty(
         'message',
-        'Confluent_Schema_Registry - Subject not found.',
+        `Confluent_Schema_Registry - Subject '${namespace}.${Schema.name}' not found.`,
       )
     })
 
@@ -238,14 +238,14 @@ describe('SchemaRegistry - old AVRO api', () => {
         "type": "record",
         "name": "RandomTest",
         "namespace": "${namespace}",
-        "fields": [{ "type": "string", "name": "not_full_name" }]
+        "fields": [{ "type": "string", "name": "notFullName" }]
       }
     `)
       await schemaRegistry.register(otherSchema, { subject })
 
       await expect(schemaRegistry.getRegistryIdBySchema(subject, Schema)).rejects.toHaveProperty(
         'message',
-        'Confluent_Schema_Registry - Schema not found',
+        `Confluent_Schema_Registry - Error while looking up schema under subject ${namespace}.${Schema.name}`,
       )
     })
   })

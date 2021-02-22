@@ -11,7 +11,14 @@ import {
   ConfluentSchemaRegistryCompatibilityError,
   ConfluentSchemaRegistrySerdesError,
 } from './errors'
-import { Schema, ConfluentSchema, ConfluentSubject, SchemaOptions } from './@types'
+import {
+  Schema,
+  RawAvroSchema,
+  SchemaType,
+  ConfluentSchema,
+  ConfluentSubject,
+  SchemaOptions,
+} from './@types'
 import {
   serdesTypeFromSchemaType,
   schemaTypeFromString,
@@ -46,27 +53,33 @@ export default class SchemaRegistry {
   }
 
   public async register(
-    schema: ConfluentSchema,
-    subject?: ConfluentSubject,
+    schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
     const { compatibility, separator, schemaOptions } = { ...DEFAULT_OPTS, ...userOpts }
 
-    const serdes = serdesTypeFromSchemaType(schema.type)
-    let schemaInstance
-    try {
-      schemaInstance = schemaFromConfluentSchema(schema, schemaOptions)
-      serdes.validate(schemaInstance)
-    } catch (error) {
-      if (error instanceof ConfluentSchemaRegistryArgumentError) throw error
-
-      throw new ConfluentSchemaRegistryArgumentError(
-        'Confluent_Schema_Registry - Either the input schema or one its references is invalid',
-      )
+    let confluentSchema: ConfluentSchema
+    // convert data from old api (for backwards compatibility)
+    if (!(schema as ConfluentSchema).schemaString) {
+      confluentSchema = {
+        type: SchemaType.AVRO,
+        schemaString: JSON.stringify(schema),
+      }
+    } else {
+      confluentSchema = schema as ConfluentSchema
     }
 
-    if (!subject) {
-      subject = serdes.getSubject(schemaInstance, separator)
+    const serdes = serdesTypeFromSchemaType(confluentSchema.type)
+    const schemaInstance = schemaFromConfluentSchema(confluentSchema, schemaOptions)
+    serdes.validate(schemaInstance)
+
+    let subject: ConfluentSubject
+    if (userOpts?.subject) {
+      subject = {
+        name: userOpts.subject,
+      }
+    } else {
+      subject = serdes.getSubject(confluentSchema, schemaInstance, separator)
     }
 
     try {
@@ -91,8 +104,8 @@ export default class SchemaRegistry {
     const response = await this.api.Subject.register({
       subject: subject.name,
       body: {
-        schemaType: schema.type,
-        schema: schema.schemaString,
+        schemaType: confluentSchema.type,
+        schema: confluentSchema.schemaString,
       },
     })
 

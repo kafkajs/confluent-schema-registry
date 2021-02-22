@@ -1,4 +1,4 @@
-import { Schema, Serdes, ConfluentSubject } from './@types'
+import { Schema, Serdes, ConfluentSubject, ConfluentSchema } from './@types'
 
 export default class ProtoSerdes implements Serdes {
   // @ts-ignore
@@ -7,7 +7,7 @@ export default class ProtoSerdes implements Serdes {
   }
 
   // @ts-ignore
-  public getSubject(schema: Schema, separator: string): ConfluentSubject {
+  public getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject {
     throw Error('not implemented yet')
   }
 }

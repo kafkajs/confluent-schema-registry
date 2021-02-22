@@ -171,7 +171,7 @@ describe('SchemaRegistry - new Api', () => {
 
       beforeEach(async () => {
         schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
-        await schemaRegistry.register(schema, subject)
+        await schemaRegistry.register(schema, { subject: subject.name })
       })
 
       describe('#register', () => {
@@ -197,34 +197,39 @@ describe('SchemaRegistry - new Api', () => {
             `${DEFAULT_API_CLIENT_ID} - Subject '${subject}' not found.`,
           )
 
-          await expect(schemaRegistry.register(confluentSchema, confluentSubject)).resolves.toEqual(
-            {
-              id: expect.any(Number),
-            },
-          )
+          await expect(
+            schemaRegistry.register(confluentSchema, { subject: confluentSubject.name }),
+          ).resolves.toEqual({
+            id: expect.any(Number),
+          })
         })
 
         it('automatically cache the id and schema', async () => {
-          const { id } = await schemaRegistry.register(confluentSchema, confluentSubject)
+          const { id } = await schemaRegistry.register(confluentSchema, {
+            subject: confluentSubject.name,
+          })
 
           expect(schemaRegistry.cache.getSchema(id)).toBeTruthy()
         })
 
         it('fetch and validate the latest schema id after registering a new schema', async () => {
-          const { id } = await schemaRegistry.register(confluentSchema, confluentSubject)
+          const { id } = await schemaRegistry.register(confluentSchema, {
+            subject: confluentSubject.name,
+          })
           const latestSchemaId = await schemaRegistry.getLatestSchemaId(subject)
 
           expect(id).toBe(latestSchemaId)
         })
 
         it('set the default compatibility to BACKWARD', async () => {
-          await schemaRegistry.register(confluentSchema, confluentSubject)
+          await schemaRegistry.register(confluentSchema, { subject: confluentSubject.name })
           const response = await api.Subject.config({ subject })
           expect(response.data()).toEqual({ compatibilityLevel: COMPATIBILITY.BACKWARD })
         })
 
         it('sets the compatibility according to param', async () => {
-          await schemaRegistry.register(confluentSchema, confluentSubject, {
+          await schemaRegistry.register(confluentSchema, {
+            subject: confluentSubject.name,
             compatibility: COMPATIBILITY.NONE,
           })
           const response = await api.Subject.config({ subject })
@@ -232,10 +237,10 @@ describe('SchemaRegistry - new Api', () => {
         })
 
         it('throws an error when the configured compatibility is different than defined in the client', async () => {
-          await schemaRegistry.register(confluentSchema, confluentSubject)
+          await schemaRegistry.register(confluentSchema, { subject: confluentSubject.name })
           await api.Subject.updateConfig({ subject, body: { compatibility: COMPATIBILITY.FULL } })
           await expect(
-            schemaRegistry.register(confluentSchema, confluentSubject),
+            schemaRegistry.register(confluentSchema, { subject: confluentSubject.name }),
           ).rejects.toHaveProperty(
             'message',
             'Compatibility does not match the configuration (BACKWARD != FULL)',
@@ -249,7 +254,7 @@ describe('SchemaRegistry - new Api', () => {
             schemaString: invalidSchema,
           }
           await expect(
-            schemaRegistry.register(invalidConfluentSchema, confluentSubject),
+            schemaRegistry.register(invalidConfluentSchema, { subject: confluentSubject.name }),
           ).rejects.toHaveProperty(
             'message',
             'Confluent_Schema_Registry - Either the input schema or one its references is invalid',
@@ -259,7 +264,7 @@ describe('SchemaRegistry - new Api', () => {
 
       describe('#encode', () => {
         beforeEach(async () => {
-          await schemaRegistry.register(schema, subject)
+          await schemaRegistry.register(schema, { subject: subject.name })
         })
 
         it('throws an error if registryId is empty', async () => {
@@ -280,10 +285,10 @@ describe('SchemaRegistry - new Api', () => {
           }
 
           const schema1 = await schemaRegistry.register(confluentSchemaV1, {
-            name: `${type.toString()}_test1`,
+            subject: `${type.toString()}_test1`,
           })
           const schema2 = await schemaRegistry.register(confluentSchemaV2, {
-            name: `${type.toString()}_test2`,
+            subject: `${type.toString()}_test2`,
           })
           expect(schema2.id).not.toEqual(schema1.id)
 
@@ -301,7 +306,7 @@ describe('SchemaRegistry - new Api', () => {
             schemaString: schemaStringsByType[type.toString()].v1,
           }
           const schema = await schemaRegistry.register(confluentSchema, {
-            name: `${type.toString()}_test`,
+            subject: `${type.toString()}_test`,
           })
 
           const badPayload = { asdf: 123 }
@@ -317,7 +322,7 @@ describe('SchemaRegistry - new Api', () => {
         let registryId
 
         beforeEach(async () => {
-          registryId = (await schemaRegistry.register(schema, subject)).id
+          registryId = (await schemaRegistry.register(schema, { subject: subject.name })).id
         })
 
         it('decodes data', async () => {
@@ -396,7 +401,9 @@ describe('SchemaRegistry - new Api', () => {
         })
 
         it('returns the registry id if the schema has already been registered under that subject', async () => {
-          const { id } = await schemaRegistry.register(confluentSchema, confluentSubject)
+          const { id } = await schemaRegistry.register(confluentSchema, {
+            subject: confluentSubject.name,
+          })
 
           await expect(
             schemaRegistry.getRegistryIdBySchema(confluentSubject.name, confluentSchema),
@@ -419,7 +426,7 @@ describe('SchemaRegistry - new Api', () => {
             schemaString: otherSchema,
           }
 
-          await schemaRegistry.register(confluentOtherSchema, confluentSubject)
+          await schemaRegistry.register(confluentOtherSchema, { subject: confluentSubject.name })
 
           await expect(
             schemaRegistry.getRegistryIdBySchema(confluentSubject.name, confluentSchema),
@@ -452,15 +459,10 @@ describe('SchemaRegistry - new Api', () => {
       }
 
       const schemaOptions = v3SerdesOpts
-      const schema3 = await schemaRegistry.register(
-        confluentSchemaV3,
-        {
-          name: `${type.toString()}_test3`,
-        },
-        {
-          schemaOptions,
-        },
-      )
+      const schema3 = await schemaRegistry.register(confluentSchemaV3, {
+        subject: `${type.toString()}_test3`,
+        schemaOptions,
+      })
 
       const data = await schemaRegistry.encode(schema3.id, payload)
 
@@ -477,15 +479,10 @@ describe('SchemaRegistry - new Api', () => {
       }
 
       const schemaOptions = v3SerdesOpts
-      const schema3 = await schemaRegistry.register(
-        confluentSchemaV3,
-        {
-          name: `${type.toString()}_test3`,
-        },
-        {
-          schemaOptions,
-        },
-      )
+      const schema3 = await schemaRegistry.register(confluentSchemaV3, {
+        subject: `${type.toString()}_test3`,
+        schemaOptions,
+      })
 
       const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload))
       const data = await schemaRegistry.decode(buffer)

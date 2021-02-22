@@ -9,7 +9,7 @@ export enum SchemaType {
 
 export interface Serdes {
   validate(schema: Schema): void
-  getSubject(schema: Schema, separator: string): ConfluentSubject
+  getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
 }
 
 export type SchemaOptions = any
