@@ -429,54 +429,6 @@ describe('SchemaRegistry - new Api', () => {
     }),
   )
 
-  describe('AVRO tests', () => {
-    let namespace,
-      Schema,
-      subject,
-      api,
-      confluentSubject: ConfluentSubject,
-      confluentSchema: ConfluentSchema
-
-    beforeEach(() => {
-      api = API(schemaRegistryAPIClientArgs)
-      namespace = `N${uuid().replace(/-/g, '_')}`
-      subject = `${namespace}.RandomTest`
-      Schema = {
-        namespace,
-        type: 'record',
-        name: 'RandomTest',
-        fields: [{ type: 'string', name: 'full_name' }],
-      }
-      confluentSubject = { name: subject }
-    })
-
-    it('throws an error when schema does not have a name', async () => {
-      delete Schema.name
-      confluentSchema = { schemaString: JSON.stringify(Schema) }
-      await expect(schemaRegistry.register(confluentSchema)).rejects.toHaveProperty(
-        'message',
-        'Invalid name: undefined',
-      )
-    })
-
-    it('throws an error when schema does not have a namespace', async () => {
-      delete Schema.namespace
-      confluentSchema = { schemaString: JSON.stringify(Schema) }
-      await expect(schemaRegistry.register(confluentSchema)).rejects.toHaveProperty(
-        'message',
-        'Invalid namespace: undefined',
-      )
-    })
-
-    it('accepts schema without a namespace when subject is specified', async () => {
-      const nonNamespaced = readAVSC(path.join(__dirname, '../fixtures/avsc/non_namespaced.avsc'))
-      confluentSchema = { schemaString: JSON.stringify(nonNamespaced) }
-      await expect(schemaRegistry.register(confluentSchema, confluentSubject)).resolves.toEqual({
-        id: expect.any(Number),
-      })
-    })
-  })
-
   describe('PROTOBUF tests', () => {
     const v3 = `
       syntax = "proto2";
@@ -493,18 +445,24 @@ describe('SchemaRegistry - new Api', () => {
       v3SerdesOpts = { messageName: 'AnotherPerson' },
       type = SchemaType.PROTOBUF
 
-    it('encodes using serdesOpts', async () => {
+    it('encodes using schemaOptions', async () => {
       const confluentSchemaV3: ConfluentSchema = {
         type,
         schemaString: v3,
       }
 
-      const schema3 = await schemaRegistry.register(confluentSchemaV3, {
-        name: `${type.toString()}_test3`,
-      })
+      const schemaOptions = v3SerdesOpts
+      const schema3 = await schemaRegistry.register(
+        confluentSchemaV3,
+        {
+          name: `${type.toString()}_test3`,
+        },
+        {
+          schemaOptions,
+        },
+      )
 
-      const serdesOpts = v3SerdesOpts
-      const data = await schemaRegistry.encode(schema3.id, payload, serdesOpts)
+      const data = await schemaRegistry.encode(schema3.id, payload)
 
       expect(data).toMatchConfluentEncodedPayload({
         registryId: schema3.id,
@@ -512,19 +470,25 @@ describe('SchemaRegistry - new Api', () => {
       })
     })
 
-    it('encodes using serdesOpts', async () => {
+    it('decodes using schemaOptions', async () => {
       const confluentSchemaV3: ConfluentSchema = {
         type,
         schemaString: v3,
       }
 
-      const schema3 = await schemaRegistry.register(confluentSchemaV3, {
-        name: `${type.toString()}_test3`,
-      })
+      const schemaOptions = v3SerdesOpts
+      const schema3 = await schemaRegistry.register(
+        confluentSchemaV3,
+        {
+          name: `${type.toString()}_test3`,
+        },
+        {
+          schemaOptions,
+        },
+      )
 
-      const serdesOpts = v3SerdesOpts
-      const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload, serdesOpts))
-      const data = await schemaRegistry.decode(buffer, serdesOpts)
+      const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload))
+      const data = await schemaRegistry.decode(buffer)
 
       expect(data).toEqual(payload)
     })

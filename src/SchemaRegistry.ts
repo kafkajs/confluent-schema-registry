@@ -11,8 +11,12 @@ import {
   ConfluentSchemaRegistryCompatibilityError,
   ConfluentSchemaRegistrySerdesError,
 } from './errors'
-import { ConfluentSchema, ConfluentSubject, schemaTypeFromString } from './@types'
-import { serdesTypeFromSchemaType } from './serdes'
+import { Schema, ConfluentSchema, ConfluentSubject, SchemaOptions } from './@types'
+import {
+  serdesTypeFromSchemaType,
+  schemaTypeFromString,
+  schemaFromConfluentSchema,
+} from './schemaTypeResolver'
 
 interface RegisteredSchema {
   id: number
@@ -22,6 +26,7 @@ interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
   subject?: string
+  schemaOptions?: SchemaOptions
 }
 
 const DEFAULT_OPTS = {
@@ -45,11 +50,13 @@ export default class SchemaRegistry {
     subject?: ConfluentSubject,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
-    const { compatibility, separator } = { ...DEFAULT_OPTS, ...userOpts }
+    const { compatibility, separator, schemaOptions } = { ...DEFAULT_OPTS, ...userOpts }
 
     const serdes = serdesTypeFromSchemaType(schema.type)
+    let schemaInstance
     try {
-      serdes.validate(schema)
+      schemaInstance = schemaFromConfluentSchema(schema, schemaOptions)
+      serdes.validate(schemaInstance)
     } catch (error) {
       if (error instanceof ConfluentSchemaRegistryArgumentError) throw error
 
@@ -59,7 +66,7 @@ export default class SchemaRegistry {
     }
 
     if (!subject) {
-      subject = serdes.getSubject(schema, separator)
+      subject = serdes.getSubject(schemaInstance, separator)
     }
 
     try {
@@ -91,12 +98,12 @@ export default class SchemaRegistry {
 
     const registeredSchema: RegisteredSchema = response.data()
     this.cache.setLatestRegistryId(subject.name, registeredSchema.id)
-    this.cache.setSchema(registeredSchema.id, schema)
+    this.cache.setSchema(registeredSchema.id, schemaInstance)
 
     return registeredSchema
   }
 
-  public async getSchema(registryId: number): Promise<ConfluentSchema> {
+  public async getSchema(registryId: number, opts?: SchemaOptions): Promise<Schema> {
     const schema = this.cache.getSchema(registryId)
 
     if (schema) {
@@ -110,22 +117,22 @@ export default class SchemaRegistry {
       type: schemaTypeFromString(foundSchema.schemaType),
       schemaString: rawSchema,
     }
-    return this.cache.setSchema(registryId, confluentSchema)
+    const schemaInstance = schemaFromConfluentSchema(confluentSchema, opts)
+    return this.cache.setSchema(registryId, schemaInstance)
   }
 
-  public async encode(registryId: number, payload: any, serdesOpts?: {}): Promise<Buffer> {
+  public async encode(registryId: number, payload: any, opts?: SchemaOptions): Promise<Buffer> {
     if (!registryId) {
       throw new ConfluentSchemaRegistryArgumentError(
         `Invalid registryId: ${JSON.stringify(registryId)}`,
       )
     }
 
-    const schema = await this.getSchema(registryId)
+    const schema = await this.getSchema(registryId, opts)
 
-    const serdes = serdesTypeFromSchemaType(schema.type)
     let serializedPayload
     try {
-      serializedPayload = serdes.serialize(schema, payload, serdesOpts)
+      serializedPayload = schema.toBuffer(payload)
     } catch (error) {
       throw new ConfluentSchemaRegistrySerdesError(error)
     }
@@ -133,7 +140,7 @@ export default class SchemaRegistry {
     return encode(registryId, serializedPayload)
   }
 
-  public async decode(buffer: Buffer, serdesOpts?: {}): Promise<any> {
+  public async decode(buffer: Buffer, opts?: SchemaOptions): Promise<any> {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -147,10 +154,9 @@ export default class SchemaRegistry {
       )
     }
 
-    const schema = await this.getSchema(registryId)
-    const serdes = serdesTypeFromSchemaType(schema.type)
+    const schema = await this.getSchema(registryId, opts)
     try {
-      return serdes.deserialize(schema, payload, serdesOpts)
+      return schema.fromBuffer(payload)
     } catch (error) {
       throw new ConfluentSchemaRegistrySerdesError(error)
     }

@@ -7,25 +7,20 @@ export enum SchemaType {
   UNKNOWN = 'UNKNOWN',
 }
 
-export const schemaTypeFromString = (schemaTypeString: string) => {
-  switch (schemaTypeString) {
-    case 'AVRO':
-    case undefined:
-      return SchemaType.AVRO
-    case 'JSON':
-      return SchemaType.JSON
-    case 'PROTOBUF':
-      return SchemaType.PROTOBUF
-    default:
-      return SchemaType.UNKNOWN
-  }
+export interface Serdes {
+  validate(schema: Schema): void
+  getSubject(schema: Schema, separator: string): ConfluentSubject
 }
 
-export interface Serdes {
-  validate(schema: ConfluentSchema): void
-  getSubject(schema: ConfluentSchema, separator: string): ConfluentSubject
-  serialize(schema: ConfluentSchema, payload: any, opts?: {}): Buffer
-  deserialize(schema: ConfluentSchema, buffer: Buffer, opts?: {}): any
+export type SchemaOptions = any
+
+export interface Schema {
+  toBuffer(payload: object): Buffer // FIXME:
+  fromBuffer(buffer: Buffer, resolver?: Resolver, noCheck?: boolean): any
+  isValid(
+    payload: object,
+    opts?: { errorHook: (path: Array<string>, value: any, type?: any) => void },
+  ): boolean
 }
 
 export interface RawAvroSchema {
@@ -35,11 +30,7 @@ export interface RawAvroSchema {
   fields: any[]
 }
 
-export interface AvroSchema extends RawAvroSchema {
-  toBuffer: (payload: object) => Buffer // FIXME:
-  fromBuffer(buffer: Buffer, resolver?: Resolver, noCheck?: boolean): any
-  isValid: (payload: object, opts: { errorHook: (path: any) => void }) => void // FIXME:
-}
+export interface AvroSchema extends Schema, RawAvroSchema {}
 
 export interface ConfluentSubject {
   name: string

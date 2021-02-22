@@ -1,8 +1,8 @@
-import { ConfluentSchema } from './@types'
+import { Schema } from './@types'
 
 export default class Cache {
   registryIdBySubject: { [key: string]: number }
-  schemasByRegistryId: { [key: string]: ConfluentSchema }
+  schemasByRegistryId: { [key: string]: Schema }
 
   constructor() {
     this.registryIdBySubject = {}
@@ -17,9 +17,9 @@ export default class Cache {
     return this.registryIdBySubject[subject]
   }
 
-  getSchema = (registryId: number): ConfluentSchema => this.schemasByRegistryId[registryId]
+  getSchema = (registryId: number): Schema => this.schemasByRegistryId[registryId]
 
-  setSchema = (registryId: number, schema: ConfluentSchema) => {
+  setSchema = (registryId: number, schema: Schema) => {
     this.schemasByRegistryId[registryId] = schema
 
     return this.schemasByRegistryId[registryId]
