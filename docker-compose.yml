@@ -29,3 +29,8 @@ services:
     image: 'confluentinc/cp-schema-registry:5.3.0'
     ports:
       - '8982:8081'
+
+  avro_tools: # https://hub.docker.com/r/coderfi/avro-tools
+    image: coderfi/avro-tools:1.7.7
+    ports:
+     - '9999:9999'
