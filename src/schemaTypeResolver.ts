@@ -4,6 +4,7 @@ import JsonSchema from './JsonSchema'
 import ProtoSerdes from './ProtoSerdes'
 import ProtoSchema from './ProtoSchema'
 import { SchemaType, Serdes, ConfluentSchema, SchemaOptions, Schema } from './@types'
+import { ConfluentSchemaRegistryArgumentError } from './errors'
 
 const serdesTypeFromSchemaTypeMap: Record<string, Serdes> = {}
 
@@ -51,27 +52,31 @@ export const schemaFromConfluentSchema = (
   confluentSchema: ConfluentSchema,
   opts?: SchemaOptions,
 ): Schema => {
-  let schema: Schema
+  try {
+    let schema: Schema
 
-  switch (confluentSchema.type) {
-    case SchemaType.AVRO: {
-      schema = (serdesTypeFromSchemaType(confluentSchema.type) as AvroSerdes).getAvroSchema(
-        confluentSchema,
-        opts,
-      )
-      break
+    switch (confluentSchema.type) {
+      case SchemaType.AVRO: {
+        schema = (serdesTypeFromSchemaType(confluentSchema.type) as AvroSerdes).getAvroSchema(
+          confluentSchema,
+          opts,
+        )
+        break
+      }
+      case SchemaType.JSON: {
+        schema = new JsonSchema(confluentSchema, opts)
+        break
+      }
+      case SchemaType.PROTOBUF: {
+        schema = new ProtoSchema(confluentSchema, opts)
+        break
+      }
+      default:
+        throw new Error()
     }
-    case SchemaType.JSON: {
-      schema = new JsonSchema(confluentSchema, opts)
-      break
-    }
-    case SchemaType.PROTOBUF: {
-      schema = new ProtoSchema(confluentSchema, opts)
-      break
-    }
-    default:
-      throw new Error()
+
+    return schema
+  } catch (err) {
+    throw new ConfluentSchemaRegistryArgumentError(err.message)
   }
-
-  return schema
 }

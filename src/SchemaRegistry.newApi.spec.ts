@@ -255,10 +255,7 @@ describe('SchemaRegistry - new Api', () => {
           }
           await expect(
             schemaRegistry.register(invalidConfluentSchema, { subject: confluentSubject.name }),
-          ).rejects.toHaveProperty(
-            'message',
-            'Confluent_Schema_Registry - Either the input schema or one its references is invalid',
-          )
+          ).rejects.toHaveProperty('name', 'ConfluentSchemaRegistryArgumentError')
         })
       })
 

@@ -1,4 +1,11 @@
-import { AvroSchema, RawAvroSchema, SchemaOptions, ConfluentSchema, Serdes, ConfluentSubject } from './@types'
+import {
+  AvroSchema,
+  RawAvroSchema,
+  SchemaOptions,
+  ConfluentSchema,
+  Serdes,
+  ConfluentSubject,
+} from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
 import avro from 'avsc'
 
