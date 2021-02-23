@@ -9,7 +9,7 @@ import {
   ConfluentSchemaRegistryError,
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
-  ConfluentSchemaRegistrySerdesError,
+  ConfluentSchemaRegistryEncodingError,
 } from './errors'
 import {
   Schema,
@@ -147,15 +147,12 @@ export default class SchemaRegistry {
     }
 
     const schema = await this.getSchema(registryId, opts)
-
-    let serializedPayload
     try {
-      serializedPayload = schema.toBuffer(payload)
-    } catch (error) {
-      throw new ConfluentSchemaRegistrySerdesError(error)
+      const serializedPayload = schema.toBuffer(payload)
+      return encode(registryId, serializedPayload)
+    } catch (err) {
+      throw new ConfluentSchemaRegistryEncodingError(err)
     }
-
-    return encode(registryId, serializedPayload)
   }
 
   public async decode(buffer: Buffer, opts?: SchemaOptions): Promise<any> {
@@ -173,11 +170,7 @@ export default class SchemaRegistry {
     }
 
     const schema = await this.getSchema(registryId, opts)
-    try {
-      return schema.fromBuffer(payload)
-    } catch (error) {
-      throw new ConfluentSchemaRegistrySerdesError(error)
-    }
+    return schema.fromBuffer(payload)
   }
 
   public async getRegistryId(subject: string, version: number | string): Promise<number> {
