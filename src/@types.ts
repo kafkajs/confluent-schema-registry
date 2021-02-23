@@ -12,9 +12,9 @@ export interface SchemaHelper {
   getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
 }
 
-export type AvroOptions = ForSchemaOptions
-export type JsonOptions = any
-export type ProtoOptions = any
+export type AvroOptions = Partial<ForSchemaOptions>
+export type JsonOptions = any // FIXME:
+export type ProtoOptions = any // FIXME:
 export type SchemaOptions = AvroOptions | JsonOptions | ProtoOptions
 
 export interface Schema {

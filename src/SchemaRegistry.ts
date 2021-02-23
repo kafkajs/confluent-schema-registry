@@ -14,6 +14,7 @@ import {
 import {
   Schema,
   RawAvroSchema,
+  AvroSchema,
   SchemaType,
   ConfluentSchema,
   ConfluentSubject,
@@ -52,10 +53,13 @@ export default class SchemaRegistry {
     this.cache = new Cache()
   }
 
-  private getConfluentSchema(schema: RawAvroSchema | ConfluentSchema): ConfluentSchema {
+  private getConfluentSchema(
+    schema: RawAvroSchema | AvroSchema | ConfluentSchema,
+  ): ConfluentSchema {
     let confluentSchema: ConfluentSchema
     // convert data from old api (for backwards compatibility)
     if (!(schema as ConfluentSchema).schemaString) {
+      // schema is instanceof RawAvroSchema or AvroSchema
       confluentSchema = {
         type: SchemaType.AVRO,
         schemaString: JSON.stringify(schema),
@@ -182,7 +186,7 @@ export default class SchemaRegistry {
 
   public async getRegistryIdBySchema(
     subject: string,
-    schema: RawAvroSchema | ConfluentSchema,
+    schema: AvroSchema | ConfluentSchema,
   ): Promise<number> {
     try {
       const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
