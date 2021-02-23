@@ -245,7 +245,7 @@ describe('SchemaRegistry - old AVRO api', () => {
 
       await expect(schemaRegistry.getRegistryIdBySchema(subject, Schema)).rejects.toHaveProperty(
         'message',
-        `Confluent_Schema_Registry - Error while looking up schema under subject ${namespace}.${Schema.name}`,
+        'Confluent_Schema_Registry - Schema not found',
       )
     })
   })

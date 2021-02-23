@@ -52,12 +52,7 @@ export default class SchemaRegistry {
     this.cache = new Cache()
   }
 
-  public async register(
-    schema: RawAvroSchema | ConfluentSchema,
-    userOpts?: Opts,
-  ): Promise<RegisteredSchema> {
-    const { compatibility, separator, schemaOptions } = { ...DEFAULT_OPTS, ...userOpts }
-
+  private getConfluentSchema(schema: RawAvroSchema | ConfluentSchema): ConfluentSchema {
     let confluentSchema: ConfluentSchema
     // convert data from old api (for backwards compatibility)
     if (!(schema as ConfluentSchema).schemaString) {
@@ -68,6 +63,16 @@ export default class SchemaRegistry {
     } else {
       confluentSchema = schema as ConfluentSchema
     }
+    return confluentSchema
+  }
+
+  public async register(
+    schema: RawAvroSchema | ConfluentSchema,
+    userOpts?: Opts,
+  ): Promise<RegisteredSchema> {
+    const { compatibility, separator, schemaOptions } = { ...DEFAULT_OPTS, ...userOpts }
+
+    const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
 
     const serdes = serdesTypeFromSchemaType(confluentSchema.type)
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, schemaOptions)
@@ -182,13 +187,17 @@ export default class SchemaRegistry {
     return id
   }
 
-  public async getRegistryIdBySchema(subject: string, schema: ConfluentSchema): Promise<number> {
+  public async getRegistryIdBySchema(
+    subject: string,
+    schema: RawAvroSchema | ConfluentSchema,
+  ): Promise<number> {
     try {
+      const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
       const response = await this.api.Subject.registered({
         subject,
         body: {
-          schemaType: schema.type,
-          schema: schema.schemaString,
+          schemaType: confluentSchema.type,
+          schema: confluentSchema.schemaString,
         },
       })
       const { id }: { id: number } = response.data()
