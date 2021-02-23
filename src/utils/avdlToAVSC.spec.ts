@@ -5,7 +5,6 @@ import avro from 'avsc'
 
 import SchemaRegistry from '../SchemaRegistry'
 import { avdlToAVSCAsync } from './avdlToAVSC'
-import { ConfluentSchema, SchemaType } from '../@types'
 
 const registry = new SchemaRegistry({ host: 'http://localhost:8982' })
 const absolutePath = (...paths: string[]) => path.join(__dirname, '../..', ...paths)
@@ -24,16 +23,10 @@ const compareWithJavaImplementation = (avdlPath: string, name: string) => async 
   }
 
   const avsc = await avdlToAVSCAsync(absolutePath('./fixtures/avdl', avdlPath))
-  const confluentSchema: ConfluentSchema = {
-    type: SchemaType.AVRO,
-    schemaString: JSON.stringify(avsc),
-  }
 
   expect(avsc).toEqual(expectedAVSC)
   expect(avro.Type.forSchema(avsc)).toBeTruthy()
-  expect(
-    await registry.register(confluentSchema, { name: `${avsc.namespace}.${avsc.name}` }),
-  ).toBeTruthy()
+  expect(await registry.register(avsc)).toBeTruthy()
 }
 
 beforeAll(async () => {
