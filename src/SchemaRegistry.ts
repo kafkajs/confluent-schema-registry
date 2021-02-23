@@ -154,9 +154,19 @@ export default class SchemaRegistry {
     try {
       const serializedPayload = schema.toBuffer(payload)
       return encode(registryId, serializedPayload)
-    } catch (err) {
-      throw new ConfluentSchemaRegistryEncodingError(err)
+    } catch (error) {
+      const paths = this.collectInvalidPaths(schema, payload)
+      throw new ConfluentSchemaRegistryEncodingError(error, paths)
     }
+  }
+
+  private collectInvalidPaths(schema: Schema, jsonPayload: object) {
+    const paths: string[][] = []
+    schema.isValid(jsonPayload, {
+      errorHook: path => paths.push(path),
+    })
+
+    return paths
   }
 
   public async decode(buffer: Buffer, opts?: SchemaOptions): Promise<any> {
