@@ -1,12 +1,12 @@
-import AvroSerdes from './AvroSerdes'
-import JsonSerdes from './JsonSerdes'
+import AvroHelper from './AvroHelper'
+import JsonHelper from './JsonHelper'
 import JsonSchema from './JsonSchema'
-import ProtoSerdes from './ProtoSerdes'
+import ProtoHelper from './ProtoHelper'
 import ProtoSchema from './ProtoSchema'
-import { SchemaType, Serdes, ConfluentSchema, SchemaOptions, Schema } from './@types'
+import { SchemaType, SchemaHelper, ConfluentSchema, SchemaOptions, Schema } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
 
-const serdesTypeFromSchemaTypeMap: Record<string, Serdes> = {}
+const helperTypeFromSchemaTypeMap: Record<string, SchemaHelper> = {}
 
 export const schemaTypeFromString = (schemaTypeString: string) => {
   switch (schemaTypeString) {
@@ -22,30 +22,30 @@ export const schemaTypeFromString = (schemaTypeString: string) => {
   }
 }
 
-export const serdesTypeFromSchemaType = (schemaType: SchemaType = SchemaType.AVRO): Serdes => {
+export const helperTypeFromSchemaType = (schemaType: SchemaType = SchemaType.AVRO): SchemaHelper => {
   const schemaTypeStr = schemaType.toString()
 
-  if (!serdesTypeFromSchemaTypeMap[schemaTypeStr]) {
-    let serdes
+  if (!helperTypeFromSchemaTypeMap[schemaTypeStr]) {
+    let helper
     switch (schemaType) {
       case SchemaType.AVRO: {
-        serdes = new AvroSerdes()
+        helper = new AvroHelper()
         break
       }
       case SchemaType.JSON: {
-        serdes = new JsonSerdes()
+        helper = new JsonHelper()
         break
       }
       case SchemaType.PROTOBUF: {
-        serdes = new ProtoSerdes()
+        helper = new ProtoHelper()
         break
       }
       default:
         throw new Error()
     }
-    serdesTypeFromSchemaTypeMap[schemaTypeStr] = serdes
+    helperTypeFromSchemaTypeMap[schemaTypeStr] = helper
   }
-  return serdesTypeFromSchemaTypeMap[schemaTypeStr]
+  return helperTypeFromSchemaTypeMap[schemaTypeStr]
 }
 
 export const schemaFromConfluentSchema = (
@@ -57,7 +57,7 @@ export const schemaFromConfluentSchema = (
 
     switch (confluentSchema.type) {
       case SchemaType.AVRO: {
-        schema = (serdesTypeFromSchemaType(confluentSchema.type) as AvroSerdes).getAvroSchema(
+        schema = (helperTypeFromSchemaType(confluentSchema.type) as AvroHelper).getAvroSchema(
           confluentSchema,
           opts,
         )

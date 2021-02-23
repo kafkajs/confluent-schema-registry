@@ -3,13 +3,13 @@ import {
   RawAvroSchema,
   SchemaOptions,
   ConfluentSchema,
-  Serdes,
+  SchemaHelper,
   ConfluentSubject,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
 import avro from 'avsc'
 
-export default class AvroSerdes implements Serdes {
+export default class AvroHelper implements SchemaHelper {
   private getRawAvroSchema(schema: ConfluentSchema): RawAvroSchema {
     return JSON.parse(schema.schemaString) as RawAvroSchema
   }

@@ -446,7 +446,7 @@ describe('SchemaRegistry - new Api', () => {
         optional string city = 2 [default = "Stockholm"];
       }
       `,
-      v3SerdesOpts = { messageName: 'AnotherPerson' },
+      v3Opts = { messageName: 'AnotherPerson' },
       type = SchemaType.PROTOBUF
 
     it('encodes using schemaOptions', async () => {
@@ -455,7 +455,7 @@ describe('SchemaRegistry - new Api', () => {
         schemaString: v3,
       }
 
-      const schemaOptions = v3SerdesOpts
+      const schemaOptions = v3Opts
       const schema3 = await schemaRegistry.register(confluentSchemaV3, {
         subject: `${type.toString()}_test3`,
         schemaOptions,
@@ -475,7 +475,7 @@ describe('SchemaRegistry - new Api', () => {
         schemaString: v3,
       }
 
-      const schemaOptions = v3SerdesOpts
+      const schemaOptions = v3Opts
       const schema3 = await schemaRegistry.register(confluentSchemaV3, {
         subject: `${type.toString()}_test3`,
         schemaOptions,

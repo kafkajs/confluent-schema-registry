@@ -1,6 +1,6 @@
-import { Schema, Serdes, ConfluentSubject, ConfluentSchema } from './@types'
+import { Schema, SchemaHelper, ConfluentSubject, ConfluentSchema } from './@types'
 
-export default class ProtoSerdes implements Serdes {
+export default class ProtoHelper implements SchemaHelper {
   // @ts-ignore
   public validate(schema: Schema): void {
     return

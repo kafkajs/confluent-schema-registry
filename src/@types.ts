@@ -7,7 +7,7 @@ export enum SchemaType {
   UNKNOWN = 'UNKNOWN',
 }
 
-export interface Serdes {
+export interface SchemaHelper {
   validate(schema: Schema): void
   getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
 }

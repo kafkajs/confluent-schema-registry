@@ -20,7 +20,7 @@ import {
   SchemaOptions,
 } from './@types'
 import {
-  serdesTypeFromSchemaType,
+  helperTypeFromSchemaType,
   schemaTypeFromString,
   schemaFromConfluentSchema,
 } from './schemaTypeResolver'
@@ -74,9 +74,9 @@ export default class SchemaRegistry {
 
     const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
 
-    const serdes = serdesTypeFromSchemaType(confluentSchema.type)
+    const helper = helperTypeFromSchemaType(confluentSchema.type)
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, schemaOptions)
-    serdes.validate(schemaInstance)
+    helper.validate(schemaInstance)
 
     let subject: ConfluentSubject
     if (userOpts?.subject) {
@@ -84,7 +84,7 @@ export default class SchemaRegistry {
         name: userOpts.subject,
       }
     } else {
-      subject = serdes.getSubject(confluentSchema, schemaInstance, separator)
+      subject = helper.getSubject(confluentSchema, schemaInstance, separator)
     }
 
     try {
