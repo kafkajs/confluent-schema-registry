@@ -27,6 +27,11 @@ export default class ProtoSchema implements Schema {
     return `${pkg ? pkg + '.' : ''}.${name}`
   }
 
+  private trimStart(buffer: Buffer): Buffer {
+    const index = buffer.findIndex((value: number) => value != 0)
+    return buffer.slice(index)
+  }
+
   public toBuffer(payload: object): Buffer {
     let errMsg
     if (
@@ -44,7 +49,8 @@ export default class ProtoSchema implements Schema {
   }
 
   public fromBuffer(buffer: Buffer): any {
-    return this.message.decode(buffer)
+    const newBuffer = this.trimStart(buffer)
+    return this.message.decode(newBuffer)
   }
 
   public isValid(
