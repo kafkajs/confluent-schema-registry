@@ -1,7 +1,7 @@
 import {
   AvroSchema,
   RawAvroSchema,
-  SchemaOptions,
+  AvroOptions,
   ConfluentSchema,
   SchemaHelper,
   ConfluentSubject,
@@ -14,7 +14,7 @@ export default class AvroHelper implements SchemaHelper {
     return JSON.parse(schema.schemaString) as RawAvroSchema
   }
 
-  public getAvroSchema(schema: ConfluentSchema, opts?: SchemaOptions) {
+  public getAvroSchema(schema: ConfluentSchema, opts?: AvroOptions) {
     const rawSchema: RawAvroSchema = this.getRawAvroSchema(schema)
     // @ts-ignore TODO: Fix typings for Schema...
     const avroSchema: AvroSchema = avro.Type.forSchema(rawSchema, opts)

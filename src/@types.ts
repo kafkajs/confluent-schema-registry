@@ -1,4 +1,4 @@
-import { Resolver } from 'avsc'
+import { Resolver, ForSchemaOptions } from 'avsc'
 
 export enum SchemaType {
   AVRO = 'AVRO',
@@ -12,7 +12,10 @@ export interface SchemaHelper {
   getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
 }
 
-export type SchemaOptions = any
+export type AvroOptions = ForSchemaOptions
+export type JsonOptions = any
+export type ProtoOptions = any
+export type SchemaOptions = AvroOptions | JsonOptions | ProtoOptions
 
 export interface Schema {
   toBuffer(payload: object): Buffer // FIXME:

@@ -22,7 +22,9 @@ export const schemaTypeFromString = (schemaTypeString: string) => {
   }
 }
 
-export const helperTypeFromSchemaType = (schemaType: SchemaType = SchemaType.AVRO): SchemaHelper => {
+export const helperTypeFromSchemaType = (
+  schemaType: SchemaType = SchemaType.AVRO,
+): SchemaHelper => {
   const schemaTypeStr = schemaType.toString()
 
   if (!helperTypeFromSchemaTypeMap[schemaTypeStr]) {
