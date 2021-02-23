@@ -1,13 +1,16 @@
+// @ts-nocheck
 import { Schema, SchemaHelper, ConfluentSubject, ConfluentSchema } from './@types'
 
 export default class ProtoHelper implements SchemaHelper {
-  // @ts-ignore
   public validate(schema: Schema): void {
     return
   }
 
-  // @ts-ignore
-  public getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject {
+  public getSubject(
+    confluentSchema: ConfluentSchema,
+    schema: Schema,
+    separator: string,
+  ): ConfluentSubject {
     throw Error('not implemented yet')
   }
 }

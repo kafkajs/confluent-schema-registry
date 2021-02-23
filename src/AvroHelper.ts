@@ -27,8 +27,12 @@ export default class AvroHelper implements SchemaHelper {
     }
   }
 
-  // @ts-ignore
-  public getSubject(schema: ConfluentSchema, avroSchema: AvroSchema, separator: string): ConfluentSubject {
+  public getSubject(
+    schema: ConfluentSchema,
+    // @ts-ignore
+    avroSchema: AvroSchema,
+    separator: string,
+  ): ConfluentSubject {
     const rawSchema: RawAvroSchema = this.getRawAvroSchema(schema)
 
     if (!rawSchema.namespace) {
