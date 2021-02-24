@@ -14,7 +14,7 @@ const zooKeeperRunner = new ZooKeeperRunner({
  */
 const schemaRegistryRunner = new SimpleRunner({
   service: 'schemaRegistry',
-  image: 'confluentinc/cp-schema-registry:5.3.0',
+  image: 'confluentinc/cp-schema-registry:5.5.3',
   ports: {
     '8982': '8081',
   },
@@ -26,7 +26,7 @@ const schemaRegistryRunner = new SimpleRunner({
 
 const kafkaRunner = new KafkaRunner({
   service: 'kafka',
-  image: 'confluentinc/cp-kafka:5.2.2',
+  image: 'confluentinc/cp-kafka:5.5.3',
   dependsOn: [zooKeeperRunner],
   ports: {
     [KafkaRunner.DEFAULT_PORT_PLAINTEXT]: KafkaRunner.DEFAULT_PORT_PLAINTEXT,

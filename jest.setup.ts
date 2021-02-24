@@ -1,7 +1,7 @@
-import { MAGIC_BYTE } from './src/encoder'
-import decode from './src/decoder'
+import { MAGIC_BYTE } from './src/wireEncoder'
+import decode from './src/wireDecoder'
 
-const toMatchConfluentAvroEncodedPayload = context => (received, { payload: expectedPayload }) => {
+const toMatchConfluentEncodedPayload = context => (received, { payload: expectedPayload }) => {
   const { printExpected, printReceived, printWithType } = context.utils
 
   if (!Buffer.isBuffer(expectedPayload)) {
@@ -52,9 +52,9 @@ const toMatchConfluentAvroEncodedPayload = context => (received, { payload: expe
 }
 
 expect.extend({
-  toMatchConfluentAvroEncodedPayload(...args) {
+  toMatchConfluentEncodedPayload(...args) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore
-    return toMatchConfluentAvroEncodedPayload(this)(...args)
+    return toMatchConfluentEncodedPayload(this)(...args)
   },
 })

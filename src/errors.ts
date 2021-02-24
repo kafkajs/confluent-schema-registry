@@ -8,10 +8,19 @@ class ConfluentSchemaRegistryError extends Error {
 class ConfluentSchemaRegistryArgumentError extends ConfluentSchemaRegistryError {}
 class ConfluentSchemaRegistryCompatibilityError extends ConfluentSchemaRegistryError {}
 class ConfluentSchemaRegistryInvalidSchemaError extends ConfluentSchemaRegistryError {}
+class ConfluentSchemaRegistryValidationError extends ConfluentSchemaRegistryError {
+  public paths: string[][]
+
+  constructor(error: any, paths: string[][]) {
+    super(error)
+    this.paths = paths
+  }
+}
 
 export {
   ConfluentSchemaRegistryError,
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
   ConfluentSchemaRegistryInvalidSchemaError,
+  ConfluentSchemaRegistryValidationError,
 }
