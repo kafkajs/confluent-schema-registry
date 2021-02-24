@@ -1,11 +1,11 @@
-import { Schema, ConfluentSchema } from './@types'
+import { Schema, ConfluentSchema, ProtoOptions } from './@types'
 import protobuf from 'protobufjs'
 import { IParserResult, ReflectionObject, Namespace, Type } from 'protobufjs/light'
 
 export default class ProtoSchema implements Schema {
   private message: Type
 
-  constructor(schema: ConfluentSchema, opts?: { messageName: string }) {
+  constructor(schema: ConfluentSchema, opts?: ProtoOptions) {
     const parsedMessage = protobuf.parse(schema.schemaString)
     const root = parsedMessage.root
     this.message = root.lookupType(this.getTypeName(parsedMessage, opts))
@@ -20,7 +20,7 @@ export default class ProtoSchema implements Schema {
     return keys[0]
   }
 
-  private getTypeName(parsedMessage: IParserResult, opts?: { messageName: string }): string {
+  private getTypeName(parsedMessage: IParserResult, opts?: ProtoOptions): string {
     const root = parsedMessage.root
     const pkg = parsedMessage.package
     const name = opts && opts.messageName ? opts.messageName : this.getNestedTypeName(root.nested)
