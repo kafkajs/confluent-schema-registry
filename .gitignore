@@ -27,6 +27,8 @@ release
 # website
 #
 build
+*.swp
+*~
 
 # test
 docker-compose.dockest-generated.yml

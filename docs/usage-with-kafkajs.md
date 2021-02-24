@@ -15,7 +15,7 @@ with a different schema.
 ```js
 const path = require('path')
 const { Kafka } = require('kafkajs')
-const { avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
+const { SchemaRegistry, avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
 
 const registry = new SchemaRegistry({ host: 'http://localhost:8081' })
 const kafka = new Kafka({

@@ -1,7 +1,6 @@
 import forge, { Client, Authorization } from 'mappersmith'
 import RetryMiddleware, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
-import { ForSchemaOptions } from 'avsc'
 
 import { DEFAULT_API_CLIENT_ID } from '../constants'
 import errorMiddleware from './middleware/errorMiddleware'
@@ -20,10 +19,6 @@ export interface SchemaRegistryAPIClientArgs {
   auth?: Authorization
   clientId?: string
   retry?: Partial<RetryMiddlewareOptions>
-}
-
-export interface SchemaRegistryAPIClientOptions {
-  forSchemaOptions?: Partial<ForSchemaOptions>
 }
 
 // TODO: Improve typings
