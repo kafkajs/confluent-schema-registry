@@ -85,7 +85,7 @@ export const schemaFromConfluentSchema = (
         break
       }
       case SchemaType.PROTOBUF: {
-        const opts: ProtoOptions = (options as ProtocolOptions)?.[SchemaType.PROTOBUF]
+        const opts: ProtoOptions | undefined = (options as ProtocolOptions)?.[SchemaType.PROTOBUF]
         schema = new ProtoSchema(confluentSchema, opts)
         break
       }

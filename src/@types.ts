@@ -1,4 +1,5 @@
 import { Resolver, ForSchemaOptions } from 'avsc'
+import Ajv from 'ajv'
 
 export enum SchemaType {
   AVRO = 'AVRO',
@@ -13,8 +14,8 @@ export interface SchemaHelper {
 }
 
 export type AvroOptions = Partial<ForSchemaOptions>
-export type JsonOptions = any // FIXME:
-export type ProtoOptions = any // FIXME:
+export type JsonOptions = ConstructorParameters<typeof Ajv>[0]
+export type ProtoOptions = { messageName: string }
 
 export interface LegacyOptions {
   forSchemaOptions?: AvroOptions

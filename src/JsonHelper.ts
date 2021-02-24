@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { Schema, SchemaHelper, ConfluentSubject, ConfluentSchema } from './@types'
+import { ConfluentSchemaRegistryError } from './errors'
 
 export default class JsonHelper implements SchemaHelper {
   public validate(schema: Schema): void {
@@ -11,6 +12,6 @@ export default class JsonHelper implements SchemaHelper {
     schema: Schema,
     separator: string,
   ): ConfluentSubject {
-    throw Error('not implemented yet')
+    throw new ConfluentSchemaRegistryError('not implemented yet')
   }
 }
