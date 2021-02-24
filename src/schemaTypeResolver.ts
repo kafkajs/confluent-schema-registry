@@ -3,7 +3,18 @@ import JsonHelper from './JsonHelper'
 import JsonSchema from './JsonSchema'
 import ProtoHelper from './ProtoHelper'
 import ProtoSchema from './ProtoSchema'
-import { SchemaType, SchemaHelper, ConfluentSchema, SchemaOptions, Schema } from './@types'
+import {
+  SchemaType,
+  SchemaHelper,
+  ConfluentSchema,
+  SchemaRegistryAPIClientOptions,
+  LegacyOptions,
+  ProtocolOptions,
+  AvroOptions,
+  JsonOptions,
+  ProtoOptions,
+  Schema,
+} from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
 
 const helperTypeFromSchemaTypeMap: Record<string, SchemaHelper> = {}
@@ -52,13 +63,16 @@ export const helperTypeFromSchemaType = (
 
 export const schemaFromConfluentSchema = (
   confluentSchema: ConfluentSchema,
-  opts?: SchemaOptions,
+  options?: SchemaRegistryAPIClientOptions,
 ): Schema => {
   try {
     let schema: Schema
 
     switch (confluentSchema.type) {
       case SchemaType.AVRO: {
+        const opts: AvroOptions | undefined =
+          (options as LegacyOptions)?.forSchemaOptions ||
+          (options as ProtocolOptions)?.[SchemaType.AVRO]
         schema = (helperTypeFromSchemaType(confluentSchema.type) as AvroHelper).getAvroSchema(
           confluentSchema,
           opts,
@@ -66,10 +80,12 @@ export const schemaFromConfluentSchema = (
         break
       }
       case SchemaType.JSON: {
+        const opts: JsonOptions = (options as ProtocolOptions)?.[SchemaType.JSON]
         schema = new JsonSchema(confluentSchema, opts)
         break
       }
       case SchemaType.PROTOBUF: {
+        const opts: ProtoOptions = (options as ProtocolOptions)?.[SchemaType.PROTOBUF]
         schema = new ProtoSchema(confluentSchema, opts)
         break
       }

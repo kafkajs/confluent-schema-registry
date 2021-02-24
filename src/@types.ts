@@ -15,7 +15,16 @@ export interface SchemaHelper {
 export type AvroOptions = Partial<ForSchemaOptions>
 export type JsonOptions = any // FIXME:
 export type ProtoOptions = any // FIXME:
-export type SchemaOptions = AvroOptions | JsonOptions | ProtoOptions
+
+export interface LegacyOptions {
+  forSchemaOptions?: AvroOptions
+}
+export interface ProtocolOptions {
+  [SchemaType.AVRO]?: AvroOptions
+  [SchemaType.JSON]?: JsonOptions
+  [SchemaType.PROTOBUF]?: ProtoOptions
+}
+export type SchemaRegistryAPIClientOptions = ProtocolOptions | LegacyOptions
 
 export interface Schema {
   toBuffer(payload: object): Buffer // FIXME:

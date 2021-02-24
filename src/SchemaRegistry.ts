@@ -18,7 +18,7 @@ import {
   SchemaType,
   ConfluentSchema,
   ConfluentSubject,
-  SchemaOptions,
+  SchemaRegistryAPIClientOptions,
 } from './@types'
 import {
   helperTypeFromSchemaType,
@@ -34,7 +34,6 @@ interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
   subject?: string
-  schemaOptions?: SchemaOptions
 }
 
 const DEFAULT_OPTS = {
@@ -45,12 +44,17 @@ const DEFAULT_OPTS = {
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
   private cacheMissRequests: { [key: number]: Promise<Response> } = {}
+  private options: SchemaRegistryAPIClientOptions | undefined
 
   public cache: Cache
 
-  constructor({ auth, clientId, host, retry }: SchemaRegistryAPIClientArgs) {
+  constructor(
+    { auth, clientId, host, retry }: SchemaRegistryAPIClientArgs,
+    options?: SchemaRegistryAPIClientOptions,
+  ) {
     this.api = API({ auth, clientId, host, retry })
     this.cache = new Cache()
+    this.options = options
   }
 
   private getConfluentSchema(
@@ -74,12 +78,12 @@ export default class SchemaRegistry {
     schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
-    const { compatibility, separator, schemaOptions } = { ...DEFAULT_OPTS, ...userOpts }
+    const { compatibility, separator } = { ...DEFAULT_OPTS, ...userOpts }
 
     const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
 
     const helper = helperTypeFromSchemaType(confluentSchema.type)
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, schemaOptions)
+    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
     helper.validate(schemaInstance)
 
     let subject: ConfluentSubject
@@ -125,7 +129,7 @@ export default class SchemaRegistry {
     return registeredSchema
   }
 
-  public async getSchema(registryId: number, opts?: SchemaOptions): Promise<Schema> {
+  public async getSchema(registryId: number): Promise<Schema> {
     const schema = this.cache.getSchema(registryId)
 
     if (schema) {
@@ -139,18 +143,18 @@ export default class SchemaRegistry {
       type: schemaTypeFromString(foundSchema.schemaType),
       schemaString: rawSchema,
     }
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, opts)
+    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
     return this.cache.setSchema(registryId, schemaInstance)
   }
 
-  public async encode(registryId: number, payload: any, opts?: SchemaOptions): Promise<Buffer> {
+  public async encode(registryId: number, payload: any): Promise<Buffer> {
     if (!registryId) {
       throw new ConfluentSchemaRegistryArgumentError(
         `Invalid registryId: ${JSON.stringify(registryId)}`,
       )
     }
 
-    const schema = await this.getSchema(registryId, opts)
+    const schema = await this.getSchema(registryId)
     try {
       const serializedPayload = schema.toBuffer(payload)
       return encode(registryId, serializedPayload)
@@ -169,7 +173,7 @@ export default class SchemaRegistry {
     return paths
   }
 
-  public async decode(buffer: Buffer, opts?: SchemaOptions): Promise<any> {
+  public async decode(buffer: Buffer): Promise<any> {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -183,7 +187,7 @@ export default class SchemaRegistry {
       )
     }
 
-    const schema = await this.getSchema(registryId, opts)
+    const schema = await this.getSchema(registryId)
     return schema.fromBuffer(payload)
   }
 

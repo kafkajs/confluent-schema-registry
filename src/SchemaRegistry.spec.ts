@@ -3,11 +3,11 @@ import { v4 as uuid } from 'uuid'
 
 import { readAVSC } from './utils'
 import SchemaRegistry from './SchemaRegistry'
-import API from './api'
+import API, { SchemaRegistryAPIClient } from './api'
 import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2 from '../fixtures/avro/encodedAnotherPersonV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
-import { RawSchema } from './@types'
+import { RawAvroSchema } from './@types'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
@@ -25,7 +25,7 @@ describe('SchemaRegistry - old AVRO api', () => {
   })
 
   describe('#register', () => {
-    let namespace, Schema: RawSchema, subject, api
+    let namespace: string, Schema: RawAvroSchema, subject: string, api: SchemaRegistryAPIClient
 
     beforeEach(() => {
       api = API(schemaRegistryAPIClientArgs)
@@ -144,7 +144,7 @@ describe('SchemaRegistry - old AVRO api', () => {
   })
 
   describe('#decode', () => {
-    let registryId
+    let registryId: number
 
     beforeEach(async () => {
       registryId = (await schemaRegistry.register(personSchema)).id
@@ -204,7 +204,7 @@ describe('SchemaRegistry - old AVRO api', () => {
   })
 
   describe('#getRegistryIdBySchema', () => {
-    let namespace, Schema, subject
+    let namespace: string, Schema: RawAvroSchema, subject: string
 
     beforeEach(() => {
       namespace = `N${uuid().replace(/-/g, '_')}`

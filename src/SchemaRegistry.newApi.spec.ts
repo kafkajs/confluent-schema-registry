@@ -1,10 +1,8 @@
-import path from 'path'
 import { v4 as uuid } from 'uuid'
 
-import { readAVSC } from './utils'
 import SchemaRegistry from './SchemaRegistry'
 import { ConfluentSubject, ConfluentSchema, SchemaType } from './@types'
-import API from './api'
+import API, { SchemaRegistryAPIClient } from './api'
 import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2Avro from '../fixtures/avro/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
@@ -20,9 +18,9 @@ const payload = { fullName: 'John Doe' }
 describe('SchemaRegistry - new Api', () => {
   let schemaRegistry: SchemaRegistry
 
-  const schemaStringsByType = {
-    [SchemaType.AVRO.toString()]: {
-      random: namespace => `
+  const schemaStringsByType: Record<SchemaType, any> = {
+    [SchemaType.AVRO]: {
+      random: (namespace: string) => `
       {
         "type": "record",
         "name": "RandomTest",
@@ -30,7 +28,7 @@ describe('SchemaRegistry - new Api', () => {
         "fields": [{ "type": "string", "name": "fullName" }]
       }
     `,
-      otherRandom: namespace => `
+      otherRandom: (namespace: string) => `
       {
         "type": "record",
         "name": "RandomTest",
@@ -55,8 +53,8 @@ describe('SchemaRegistry - new Api', () => {
       }`,
       encodedAnotherPersonV2: encodedAnotherPersonV2Avro,
     },
-    [SchemaType.JSON.toString()]: {
-      random: namespace => `
+    [SchemaType.JSON]: {
+      random: (namespace: string) => `
       {
         "definitions" : {
           "record:${namespace}.RandomTest" : {
@@ -73,7 +71,7 @@ describe('SchemaRegistry - new Api', () => {
         "$ref" : "#/definitions/record:${namespace}.RandomTest"
       }
     `,
-      otherRandom: namespace => `
+      otherRandom: (namespace: string) => `
       {
         "definitions" : {
           "record:${namespace}.RandomTest" : {
@@ -126,14 +124,14 @@ describe('SchemaRegistry - new Api', () => {
       `,
       encodedAnotherPersonV2: encodedAnotherPersonV2Json,
     },
-    [SchemaType.PROTOBUF.toString()]: {
-      random: namespace => `
+    [SchemaType.PROTOBUF]: {
+      random: (namespace: string) => `
       package ${namespace};
       message RandomTest {
         required string fullName = 1;
       }
     `,
-      otherRandom: namespace => `
+      otherRandom: (namespace: string) => `
       package ${namespace};
       message RandomTest {
         required string notFullName = 1;
@@ -159,14 +157,14 @@ describe('SchemaRegistry - new Api', () => {
   }
   const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
 
-  types.forEach(type =>
-    describe(`${type.toString()}`, () => {
+  types.forEach((type: SchemaType) =>
+    describe(`${type}`, () => {
       const subject: ConfluentSubject = {
-        name: [type.toString(), 'com.org.domain.fixtures', 'AnotherPerson'].join('.'),
+        name: [type, 'com.org.domain.fixtures', 'AnotherPerson'].join('.'),
       }
       const schema: ConfluentSchema = {
         type,
-        schemaString: schemaStringsByType[type.toString()].v1,
+        schemaString: schemaStringsByType[type].v1,
       }
 
       beforeEach(async () => {
@@ -177,8 +175,8 @@ describe('SchemaRegistry - new Api', () => {
       describe('#register', () => {
         let namespace,
           Schema,
-          subject,
-          api,
+          subject: string,
+          api: SchemaRegistryAPIClient,
           confluentSubject: ConfluentSubject,
           confluentSchema: ConfluentSchema
 
@@ -186,7 +184,7 @@ describe('SchemaRegistry - new Api', () => {
           api = API(schemaRegistryAPIClientArgs)
           namespace = `N${uuid().replace(/-/g, '_')}`
           subject = `${namespace}.RandomTest`
-          Schema = schemaStringsByType[type.toString()].random(namespace)
+          Schema = schemaStringsByType[type].random(namespace)
           confluentSubject = { name: subject }
           confluentSchema = { type, schemaString: Schema }
         })
@@ -274,18 +272,18 @@ describe('SchemaRegistry - new Api', () => {
         it('encodes using a defined registryId', async () => {
           const confluentSchemaV1: ConfluentSchema = {
             type,
-            schemaString: schemaStringsByType[type.toString()].v1,
+            schemaString: schemaStringsByType[type].v1,
           }
           const confluentSchemaV2: ConfluentSchema = {
             type,
-            schemaString: schemaStringsByType[type.toString()].v2,
+            schemaString: schemaStringsByType[type].v2,
           }
 
           const schema1 = await schemaRegistry.register(confluentSchemaV1, {
-            subject: `${type.toString()}_test1`,
+            subject: `${type}_test1`,
           })
           const schema2 = await schemaRegistry.register(confluentSchemaV2, {
-            subject: `${type.toString()}_test2`,
+            subject: `${type}_test2`,
           })
           expect(schema2.id).not.toEqual(schema1.id)
 
@@ -293,17 +291,17 @@ describe('SchemaRegistry - new Api', () => {
 
           expect(data).toMatchConfluentEncodedPayload({
             registryId: schema2.id,
-            payload: Buffer.from(schemaStringsByType[type.toString()].encodedAnotherPersonV2),
+            payload: Buffer.from(schemaStringsByType[type].encodedAnotherPersonV2),
           })
         })
 
         it('throws an error if the payload does not match the schema', async () => {
           const confluentSchema: ConfluentSchema = {
             type,
-            schemaString: schemaStringsByType[type.toString()].v1,
+            schemaString: schemaStringsByType[type].v1,
           }
           const schema = await schemaRegistry.register(confluentSchema, {
-            subject: `${type.toString()}_test`,
+            subject: `${type}_test`,
           })
 
           const badPayload = { asdf: 123 }
@@ -316,7 +314,7 @@ describe('SchemaRegistry - new Api', () => {
       })
 
       describe('#decode', () => {
-        let registryId
+        let registryId: number
 
         beforeEach(async () => {
           registryId = (await schemaRegistry.register(schema, { subject: subject.name })).id
@@ -387,12 +385,12 @@ describe('SchemaRegistry - new Api', () => {
       })
 
       describe('#getRegistryIdBySchema', () => {
-        let namespace, confluentSubject: ConfluentSubject, confluentSchema: ConfluentSchema
+        let namespace: string, confluentSubject: ConfluentSubject, confluentSchema: ConfluentSchema
 
         beforeEach(() => {
           namespace = `N${uuid().replace(/-/g, '_')}`
           const subject = `${namespace}.RandomTest`
-          const schema = schemaStringsByType[type.toString()].random(namespace)
+          const schema = schemaStringsByType[type].random(namespace)
           confluentSubject = { name: subject }
           confluentSchema = { type, schemaString: schema }
         })
@@ -417,7 +415,7 @@ describe('SchemaRegistry - new Api', () => {
         })
 
         it('throws an error if the schema has not been registered under that subject', async () => {
-          const otherSchema = schemaStringsByType[type.toString()].otherRandom(namespace)
+          const otherSchema = schemaStringsByType[type].otherRandom(namespace)
           const confluentOtherSchema: ConfluentSchema = {
             type,
             schemaString: otherSchema,
@@ -446,8 +444,12 @@ describe('SchemaRegistry - new Api', () => {
         optional string city = 2 [default = "Stockholm"];
       }
       `,
-      v3Opts = { messageName: 'AnotherPerson' },
+      v3Opts = { [SchemaType.PROTOBUF]: { messageName: 'AnotherPerson' } },
       type = SchemaType.PROTOBUF
+
+    beforeAll(() => {
+      schemaRegistry = new SchemaRegistry(schemaRegistryArgs, v3Opts)
+    })
 
     it('encodes using schemaOptions', async () => {
       const confluentSchemaV3: ConfluentSchema = {
@@ -455,17 +457,15 @@ describe('SchemaRegistry - new Api', () => {
         schemaString: v3,
       }
 
-      const schemaOptions = v3Opts
       const schema3 = await schemaRegistry.register(confluentSchemaV3, {
-        subject: `${type.toString()}_test3`,
-        schemaOptions,
+        subject: `${type}_test3`,
       })
 
       const data = await schemaRegistry.encode(schema3.id, payload)
 
       expect(data).toMatchConfluentEncodedPayload({
         registryId: schema3.id,
-        payload: Buffer.from(schemaStringsByType[type.toString()].encodedAnotherPersonV2),
+        payload: Buffer.from(schemaStringsByType[type].encodedAnotherPersonV2),
       })
     })
 
@@ -475,10 +475,8 @@ describe('SchemaRegistry - new Api', () => {
         schemaString: v3,
       }
 
-      const schemaOptions = v3Opts
       const schema3 = await schemaRegistry.register(confluentSchemaV3, {
-        subject: `${type.toString()}_test3`,
-        schemaOptions,
+        subject: `${type}_test3`,
       })
 
       const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload))

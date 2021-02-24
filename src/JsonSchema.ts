@@ -1,14 +1,14 @@
-import { Schema, SchemaOptions, ConfluentSchema } from './@types'
+import { Schema, JsonOptions, ConfluentSchema } from './@types'
 import Ajv, { DefinedError, ValidateFunction } from 'ajv'
 
 export default class JsonSchema implements Schema {
   private validate: ValidateFunction
 
-  constructor(schema: ConfluentSchema, opts?: SchemaOptions) {
+  constructor(schema: ConfluentSchema, opts?: JsonOptions) {
     this.validate = this.getJsonSchema(schema, opts)
   }
 
-  private getJsonSchema(schema: ConfluentSchema, opts?: SchemaOptions) {
+  private getJsonSchema(schema: ConfluentSchema, opts?: JsonOptions) {
     const ajv = new Ajv(opts)
     const validate = ajv.compile(JSON.parse(schema.schemaString))
     return validate
