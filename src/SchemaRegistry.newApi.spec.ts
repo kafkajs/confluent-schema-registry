@@ -308,7 +308,7 @@ describe('SchemaRegistry - new Api', () => {
 
           await expect(schemaRegistry.encode(schema.id, badPayload)).rejects.toHaveProperty(
             'name',
-            'ConfluentSchemaRegistryEncodingError',
+            'ConfluentSchemaRegistryValidationError',
           )
         })
       })
@@ -342,7 +342,7 @@ describe('SchemaRegistry - new Api', () => {
 
           await expect(schemaRegistry.decode(buffer)).rejects.toHaveProperty(
             'name',
-            'ConfluentSchemaRegistryEncodingError',
+            'ConfluentSchemaRegistryValidationError',
           )
         })
 

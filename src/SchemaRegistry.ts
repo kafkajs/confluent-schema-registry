@@ -9,7 +9,7 @@ import {
   ConfluentSchemaRegistryError,
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
-  ConfluentSchemaRegistryEncodingError,
+  ConfluentSchemaRegistryValidationError,
 } from './errors'
 import {
   Schema,
@@ -159,8 +159,10 @@ export default class SchemaRegistry {
       const serializedPayload = schema.toBuffer(payload)
       return encode(registryId, serializedPayload)
     } catch (error) {
+      if (error instanceof ConfluentSchemaRegistryValidationError) throw error
+
       const paths = this.collectInvalidPaths(schema, payload)
-      throw new ConfluentSchemaRegistryEncodingError(error, paths)
+      throw new ConfluentSchemaRegistryValidationError(error, paths)
     }
   }
 

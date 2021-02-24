@@ -1,6 +1,10 @@
 import { Schema, ConfluentSchema, ProtoOptions } from './@types'
 import protobuf from 'protobufjs'
 import { IParserResult, ReflectionObject, Namespace, Type } from 'protobufjs/light'
+import {
+  ConfluentSchemaRegistryArgumentError,
+  ConfluentSchemaRegistryValidationError,
+} from './errors'
 
 export default class ProtoSchema implements Schema {
   private message: Type
@@ -12,7 +16,7 @@ export default class ProtoSchema implements Schema {
   }
 
   private getNestedTypeName(parent: { [k: string]: ReflectionObject } | undefined): string {
-    if (!parent) throw Error('no nested fields')
+    if (!parent) throw new ConfluentSchemaRegistryArgumentError('no nested fields')
     const keys = Object.keys(parent)
     const reflection = parent[keys[0]]
     if (reflection instanceof Namespace && reflection.nested)
@@ -33,15 +37,13 @@ export default class ProtoSchema implements Schema {
   }
 
   public toBuffer(payload: object): Buffer {
-    let errMsg
+    const paths: string[][] = []
     if (
       !this.isValid(payload, {
-        errorHook: (path: Array<string>) => {
-          errMsg = path[0]
-        },
+        errorHook: (path: Array<string>) => paths.push(path),
       })
     ) {
-      throw Error(errMsg)
+      throw new ConfluentSchemaRegistryValidationError('invalid payload', paths)
     }
 
     const protoPayload = this.message.create(payload)

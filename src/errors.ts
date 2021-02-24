@@ -8,7 +8,7 @@ class ConfluentSchemaRegistryError extends Error {
 class ConfluentSchemaRegistryArgumentError extends ConfluentSchemaRegistryError {}
 class ConfluentSchemaRegistryCompatibilityError extends ConfluentSchemaRegistryError {}
 class ConfluentSchemaRegistryInvalidSchemaError extends ConfluentSchemaRegistryError {}
-class ConfluentSchemaRegistryEncodingError extends ConfluentSchemaRegistryError {
+class ConfluentSchemaRegistryValidationError extends ConfluentSchemaRegistryError {
   public paths: string[][]
 
   constructor(error: any, paths: string[][]) {
@@ -22,5 +22,5 @@ export {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryCompatibilityError,
   ConfluentSchemaRegistryInvalidSchemaError,
-  ConfluentSchemaRegistryEncodingError,
+  ConfluentSchemaRegistryValidationError,
 }

@@ -1,5 +1,6 @@
 import { Schema, JsonOptions, ConfluentSchema } from './@types'
 import Ajv, { DefinedError, ValidateFunction } from 'ajv'
+import { ConfluentSchemaRegistryValidationError } from './errors'
 
 export default class JsonSchema implements Schema {
   private validate: ValidateFunction
@@ -15,9 +16,9 @@ export default class JsonSchema implements Schema {
   }
 
   private validatePayload(payload: any) {
-    const errors: Array<string> = []
-    if (!this.isValid(payload, { errorHook: path => errors.push(path.join()) })) {
-      throw Error(errors.join(','))
+    const paths: string[][] = []
+    if (!this.isValid(payload, { errorHook: path => paths.push(path) })) {
+      throw new ConfluentSchemaRegistryValidationError('invalid payload', paths)
     }
   }
 
