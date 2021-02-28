@@ -1,7 +1,13 @@
 import { v4 as uuid } from 'uuid'
 
 import SchemaRegistry from './SchemaRegistry'
-import { ConfluentSubject, ConfluentSchema, SchemaType } from './@types'
+import {
+  ConfluentSubject,
+  ConfluentSchema,
+  SchemaType,
+  AvroConfluentSchema,
+  JsonConfluentSchema,
+} from './@types'
 import API, { SchemaRegistryAPIClient } from './api'
 import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2Avro from '../fixtures/avro/encodedAnotherPersonV2'
@@ -15,10 +21,12 @@ const schemaRegistryArgs = { host: REGISTRY_HOST }
 
 const payload = { fullName: 'John Doe' }
 
+type KnownSchemaTypes = Exclude<SchemaType, SchemaType.UNKNOWN>
+
 describe('SchemaRegistry - new Api', () => {
   let schemaRegistry: SchemaRegistry
 
-  const schemaStringsByType: Record<Exclude<SchemaType, SchemaType.UNKNOWN>, any> = {
+  const schemaStringsByType: Record<KnownSchemaTypes, any> = {
     [SchemaType.AVRO]: {
       random: (namespace: string) => `
       {
@@ -155,9 +163,9 @@ describe('SchemaRegistry - new Api', () => {
       encodedAnotherPersonV2: encodedAnotherPersonV2Proto,
     },
   }
-  const types = Object.keys(schemaStringsByType).map(str => SchemaType[str])
+  const types = Object.keys(schemaStringsByType).map(str => SchemaType[str]) as KnownSchemaTypes[]
 
-  types.forEach((type: SchemaType) =>
+  types.forEach(type =>
     describe(`${type}`, () => {
       const subject: ConfluentSubject = {
         name: [type, 'com.org.domain.fixtures', 'AnotherPerson'].join('.'),

@@ -19,6 +19,7 @@ import {
   ConfluentSchema,
   ConfluentSubject,
   SchemaRegistryAPIClientOptions,
+  AvroConfluentSchema,
 } from './@types'
 import {
   helperTypeFromSchemaType,
@@ -33,7 +34,7 @@ interface RegisteredSchema {
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
-  subject?: string
+  subject: string
 }
 
 const DEFAULT_OPTS = {
@@ -80,6 +81,18 @@ export default class SchemaRegistry {
     return confluentSchema
   }
 
+  public async register(
+    schema: Exclude<ConfluentSchema, AvroConfluentSchema>,
+    userOpts: Opts,
+  ): Promise<RegisteredSchema>
+  public async register(
+    schema: RawAvroSchema | AvroConfluentSchema,
+    userOpts?: Omit<Opts, 'subject'> & { subject?: string },
+  ): Promise<RegisteredSchema>
+  public async register(
+    schema: RawAvroSchema | ConfluentSchema,
+    userOpts: Opts,
+  ): Promise<RegisteredSchema>
   public async register(
     schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
@@ -145,8 +158,14 @@ export default class SchemaRegistry {
     const response = await this.getSchemaOriginRequest(registryId)
     const foundSchema: { schema: string; schemaType: string } = response.data()
     const rawSchema = foundSchema.schema
+    const schemaType = schemaTypeFromString(foundSchema.schemaType)
+
+    if (schemaType === SchemaType.UNKNOWN) {
+      throw new ConfluentSchemaRegistryError(`Unknown schema type ${foundSchema.schemaType}`)
+    }
+
     const confluentSchema: ConfluentSchema = {
-      type: schemaTypeFromString(foundSchema.schemaType),
+      type: schemaType,
       schema: rawSchema,
     }
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
