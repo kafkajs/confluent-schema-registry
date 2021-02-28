@@ -18,7 +18,7 @@ const payload = { fullName: 'John Doe' }
 describe('SchemaRegistry - new Api', () => {
   let schemaRegistry: SchemaRegistry
 
-  const schemaStringsByType: Record<SchemaType, any> = {
+  const schemaStringsByType: Record<Exclude<SchemaType, SchemaType.UNKNOWN>, any> = {
     [SchemaType.AVRO]: {
       random: (namespace: string) => `
       {
