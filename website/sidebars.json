@@ -1,5 +1,8 @@
 {
   "docs": {
-    "Getting started": ["introduction", "usage", "advanced-usage", "usage-with-kafkajs", "development", "schemas"]
+    "Getting started": ["introduction", "usage", "advanced-usage"],
+    "How-to": ["custom-types", "usage-with-kafkajs", "schemas"],
+    "Migration guides": ["v2"],
+    "Contributing": ["development"]
   }
 }

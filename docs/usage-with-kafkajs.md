@@ -15,7 +15,7 @@ with a different schema.
 ```js
 const path = require('path')
 const { Kafka } = require('kafkajs')
-const { SchemaRegistry, avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
+const { SchemaRegistry, SchemaType, avdlToAVSCAsync } = require('@kafkajs/confluent-schema-registry')
 
 const registry = new SchemaRegistry({ host: 'http://localhost:8081' })
 const kafka = new Kafka({
@@ -30,7 +30,7 @@ const outgoingTopic = 'outgoing'
 
 const run = async () => {
   const schema = await avdlToAVSCAsync(path.join(__dirname, 'schema.avdl'))
-  const { id } = await registry.register(schema)
+  const { id } = await registry.register({ type: SchemaType.AVRO, schema: JSON.stringify(schema) })
 
   await consumer.connect()
   await producer.connect()
