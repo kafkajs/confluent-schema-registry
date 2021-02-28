@@ -135,7 +135,7 @@ export default class SchemaRegistry {
     return registeredSchema
   }
 
-  public async getSchema(registryId: number): Promise<Schema> {
+  public async getSchema(registryId: number): Promise<Schema | AvroSchema> {
     const schema = this.cache.getSchema(registryId)
 
     if (schema) {
