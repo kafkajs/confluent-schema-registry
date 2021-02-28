@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2021-02-28
+
+This version adds support for Protobuf and JSON Schema, in addition to the already
+supported Avro format!
+
+See [Migrating to v2](https://kafkajs.github.io/confluent-schema-registry/docs/v2)
+for information on how to adapt your application to the new API. For most users,
+the change should be rather minor.
+
+Big thanks to @dskatz22 and @Malkiz for their significant contributions!
+
+### Added
+
+- Support Protobuf and JSON Schema [#93](https://github.com/kafkajs/confluent-schema-registry/pull/93)
+
 ## [1.0.6] - 2020-07-02
 
 ### Added
