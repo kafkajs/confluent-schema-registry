@@ -50,7 +50,7 @@ export interface ConfluentSubject {
 }
 
 export interface ConfluentSchema {
-  type?: SchemaType
+  type: SchemaType
   schemaString: string
 }
 
