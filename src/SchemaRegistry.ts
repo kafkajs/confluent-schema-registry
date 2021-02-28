@@ -208,7 +208,7 @@ export default class SchemaRegistry {
 
   public async getRegistryIdBySchema(
     subject: string,
-    schema: AvroSchema | ConfluentSchema,
+    schema: AvroSchema | RawAvroSchema | ConfluentSchema,
   ): Promise<number> {
     try {
       const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
