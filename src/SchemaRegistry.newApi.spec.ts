@@ -164,7 +164,7 @@ describe('SchemaRegistry - new Api', () => {
       }
       const schema: ConfluentSchema = {
         type,
-        schemaString: schemaStringsByType[type].v1,
+        schema: schemaStringsByType[type].v1,
       }
 
       beforeEach(async () => {
@@ -186,7 +186,7 @@ describe('SchemaRegistry - new Api', () => {
           subject = `${namespace}.RandomTest`
           Schema = schemaStringsByType[type].random(namespace)
           confluentSubject = { name: subject }
-          confluentSchema = { type, schemaString: Schema }
+          confluentSchema = { type, schema: Schema }
         })
 
         it('uploads the new schema', async () => {
@@ -249,7 +249,7 @@ describe('SchemaRegistry - new Api', () => {
           const invalidSchema = `asdf`
           const invalidConfluentSchema: ConfluentSchema = {
             type,
-            schemaString: invalidSchema,
+            schema: invalidSchema,
           }
           await expect(
             schemaRegistry.register(invalidConfluentSchema, { subject: confluentSubject.name }),
@@ -272,11 +272,11 @@ describe('SchemaRegistry - new Api', () => {
         it('encodes using a defined registryId', async () => {
           const confluentSchemaV1: ConfluentSchema = {
             type,
-            schemaString: schemaStringsByType[type].v1,
+            schema: schemaStringsByType[type].v1,
           }
           const confluentSchemaV2: ConfluentSchema = {
             type,
-            schemaString: schemaStringsByType[type].v2,
+            schema: schemaStringsByType[type].v2,
           }
 
           const schema1 = await schemaRegistry.register(confluentSchemaV1, {
@@ -298,7 +298,7 @@ describe('SchemaRegistry - new Api', () => {
         it('throws an error if the payload does not match the schema', async () => {
           const confluentSchema: ConfluentSchema = {
             type,
-            schemaString: schemaStringsByType[type].v1,
+            schema: schemaStringsByType[type].v1,
           }
           const schema = await schemaRegistry.register(confluentSchema, {
             subject: `${type}_test`,
@@ -392,7 +392,7 @@ describe('SchemaRegistry - new Api', () => {
           const subject = `${namespace}.RandomTest`
           const schema = schemaStringsByType[type].random(namespace)
           confluentSubject = { name: subject }
-          confluentSchema = { type, schemaString: schema }
+          confluentSchema = { type, schema: schema }
         })
 
         it('returns the registry id if the schema has already been registered under that subject', async () => {
@@ -418,7 +418,7 @@ describe('SchemaRegistry - new Api', () => {
           const otherSchema = schemaStringsByType[type].otherRandom(namespace)
           const confluentOtherSchema: ConfluentSchema = {
             type,
-            schemaString: otherSchema,
+            schema: otherSchema,
           }
 
           await schemaRegistry.register(confluentOtherSchema, { subject: confluentSubject.name })
@@ -454,7 +454,7 @@ describe('SchemaRegistry - new Api', () => {
     it('encodes using schemaOptions', async () => {
       const confluentSchemaV3: ConfluentSchema = {
         type,
-        schemaString: v3,
+        schema: v3,
       }
 
       const schema3 = await schemaRegistry.register(confluentSchemaV3, {
@@ -472,7 +472,7 @@ describe('SchemaRegistry - new Api', () => {
     it('decodes using schemaOptions', async () => {
       const confluentSchemaV3: ConfluentSchema = {
         type,
-        schemaString: v3,
+        schema: v3,
       }
 
       const schema3 = await schemaRegistry.register(confluentSchemaV3, {

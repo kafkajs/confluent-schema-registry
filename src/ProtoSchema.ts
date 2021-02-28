@@ -10,7 +10,7 @@ export default class ProtoSchema implements Schema {
   private message: Type
 
   constructor(schema: ConfluentSchema, opts?: ProtoOptions) {
-    const parsedMessage = protobuf.parse(schema.schemaString)
+    const parsedMessage = protobuf.parse(schema.schema)
     const root = parsedMessage.root
     this.message = root.lookupType(this.getTypeName(parsedMessage, opts))
   }

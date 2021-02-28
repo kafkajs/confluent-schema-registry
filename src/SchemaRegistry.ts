@@ -57,16 +57,22 @@ export default class SchemaRegistry {
     this.options = options
   }
 
+  private isConfluentSchema(
+    schema: RawAvroSchema | AvroSchema | ConfluentSchema,
+  ): schema is ConfluentSchema {
+    return (schema as ConfluentSchema).schema != null
+  }
+
   private getConfluentSchema(
     schema: RawAvroSchema | AvroSchema | ConfluentSchema,
   ): ConfluentSchema {
     let confluentSchema: ConfluentSchema
     // convert data from old api (for backwards compatibility)
-    if (!(schema as ConfluentSchema).schemaString) {
+    if (!this.isConfluentSchema(schema)) {
       // schema is instanceof RawAvroSchema or AvroSchema
       confluentSchema = {
         type: SchemaType.AVRO,
-        schemaString: JSON.stringify(schema),
+        schema: JSON.stringify(schema),
       }
     } else {
       confluentSchema = schema as ConfluentSchema
@@ -118,7 +124,7 @@ export default class SchemaRegistry {
       subject: subject.name,
       body: {
         schemaType: confluentSchema.type,
-        schema: confluentSchema.schemaString,
+        schema: confluentSchema.schema,
       },
     })
 
@@ -141,7 +147,7 @@ export default class SchemaRegistry {
     const rawSchema = foundSchema.schema
     const confluentSchema: ConfluentSchema = {
       type: schemaTypeFromString(foundSchema.schemaType),
-      schemaString: rawSchema,
+      schema: rawSchema,
     }
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
     return this.cache.setSchema(registryId, schemaInstance)
@@ -210,7 +216,7 @@ export default class SchemaRegistry {
         subject,
         body: {
           schemaType: confluentSchema.type,
-          schema: confluentSchema.schemaString,
+          schema: confluentSchema.schema,
         },
       })
       const { id }: { id: number } = response.data()

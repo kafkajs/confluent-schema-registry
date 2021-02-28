@@ -11,7 +11,7 @@ export default class JsonSchema implements Schema {
 
   private getJsonSchema(schema: ConfluentSchema, opts?: JsonOptions) {
     const ajv = new Ajv(opts)
-    const validate = ajv.compile(JSON.parse(schema.schemaString))
+    const validate = ajv.compile(JSON.parse(schema.schema))
     return validate
   }
 
