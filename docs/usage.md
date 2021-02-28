@@ -26,7 +26,7 @@ schema id. This schema id is later [used when encoding](#encoding-data).
 
 ```js
 const schema = {
-  type: SchemaType.AVRO | SchemaType.JSON | SchemaType.PROTO,
+  type: SchemaType.AVRO | SchemaType.JSON | SchemaType.PROTOBUF,
   schema: "string"
 }
 
@@ -115,7 +115,7 @@ const schema = `
     required string fullName = 1;
   }
 `
-const { id } = await registry.register({ type: SchemaType.PROTO, schema })
+const { id } = await registry.register({ type: SchemaType.PROTOBUF, schema })
 ```
 
 ### Compatibility
@@ -251,7 +251,7 @@ If omitted, the first message type in the schema is used.
 
 ```ts
 const options = {
-  [SchemaType.PROTO]: {
+  [SchemaType.PROTOBUF]: {
     messageName: 'CustomMessage'
   }
 }
