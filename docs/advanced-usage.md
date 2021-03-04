@@ -37,7 +37,7 @@ If a matching schema does not exist for the subject, it throws a
 const subject = 'com.example.Simple'
 const schema = await avdlToAVSCAsync('path/to/protocol.avdl')
 
-const id = await registry.getRegistryIdBySchema(subject, schema)
+const id = await registry.getRegistryIdBySchema(subject, { type: SchemaType.AVRO, schema: JSON.stringify(schema) })
 ```
 
 ## Getting schema by schema id
@@ -47,7 +47,7 @@ the user to handle them to encode/decode data, but if you need to get a schema
 from the registry, you can do so by its schema id:
 
 ```js
-// See https://github.com/kafkajs/confluent-schema-registry/blob/master/src/%40types.ts#L1-L7
+// See https://github.com/kafkajs/confluent-schema-registry/blob/master/src/%40types.ts#L30-L46
 // for a complete return type
 const schema = await registry.getSchema(id)
 ```

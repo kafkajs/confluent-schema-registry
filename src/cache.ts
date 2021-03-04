@@ -1,4 +1,4 @@
-import { Schema } from './@types'
+import { AvroSchema, Schema } from './@types'
 
 export default class Cache {
   registryIdBySubject: { [key: string]: number }
@@ -17,7 +17,7 @@ export default class Cache {
     return this.registryIdBySubject[subject]
   }
 
-  getSchema = (registryId: number): Schema => this.schemasByRegistryId[registryId]
+  getSchema = (registryId: number): Schema | AvroSchema => this.schemasByRegistryId[registryId]
 
   setSchema = (registryId: number, schema: Schema) => {
     this.schemasByRegistryId[registryId] = schema

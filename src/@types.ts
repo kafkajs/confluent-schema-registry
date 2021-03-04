@@ -49,10 +49,22 @@ export interface ConfluentSubject {
   name: string
 }
 
-export interface ConfluentSchema {
-  type?: SchemaType
-  schemaString: string
+export interface AvroConfluentSchema {
+  type: SchemaType.AVRO
+  schema: string
 }
+
+export interface ProtoConfluentSchema {
+  type: SchemaType.PROTOBUF
+  schema: string
+}
+
+export interface JsonConfluentSchema {
+  type: SchemaType.JSON
+  schema: string
+}
+
+export type ConfluentSchema = AvroConfluentSchema | ProtoConfluentSchema | JsonConfluentSchema
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

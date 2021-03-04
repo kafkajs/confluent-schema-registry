@@ -9,6 +9,10 @@
         "title": "Advanced Usage",
         "sidebar_label": "Advanced Usage"
       },
+      "custom-types": {
+        "title": "Configuring Custom Types",
+        "sidebar_label": "Custom Types"
+      },
       "development": {
         "title": "Development",
         "sidebar_label": "Development"
@@ -18,8 +22,8 @@
         "sidebar_label": "Introduction"
       },
       "schemas": {
-        "title": "Example Schemas",
-        "sidebar_label": "Example Schemas"
+        "title": "Example Avro Schemas",
+        "sidebar_label": "Example Avro Schemas"
       },
       "usage-with-kafkajs": {
         "title": "Usage with KafkaJS",
@@ -28,13 +32,20 @@
       "usage": {
         "title": "Usage",
         "sidebar_label": "Usage"
+      },
+      "v2": {
+        "title": "Migrating from v1 to v2",
+        "sidebar_label": "Migrating to version 2"
       }
     },
     "links": {
       "Docs": "Docs"
     },
     "categories": {
-      "Getting started": "Getting started"
+      "Getting started": "Getting started",
+      "How-to": "How-to",
+      "Migration guides": "Migration guides",
+      "Contributing": "Contributing"
     }
   },
   "pages-strings": {

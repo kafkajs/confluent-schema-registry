@@ -1,7 +1,7 @@
 ---
 id: schemas
-title: Example Schemas
-sidebar_label: Example Schemas
+title: Example Avro Schemas
+sidebar_label: Example Avro Schemas
 ---
 
 ## Unions with null
