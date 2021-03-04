@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Usage · Confluent schema registry</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Typical usage consists of [uploading one or more schemas](#uploading-schemas) to the registry, [encoding"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Usage · Confluent schema registry"/><meta property="og:type" content="website"/><meta property="og:url" content="https://kafkajs.github.io/confluent-schema-registry/"/><meta property="og:description" content="Typical usage consists of [uploading one or more schemas](#uploading-schemas) to the registry, [encoding"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/confluent-schema-registry/img/kafkajs-logoV2.svg"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/confluent-schema-registry/js/scrollSpy.js"></script><link rel="stylesheet" href="/confluent-schema-registry/css/main.css"/><script src="/confluent-schema-registry/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/confluent-schema-registry/"><img class="logo" src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry"/><h2 class="headerTitleWithLogo">Confluent schema registry</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/confluent-schema-registry/docs/introduction" target="_self">Docs</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Getting started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/introduction">Introduction</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/confluent-schema-registry/docs/usage">Usage</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/advanced-usage">Advanced Usage</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/usage-with-kafkajs">Usage with KafkaJS</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/development">Development</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/schemas">Example Schemas</a></li></ul></div></div></section></div><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Usage · Confluent schema registry</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Typical usage consists of [uploading one or more schemas](#uploading-schemas) to the registry, [encoding"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Usage · Confluent schema registry"/><meta property="og:type" content="website"/><meta property="og:url" content="https://kafkajs.github.io/confluent-schema-registry/"/><meta property="og:description" content="Typical usage consists of [uploading one or more schemas](#uploading-schemas) to the registry, [encoding"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/confluent-schema-registry/img/kafkajs-logoV2.svg"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/confluent-schema-registry/js/scrollSpy.js"></script><link rel="stylesheet" href="/confluent-schema-registry/css/main.css"/><script src="/confluent-schema-registry/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/confluent-schema-registry/"><img class="logo" src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry"/><h2 class="headerTitleWithLogo">Confluent schema registry</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/confluent-schema-registry/docs/introduction" target="_self">Docs</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Getting started</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/introduction">Introduction</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/confluent-schema-registry/docs/usage">Usage</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/advanced-usage">Advanced Usage</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">How-to</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/custom-types">Custom Types</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/usage-with-kafkajs">Usage with KafkaJS</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/schemas">Example Avro Schemas</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Migration guides</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/v2">Migrating to version 2</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Contributing</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/development">Development</a></li></ul></div></div></section></div><script>
             var coll = document.getElementsByClassName('collapsible');
             var checkActiveCategory = true;
             for (var i = 0; i < coll.length; i++) {
@@ -64,20 +64,86 @@ the schemas from the registry.</p>
 </code></pre>
 <p>For more configuration options, <a href="#configuration">see configuration</a>.</p>
 <h2><a class="anchor" aria-hidden="true" id="uploading-schemas"></a><a href="#uploading-schemas" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Uploading schemas</h2>
-<p>Schemas can be defined in either <code>AVSC</code> or <code>AVDL</code> format, and are read using
-<code>readAVSCAsync</code> and <code>avdlToAVSCAsync</code> respectively.</p>
-<p>Once read, the schemas can be registered with the schema registry using
-<code>registry.register(schema)</code>, which resolves to an object containing the
+<p>The schemas can be registered with the schema registry using
+<code>registry.register({ type: SchemaType, schema: string })</code>, which resolves to an object containing the
 schema id. This schema id is later <a href="#encoding-data">used when encoding</a>.</p>
-<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { readAVSCAsync, avdlToAVSCAsync } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> schema = {
+  <span class="hljs-attr">type</span>: SchemaType.AVRO | SchemaType.JSON | SchemaType.PROTOBUF,
+  <span class="hljs-attr">schema</span>: <span class="hljs-string">"string"</span>
+}
+
+<span class="hljs-keyword">const</span> options = {
+  <span class="hljs-attr">subject</span>: <span class="hljs-string">"string"</span>
+}
+
+<span class="hljs-keyword">await</span> registry.register(schema, options)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="avro"></a><a href="#avro" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Avro</h3>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> schema = <span class="hljs-string">`
+  {
+    "type": "record",
+    "name": "RandomTest",
+    "namespace": "examples",
+    "fields": [{ "type": "string", "name": "fullName" }]
+  }
+`</span>
+<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register({ <span class="hljs-attr">type</span>: SchemaType.AVRO, schema })
+</code></pre>
+<p>To simplify working with Avro schemas and integrating with existing tooling,
+some utility functions are available. Schemas can be defined in either <code>AVSC</code>
+or <code>AVDL</code> format, and are read using <code>readAVSCAsync</code> and <code>avdlToAVSCAsync</code>
+respectively.</p>
+<p>Note that these functions return objects rather than strings, but they can
+be passed directly to <code>register</code> as the <code>schema</code> argument and will be
+stringified internally.</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { SchemaType, readAVSCAsync, avdlToAVSCAsync } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
 
 <span class="hljs-comment">// From an avsc file</span>
 <span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> readAVSCAsync(<span class="hljs-string">'path/to/schema.avsc'</span>)
-<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register(schema) <span class="hljs-comment">// { id: 2 }</span>
+<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register({ <span class="hljs-attr">type</span>: SchemaType.AVRO, schema }) <span class="hljs-comment">// { id: 2 }</span>
 
 <span class="hljs-comment">// From an avdl file</span>
 <span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> avdlToAVSCAsync(<span class="hljs-string">'path/to/protocol.avdl'</span>)
-<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register(schema) <span class="hljs-comment">// { id: 3 }</span>
+<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register({ <span class="hljs-attr">type</span>: SchemaType.AVRO, schema }) <span class="hljs-comment">// { id: 3 }</span>
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="subject"></a><a href="#subject" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Subject</h4>
+<p>For Avro schemas, the subject is automatically inferred from the schema if
+<code>options.subject</code> is not set.</p>
+<blockquote>
+<p>See <a href="#subjects">Subjects</a> for more information on subjects</p>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" id="json-schema"></a><a href="#json-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>JSON Schema</h3>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { SchemaType } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+
+<span class="hljs-keyword">const</span> schema = <span class="hljs-string">`
+  {
+    "definitions" : {
+      "record:examples.Person" : {
+        "type" : "object",
+        "required" : [ "fullName" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fullName" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "$ref" : "#/definitions/record:examples.Person"
+  }
+`</span>
+<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register({ <span class="hljs-attr">type</span>: SchemaType.JSON, schema })
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="protobuf"></a><a href="#protobuf" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Protobuf</h3>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { SchemaType } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+
+<span class="hljs-keyword">const</span> schema = <span class="hljs-string">`
+  package examples;
+  message RandomTest {
+    required string fullName = 1;
+  }
+`</span>
+<span class="hljs-keyword">const</span> { id } = <span class="hljs-keyword">await</span> registry.register({ <span class="hljs-attr">type</span>: SchemaType.PROTOBUF, schema })
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="compatibility"></a><a href="#compatibility" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Compatibility</h3>
 <p>The <a href="https://docs.confluent.io/current/schema-registry/avro.html#compatibility-types">compatibility</a> of the schema will be whatever the global default is (typically <code>BACKWARD</code>).
@@ -90,9 +156,9 @@ It's possible to override this for the specific subject by setting it like so:</
 <p><strong>NOTE:</strong>
 If the subject already has an overridden compatibility setting and it's different,
 the client will throw and error (<code>ConfluentSchemaRegistryCompatibilityError</code>)</p>
-<h3><a class="anchor" aria-hidden="true" id="overriding-subject"></a><a href="#overriding-subject" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overriding subject</h3>
+<h3><a class="anchor" aria-hidden="true" id="subjects"></a><a href="#subjects" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Subjects</h3>
 <p>Each schema is registered under a <a href="https://docs.confluent.io/current/schema-registry/serializer-formatter.html#sr-avro-subject-name-strategy">subject</a>.
-By default, this subject is generated by concatenating the schema namespace and the schema name
+In Avro, this subject is generated by concatenating the schema namespace and the schema name
 with a separator. For example, the following schema would get the subject <code>com.example.Simple</code>:</p>
 <pre><code class="hljs css language-avdl">@namespace(<span class="hljs-string">"com.example"</span>)
 protocol SimpleProto {
@@ -109,6 +175,8 @@ the <code>separator</code> option:</p>
 <pre><code class="hljs css language-js"><span class="hljs-comment">// This would result in "com.example-Simple"</span>
 <span class="hljs-keyword">await</span> registry.register(schema, { <span class="hljs-attr">separator</span>: <span class="hljs-string">'-'</span> })
 </code></pre>
+<h4><a class="anchor" aria-hidden="true" id="other-schema-types"></a><a href="#other-schema-types" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Other schema types</h4>
+<p>For non-Avro schema types, <code>subject</code> is required and the method will throw if not provided.</p>
 <h2><a class="anchor" aria-hidden="true" id="encoding-data"></a><a href="#encoding-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Encoding data</h2>
 <p>To encode data, call <code>registry.encode</code> with the schema id and the payload to encode.</p>
 <pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> payload = { <span class="hljs-attr">full_name</span>: <span class="hljs-string">'John Doe'</span> }
@@ -146,4 +214,39 @@ to decode the payload.</p>
   },
 })
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/confluent-schema-registry/docs/introduction"><span class="arrow-prev">← </span><span>Introduction</span></a><a class="docs-next button" href="/confluent-schema-registry/docs/advanced-usage"><span>Advanced Usage</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#creating-the-registry-client">Creating the registry client</a></li><li><a href="#uploading-schemas">Uploading schemas</a><ul class="toc-headings"><li><a href="#compatibility">Compatibility</a></li><li><a href="#overriding-subject">Overriding subject</a></li></ul></li><li><a href="#encoding-data">Encoding data</a></li><li><a href="#decoding-data">Decoding data</a></li><li><a href="#configuration">Configuration</a><ul class="toc-headings"><li><a href="#retry">Retry</a></li><li><a href="#basic-auth">Basic auth</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/confluent-schema-registry/" class="nav-home"><img src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry" width="66" height="58"/></a><div><a href="https://github.com/kafkajs/confluent-schema-registry">GitHub</a><a class="github-button" href="https://github.com/kafkajs/confluent-schema-registry" data-icon="octicon-star" data-count-href="/kafkajs/confluent-schema-registry" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div><div style="text-align:right"><a href="https://github.com/kafkajs/confluent-schema-registry/blob/master/LICENSE"><img alt="licence" src="https://img.shields.io/github/license/kafkajs/confluent-schema-registry?style=flat"/></a></div></section><section class="copyright">Copyright © 2021 Kafkajs</section></footer></div></body></html>
+<h3><a class="anchor" aria-hidden="true" id="schema-type-options"></a><a href="#schema-type-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Schema type options</h3>
+<p>The second argument to the <code>SchemaRegistry</code> constructor is an object with keys for each <code>SchemaType</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="avro-1"></a><a href="#avro-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Avro</h4>
+<p>The Avro schema type options are passed directly to
+<a href="https://github.com/mtth/avsc/wiki/API#typeforschemaschema-opts"><code>avsc.Type.forSchema</code> as the <code>opts</code> argument</a>.
+For example:</p>
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { SchemaRegistry, SchemaType } <span class="hljs-keyword">from</span> <span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>
+
+<span class="hljs-keyword">const</span> options = {
+  [SchemaType.AVRO]: {
+    logicalTypes: { decimal: DecimalType }
+  }
+}
+
+<span class="hljs-keyword">const</span> registry = <span class="hljs-keyword">new</span> SchemaRegistry({ host: <span class="hljs-string">'http://localhost:8081'</span> }, options)
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="protobuf-1"></a><a href="#protobuf-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Protobuf</h4>
+<p>The only available option is <code>messageName</code>, which is used to select which message
+in a schema containing multiple messages to use for encoding/decoding the payload.
+If omitted, the first message type in the schema is used.</p>
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">const</span> options = {
+  [SchemaType.PROTOBUF]: {
+    messageName: <span class="hljs-string">'CustomMessage'</span>
+  }
+}
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="json-schema-1"></a><a href="#json-schema-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>JSON Schema</h4>
+<p>The JSON Schema schema type options are passed to the <a href="https://ajv.js.org/docs/api.html#options">Ajv constructor</a>.
+For example:</p>
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">const</span> options = {
+  [SchemaType.JSON]: {
+    strict: <span class="hljs-literal">true</span>
+  }
+}
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/confluent-schema-registry/docs/introduction"><span class="arrow-prev">← </span><span>Introduction</span></a><a class="docs-next button" href="/confluent-schema-registry/docs/advanced-usage"><span>Advanced Usage</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#creating-the-registry-client">Creating the registry client</a></li><li><a href="#uploading-schemas">Uploading schemas</a><ul class="toc-headings"><li><a href="#avro">Avro</a></li><li><a href="#json-schema">JSON Schema</a></li><li><a href="#protobuf">Protobuf</a></li><li><a href="#compatibility">Compatibility</a></li><li><a href="#subjects">Subjects</a></li></ul></li><li><a href="#encoding-data">Encoding data</a></li><li><a href="#decoding-data">Decoding data</a></li><li><a href="#configuration">Configuration</a><ul class="toc-headings"><li><a href="#retry">Retry</a></li><li><a href="#basic-auth">Basic auth</a></li><li><a href="#schema-type-options">Schema type options</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/confluent-schema-registry/" class="nav-home"><img src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry" width="66" height="58"/></a><div><a href="https://github.com/kafkajs/confluent-schema-registry">GitHub</a><a class="github-button" href="https://github.com/kafkajs/confluent-schema-registry" data-icon="octicon-star" data-count-href="/kafkajs/confluent-schema-registry" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div><div style="text-align:right"><a href="https://github.com/kafkajs/confluent-schema-registry/blob/master/LICENSE"><img alt="licence" src="https://img.shields.io/github/license/kafkajs/confluent-schema-registry?style=flat"/></a></div></section><section class="copyright">Copyright © 2021 Kafkajs</section></footer></div></body></html>

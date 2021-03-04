@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Migrating from v1 to v2 · Confluent schema registry</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="In version 1, `@kafkajs/confluent-schema-registry` only supported Avro schemas and"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Migrating from v1 to v2 · Confluent schema registry"/><meta property="og:type" content="website"/><meta property="og:url" content="https://kafkajs.github.io/confluent-schema-registry/"/><meta property="og:description" content="In version 1, `@kafkajs/confluent-schema-registry` only supported Avro schemas and"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/confluent-schema-registry/img/kafkajs-logoV2.svg"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/confluent-schema-registry/js/scrollSpy.js"></script><link rel="stylesheet" href="/confluent-schema-registry/css/main.css"/><script src="/confluent-schema-registry/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/confluent-schema-registry/"><img class="logo" src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry"/><h2 class="headerTitleWithLogo">Confluent schema registry</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/confluent-schema-registry/docs/introduction" target="_self">Docs</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Migration guides</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/introduction">Introduction</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/usage">Usage</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/advanced-usage">Advanced Usage</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">How-to</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/custom-types">Custom Types</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/usage-with-kafkajs">Usage with KafkaJS</a></li><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/schemas">Example Avro Schemas</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Migration guides</h3><ul class=""><li class="navListItem navListItemActive"><a class="navItem" href="/confluent-schema-registry/docs/v2">Migrating to version 2</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Contributing</h3><ul class=""><li class="navListItem"><a class="navItem" href="/confluent-schema-registry/docs/development">Development</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Migrating from v1 to v2</h1></header><article><div><span><p>In version 1, <code>@kafkajs/confluent-schema-registry</code> only supported Avro schemas and
+the API was very Avro specific. In version 2, support for JSON Schema and Protobuf
+was added, which necessitated some changes in the public api.</p>
+<p>We have tried to make these changes as unintrusive as we can, by making the vast
+majority of changes backwards compatible. In fact, for Javascript users, the changes
+are completely backwards compatible for Avro schemas.</p>
+<p>For Typescript users, however, or if you are migrating from using Avro to using
+one of the other schema types, there are a few things to keep in mind.</p>
+<p>The main change is that the core <code>Schema</code> type has changed from an Avro specific
+schema to a generic schema interface for all schema types. The old schema looked
+like this:</p>
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">interface</span> AvroSchema {
+  name: <span class="hljs-built_in">string</span>
+  <span class="hljs-keyword">namespace</span>?: <span class="hljs-built_in">string</span>
+  <span class="hljs-keyword">type</span>: <span class="hljs-string">'record'</span>
+  fields: <span class="hljs-built_in">any</span>[]
+  toBuffer(payload: object): Buffer
+  fromBuffer(buffer: Buffer, resolver?: Resolver, noCheck?: <span class="hljs-built_in">boolean</span>): <span class="hljs-built_in">any</span>
+  isValid(
+    payload: object,
+    opts?: { errorHook: <span class="hljs-function">(<span class="hljs-params">path: <span class="hljs-built_in">Array</span>&lt;<span class="hljs-built_in">string</span>&gt;, value: <span class="hljs-built_in">any</span>, <span class="hljs-keyword">type</span>?: <span class="hljs-built_in">any</span></span>) =&gt;</span> <span class="hljs-built_in">void</span> },
+  ): <span class="hljs-built_in">boolean</span>
+}
+</code></pre>
+<p>This is still the case for Avro schemas, but for Protobuf or Json Schema, a
+more generic schema type is used:</p>
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">interface</span> Schema {
+  toBuffer(payload: object): Buffer
+  fromBuffer(buffer: Buffer, resolver?: Resolver, noCheck?: <span class="hljs-built_in">boolean</span>): <span class="hljs-built_in">any</span>
+  isValid(
+    payload: object,
+    opts?: { errorHook: <span class="hljs-function">(<span class="hljs-params">path: <span class="hljs-built_in">Array</span>&lt;<span class="hljs-built_in">string</span>&gt;, value: <span class="hljs-built_in">any</span>, <span class="hljs-keyword">type</span>?: <span class="hljs-built_in">any</span></span>) =&gt;</span> <span class="hljs-built_in">void</span> },
+  ): <span class="hljs-built_in">boolean</span>
+}
+</code></pre>
+<p>If you have code that uses any of the Avro specific fields on the schema
+(for example returned by <code>getSchema</code>), you may need to first narrow the type
+to <code>AvroSchema</code>:</p>
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { AvroSchema, Schema } <span class="hljs-keyword">from</span> <span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isAvroSchema</span>(<span class="hljs-params">schema: AvroSchema | Schema</span>): <span class="hljs-title">schema</span> <span class="hljs-title">is</span> <span class="hljs-title">AvroSchema</span> </span>{
+  <span class="hljs-keyword">return</span> (schema <span class="hljs-keyword">as</span> AvroSchema).name != <span class="hljs-literal">null</span>
+}
+
+<span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> registry.getSchema(registryId)
+
+<span class="hljs-keyword">if</span> (isAvroSchema(schema)) {
+  <span class="hljs-comment">// schema is now `AvroSchema`</span>
+  <span class="hljs-keyword">const</span> { name, <span class="hljs-keyword">namespace</span>, <span class="hljs-keyword">type</span>, fields } = schema
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="adapting-to-new-apis"></a><a href="#adapting-to-new-apis" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Adapting to new APIs</h2>
+<p>This is <strong>entirely optional</strong>, as all the old APIs should be retained (with the above caveat
+about the schema type), but if you want to adapt your code to the new API to make
+future migrations easier, these are the changes you would need to make.</p>
+<h3><a class="anchor" aria-hidden="true" id="configuring-serialization-libraries"></a><a href="#configuring-serialization-libraries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuring serialization libraries</h3>
+<p>In version 1, the client constructor took a second <code>options</code> argument with
+a single option <code>forSchemaOptions</code> that was passed directly to
+<a href="https://github.com/mtth/avsc/wiki/API#typeforschemaschema-opts"><code>avsc.Type.forSchema</code></a>
+as the <code>opts</code> argument.</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { SchemaRegistry } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+
+<span class="hljs-keyword">const</span> registry = <span class="hljs-keyword">new</span> SchemaRegistry(
+  { <span class="hljs-attr">host</span>: <span class="hljs-string">'http://localhost:8081'</span> },
+  { <span class="hljs-attr">forSchemaOptions</span>: { <span class="hljs-attr">noAnonymousTypes</span>: <span class="hljs-literal">true</span> }}
+)
+</code></pre>
+<p>Since we now support multiple schema types, these options have been moved
+one level into a schema type specific option without the <code>forSchemaOptions</code>
+key:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { SchemaRegistry, SchemaType } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+
+<span class="hljs-keyword">const</span> registry = <span class="hljs-keyword">new</span> SchemaRegistry(
+  { <span class="hljs-attr">host</span>: <span class="hljs-string">'http://localhost:8081'</span> },
+  {
+    [SchemaType.AVRO]: { <span class="hljs-attr">noAnonymousTypes</span>: <span class="hljs-literal">true</span> },
+    
+    <span class="hljs-comment">// This allows you to also pass options for Protobuf and JSON Schema</span>
+    [SchemaType.JSON]: { <span class="hljs-attr">strict</span>: <span class="hljs-literal">true</span> }
+
+    [SchemaType.PROTOBUF]: { <span class="hljs-attr">messageName</span>: <span class="hljs-string">'CustomMessage'</span> }
+  }
+)
+</code></pre>
+<p>See <a href="./usage#schema-type-options">Schema Type Options</a> for more information.</p>
+<h3><a class="anchor" aria-hidden="true" id="registering-schemas"></a><a href="#registering-schemas" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Registering schemas</h3>
+<p>In version 1, the schema type was implicitly Avro, so you would just pass in the
+schema from <code>readAVSCAsync</code> directly:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> readAVSCAsync(<span class="hljs-string">'path/to/schema.avsc'</span>)
+<span class="hljs-keyword">await</span> registry.register(schema)
+</code></pre>
+<p>In version 2, there are two major changes:</p>
+<ol>
+<li>The <code>type</code> of the schema needs to be set to one of <code>SchemaType</code>.</li>
+<li>The <code>schema</code> itself is now a string, instead of an object.</li>
+</ol>
+<p>We call this new type a <code>ConfluentSchema</code></p>
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">interface</span> ConfluentSchema {
+  <span class="hljs-keyword">type</span>: SchemaType
+  schema: <span class="hljs-built_in">string</span>
+}
+</code></pre>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> { SchemaType } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@kafkajs/confluent-schema-registry'</span>)
+
+<span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> readAVSCAsync(<span class="hljs-string">'path/to/schema.avsc'</span>)
+<span class="hljs-keyword">const</span> schemaString = <span class="hljs-built_in">JSON</span>.stringify(schema)
+<span class="hljs-keyword">await</span> registry.register({ <span class="hljs-attr">type</span>: SchemaType.AVRO, <span class="hljs-attr">schema</span>: schemaString })
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="getting-registry-id-by-schema"></a><a href="#getting-registry-id-by-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting registry id by schema</h3>
+<p>Similar to <code>register</code>, getting the registry id by schema used to take an
+<code>AvroSchema</code>, and now takes a <code>ConfluentSchema</code>.</p>
+<p>Version 1:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> readAVSCAsync(<span class="hljs-string">'path/to/schema.avsc'</span>)
+<span class="hljs-keyword">await</span> registry.getRegistryIdBySchema(<span class="hljs-string">'subject'</span>, schema)
+</code></pre>
+<p>Version 2:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">const</span> schema = <span class="hljs-keyword">await</span> readAVSCAsync(<span class="hljs-string">'path/to/schema.avsc'</span>)
+<span class="hljs-keyword">const</span> schemaString = <span class="hljs-built_in">JSON</span>.stringify(schema)
+<span class="hljs-keyword">await</span> registry.getRegistryIdBySchema(<span class="hljs-string">'subject'</span>, { <span class="hljs-attr">type</span>: SchemaType.AVRO, <span class="hljs-attr">schema</span>: schemaString })
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/confluent-schema-registry/docs/schemas"><span class="arrow-prev">← </span><span>Example Avro Schemas</span></a><a class="docs-next button" href="/confluent-schema-registry/docs/development"><span>Development</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#adapting-to-new-apis">Adapting to new APIs</a><ul class="toc-headings"><li><a href="#configuring-serialization-libraries">Configuring serialization libraries</a></li><li><a href="#registering-schemas">Registering schemas</a></li><li><a href="#getting-registry-id-by-schema">Getting registry id by schema</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/confluent-schema-registry/" class="nav-home"><img src="/confluent-schema-registry/img/kafkajs-logoV2.svg" alt="Confluent schema registry" width="66" height="58"/></a><div><a href="https://github.com/kafkajs/confluent-schema-registry">GitHub</a><a class="github-button" href="https://github.com/kafkajs/confluent-schema-registry" data-icon="octicon-star" data-count-href="/kafkajs/confluent-schema-registry" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div><div style="text-align:right"><a href="https://github.com/kafkajs/confluent-schema-registry/blob/master/LICENSE"><img alt="licence" src="https://img.shields.io/github/license/kafkajs/confluent-schema-registry?style=flat"/></a></div></section><section class="copyright">Copyright © 2021 Kafkajs</section></footer></div></body></html>
