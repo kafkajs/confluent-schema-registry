@@ -11,7 +11,7 @@ import avro from 'avsc'
 
 export default class AvroHelper implements SchemaHelper {
   private getRawAvroSchema(schema: ConfluentSchema): RawAvroSchema {
-    return JSON.parse(schema.schemaString) as RawAvroSchema
+    return JSON.parse(schema.schema) as RawAvroSchema
   }
 
   public getAvroSchema(schema: ConfluentSchema, opts?: AvroOptions) {

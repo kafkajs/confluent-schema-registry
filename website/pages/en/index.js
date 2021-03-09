@@ -99,7 +99,7 @@ class Index extends React.Component {
 
     const Features = props => (
       <div id="feature">
-        <Block layout="fourColumn">
+        <Block layout="threeColumn">
           {[
             {
               title: 'Simple interface',
@@ -108,6 +108,10 @@ class Index extends React.Component {
             {
               title: 'Solid and heavily used',
               content: `The source for this project has been running on large scale production projects for years`,
+            },
+            {
+              title: 'All your schemas in one place',
+              content: 'Full support for Avro, JSON Schema and Protobuf',
             },
           ]}
         </Block>

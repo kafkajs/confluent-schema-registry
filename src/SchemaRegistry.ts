@@ -19,6 +19,7 @@ import {
   ConfluentSchema,
   ConfluentSubject,
   SchemaRegistryAPIClientOptions,
+  AvroConfluentSchema,
 } from './@types'
 import {
   helperTypeFromSchemaType,
@@ -33,7 +34,7 @@ interface RegisteredSchema {
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
-  subject?: string
+  subject: string
 }
 
 const DEFAULT_OPTS = {
@@ -57,16 +58,22 @@ export default class SchemaRegistry {
     this.options = options
   }
 
+  private isConfluentSchema(
+    schema: RawAvroSchema | AvroSchema | ConfluentSchema,
+  ): schema is ConfluentSchema {
+    return (schema as ConfluentSchema).schema != null
+  }
+
   private getConfluentSchema(
     schema: RawAvroSchema | AvroSchema | ConfluentSchema,
   ): ConfluentSchema {
     let confluentSchema: ConfluentSchema
     // convert data from old api (for backwards compatibility)
-    if (!(schema as ConfluentSchema).schemaString) {
+    if (!this.isConfluentSchema(schema)) {
       // schema is instanceof RawAvroSchema or AvroSchema
       confluentSchema = {
         type: SchemaType.AVRO,
-        schemaString: JSON.stringify(schema),
+        schema: JSON.stringify(schema),
       }
     } else {
       confluentSchema = schema as ConfluentSchema
@@ -74,6 +81,18 @@ export default class SchemaRegistry {
     return confluentSchema
   }
 
+  public async register(
+    schema: Exclude<ConfluentSchema, AvroConfluentSchema>,
+    userOpts: Opts,
+  ): Promise<RegisteredSchema>
+  public async register(
+    schema: RawAvroSchema | AvroConfluentSchema,
+    userOpts?: Omit<Opts, 'subject'> & { subject?: string },
+  ): Promise<RegisteredSchema>
+  public async register(
+    schema: RawAvroSchema | ConfluentSchema,
+    userOpts: Opts,
+  ): Promise<RegisteredSchema>
   public async register(
     schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
@@ -118,7 +137,7 @@ export default class SchemaRegistry {
       subject: subject.name,
       body: {
         schemaType: confluentSchema.type,
-        schema: confluentSchema.schemaString,
+        schema: confluentSchema.schema,
       },
     })
 
@@ -129,7 +148,7 @@ export default class SchemaRegistry {
     return registeredSchema
   }
 
-  public async getSchema(registryId: number): Promise<Schema> {
+  public async getSchema(registryId: number): Promise<Schema | AvroSchema> {
     const schema = this.cache.getSchema(registryId)
 
     if (schema) {
@@ -139,9 +158,15 @@ export default class SchemaRegistry {
     const response = await this.getSchemaOriginRequest(registryId)
     const foundSchema: { schema: string; schemaType: string } = response.data()
     const rawSchema = foundSchema.schema
+    const schemaType = schemaTypeFromString(foundSchema.schemaType)
+
+    if (schemaType === SchemaType.UNKNOWN) {
+      throw new ConfluentSchemaRegistryError(`Unknown schema type ${foundSchema.schemaType}`)
+    }
+
     const confluentSchema: ConfluentSchema = {
-      type: schemaTypeFromString(foundSchema.schemaType),
-      schemaString: rawSchema,
+      type: schemaType,
+      schema: rawSchema,
     }
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
     return this.cache.setSchema(registryId, schemaInstance)
@@ -202,7 +227,7 @@ export default class SchemaRegistry {
 
   public async getRegistryIdBySchema(
     subject: string,
-    schema: AvroSchema | ConfluentSchema,
+    schema: AvroSchema | RawAvroSchema | ConfluentSchema,
   ): Promise<number> {
     try {
       const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
@@ -210,7 +235,7 @@ export default class SchemaRegistry {
         subject,
         body: {
           schemaType: confluentSchema.type,
-          schema: confluentSchema.schemaString,
+          schema: confluentSchema.schema,
         },
       })
       const { id }: { id: number } = response.data()

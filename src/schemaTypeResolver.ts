@@ -14,6 +14,7 @@ import {
   JsonOptions,
   ProtoOptions,
   Schema,
+  AvroSchema,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
 
@@ -64,7 +65,7 @@ export const helperTypeFromSchemaType = (
 export const schemaFromConfluentSchema = (
   confluentSchema: ConfluentSchema,
   options?: SchemaRegistryAPIClientOptions,
-): Schema => {
+): Schema | AvroSchema => {
   try {
     let schema: Schema
 
