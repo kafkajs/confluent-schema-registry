@@ -32,7 +32,7 @@ const combine = (rootType: any, types: any) => {
     return rootType
   }
 
-  const find = (name: any) => {
+  const find = (name: any, useCache = false) => {
     if (typeof name === 'string') {
       name = name.toLowerCase()
     }
@@ -47,13 +47,23 @@ const combine = (rootType: any, types: any) => {
       return names.join('') === name
     })
 
-    if (!typeToCombine || cache[typeToCombine.name]) {
+    if (!typeToCombine) {
       return null
     }
+    /*
+      it is a workaround to map all fields and avoid to use namespace when
+      we are importing avdl file
+    */
+    const cached = cache[typeToCombine.name]
 
-    cache[typeToCombine.name] = 1
+    if (cached) {
+      return !useCache ? null : cached
+    }
 
-    return combine(typeToCombine, types)
+    const toCache = combine(typeToCombine, types)
+    cache[typeToCombine.name] = toCache
+
+    return toCache
   }
 
   const combinedFields = rootType.fields.map((field: any) => {
@@ -75,7 +85,7 @@ const combine = (rootType: any, types: any) => {
       return merge(field, { type })
     }
 
-    const typeToCombine = find(field.type)
+    const typeToCombine = find(field.type, true)
     return typeToCombine ? merge(field, { type: typeToCombine }) : field
   })
 
