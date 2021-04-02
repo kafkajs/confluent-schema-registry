@@ -42,6 +42,11 @@ const DEFAULT_OPTS = {
   separator: DEFAULT_SEPERATOR,
 }
 
+interface DecodedMessage {
+  payload: any
+  registryId: number
+}
+
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
   private cacheMissRequests: { [key: number]: Promise<Response> } = {}
@@ -200,7 +205,7 @@ export default class SchemaRegistry {
     return paths
   }
 
-  public async decode(buffer: Buffer): Promise<any> {
+  public async decodeWithRegistryInformation(buffer: Buffer): Promise<DecodedMessage> {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -215,7 +220,15 @@ export default class SchemaRegistry {
     }
 
     const schema = await this.getSchema(registryId)
-    return schema.fromBuffer(payload)
+    return {
+      payload: schema.fromBuffer(payload),
+      registryId,
+    }
+  }
+
+  public async decode(buffer: Buffer): Promise<any> {
+    const { payload } = await this.decodeWithRegistryInformation(buffer)
+    return payload
   }
 
   public async getRegistryId(subject: string, version: number | string): Promise<number> {

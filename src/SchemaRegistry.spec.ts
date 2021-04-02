@@ -157,6 +157,17 @@ describe('SchemaRegistry - old AVRO api', () => {
       expect(data).toEqual(payload)
     })
 
+    it('decodes data and returns the registry ID', async () => {
+      const buffer = Buffer.from(await schemaRegistry.encode(registryId, payload))
+      const {
+        payload: decodedPayload,
+        registryId: decodedRegistryId,
+      } = await schemaRegistry.decodeWithRegistryInformation(buffer)
+
+      expect(decodedPayload).toEqual(payload)
+      expect(decodedRegistryId).toEqual(registryId)
+    })
+
     it('throws an error if the magic byte is not supported', async () => {
       const buffer = Buffer.from(wrongMagicByte)
       await expect(schemaRegistry.decode(buffer)).rejects.toHaveProperty(
