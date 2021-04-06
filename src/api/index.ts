@@ -1,4 +1,5 @@
-import forge, { Client, Authorization } from 'mappersmith'
+import { Agent } from 'http'
+import forge, { Authorization, Client, configs } from 'mappersmith'
 import RetryMiddleware, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
 
@@ -19,6 +20,8 @@ export interface SchemaRegistryAPIClientArgs {
   auth?: Authorization
   clientId?: string
   retry?: Partial<RetryMiddlewareOptions>
+  /** HTTP Agent that will be passed to underlying API calls */
+  agent?: Agent
 }
 
 // TODO: Improve typings
@@ -43,8 +46,20 @@ export default ({
   clientId,
   host,
   retry = {},
-}: SchemaRegistryAPIClientArgs): SchemaRegistryAPIClient =>
-  forge({
+  agent,
+}: SchemaRegistryAPIClientArgs): SchemaRegistryAPIClient => {
+  // TODO: figure out how to only bind agent to host URL
+  // if an agent was provided, bind the agent to the mappersmith configs
+  if (agent) {
+    configs.gatewayConfigs.HTTP = {
+      configure() {
+        return {
+          agent,
+        }
+      },
+    }
+  }
+  return forge({
     clientId: clientId || DEFAULT_API_CLIENT_ID,
     ignoreGlobalMiddleware: true,
     host,
@@ -100,3 +115,4 @@ export default ({
       },
     },
   })
+}
