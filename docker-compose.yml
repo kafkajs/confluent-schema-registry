@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   kafka: # https://hub.docker.com/r/confluentinc/cp-kafka
@@ -32,3 +32,5 @@ services:
 
   avro_tools: # https://hub.docker.com/r/coderfi/avro-tools
     image: coderfi/avro-tools:1.7.7
+    ports:
+     - '9999:9999'
