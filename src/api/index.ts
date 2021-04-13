@@ -1,5 +1,5 @@
 import { Agent } from 'http'
-import forge, { Authorization, Client, configs } from 'mappersmith'
+import forge, { Authorization, Client, Options } from 'mappersmith'
 import RetryMiddleware, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
 
@@ -48,18 +48,8 @@ export default ({
   retry = {},
   agent,
 }: SchemaRegistryAPIClientArgs): SchemaRegistryAPIClient => {
-  // TODO: figure out how to only bind agent to host URL
-  // if an agent was provided, bind the agent to the mappersmith configs
-  if (agent) {
-    configs.gatewayConfigs.HTTP = {
-      configure() {
-        return {
-          agent,
-        }
-      },
-    }
-  }
-  return forge({
+  // FIXME: ResourcesType typings is not exposed by mappersmith
+  const manifest: Options<any> = {
     clientId: clientId || DEFAULT_API_CLIENT_ID,
     ignoreGlobalMiddleware: true,
     host,
@@ -114,5 +104,13 @@ export default ({
         },
       },
     },
-  })
+  }
+  // if an agent was provided, bind the agent to the mappersmith configs
+  if (agent) {
+    // gatewayConfigs is not listed as a type on manifest object in mappersmith
+    ;(manifest as any).gatewayConfigs = {
+      configure: () => agent,
+    }
+  }
+  return forge(manifest)
 }
