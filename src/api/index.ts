@@ -109,7 +109,7 @@ export default ({
   if (agent) {
     // gatewayConfigs is not listed as a type on manifest object in mappersmith
     ;(manifest as any).gatewayConfigs = {
-      configure: () => agent,
+      configure: () => ({ agent }),
     }
   }
   return forge(manifest)
