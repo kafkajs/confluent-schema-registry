@@ -511,16 +511,16 @@ describe('SchemaRegistry - new Api', () => {
         }
       }
       `,
-      type = SchemaType.PROTOBUF,
-      nestedPayload = { 
-        data: 'data-value',
-        innerMessageType1: {
-          someField: 'someField-value'
-        },
-        innerMessageType2: {
-          someOtherField: 'someOtherField-value'
+        type = SchemaType.PROTOBUF,
+        nestedPayload = {
+          data: 'data-value',
+          innerMessageType1: {
+            someField: 'someField-value',
+          },
+          innerMessageType2: {
+            someOtherField: 'someOtherField-value',
+          },
         }
-      }
 
       beforeAll(() => {
         schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
