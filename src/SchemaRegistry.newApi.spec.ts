@@ -13,6 +13,7 @@ import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2Avro from '../fixtures/avro/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
+import encodedNestedV2Proto from '../fixtures/proto/encodedNestedV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
 
 const REGISTRY_HOST = 'http://localhost:8982'
@@ -491,6 +492,73 @@ describe('SchemaRegistry - new Api', () => {
       const data = await schemaRegistry.decode(buffer)
 
       expect(data).toEqual(payload)
+    })
+
+    describe('nested message types tests', () => {
+      const v4 = `
+      syntax = "proto2";
+      package com.org.domain.fixtures;
+      message OuterMessageType {
+        required string data = 1;
+        required InnerMessageType1 innerMessageType1 = 2;
+        required InnerMessageType2 innerMessageType2 = 3;
+
+        message InnerMessageType1 {
+          required string someField = 1;
+        }
+        message InnerMessageType2 {
+          required string someOtherField = 1;
+        }
+      }
+      `,
+        type = SchemaType.PROTOBUF,
+        nestedPayload = {
+          data: 'data-value',
+          innerMessageType1: {
+            someField: 'someField-value',
+          },
+          innerMessageType2: {
+            someOtherField: 'someOtherField-value',
+          },
+        }
+
+      beforeAll(() => {
+        schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
+      })
+
+      it('encodes', async () => {
+        const confluentSchemaV4: ConfluentSchema = {
+          type,
+          schema: v4,
+        }
+
+        const schema4 = await schemaRegistry.register(confluentSchemaV4, {
+          subject: `${type}_test4`,
+        })
+
+        const data = await schemaRegistry.encode(schema4.id, nestedPayload)
+
+        expect(data).toMatchConfluentEncodedPayload({
+          registryId: schema4.id,
+          payload: Buffer.from(encodedNestedV2Proto),
+        })
+      })
+
+      it('decodes', async () => {
+        const confluentSchemaV4: ConfluentSchema = {
+          type,
+          schema: v4,
+        }
+
+        const schema4 = await schemaRegistry.register(confluentSchemaV4, {
+          subject: `${type}_test4`,
+        })
+
+        const buffer = Buffer.from(await schemaRegistry.encode(schema4.id, nestedPayload))
+        const data = await schemaRegistry.decode(buffer)
+
+        expect(data).toEqual(nestedPayload)
+      })
     })
   })
 })

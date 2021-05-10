@@ -19,7 +19,9 @@ export default class ProtoSchema implements Schema {
     if (!parent) throw new ConfluentSchemaRegistryArgumentError('no nested fields')
     const keys = Object.keys(parent)
     const reflection = parent[keys[0]]
-    if (reflection instanceof Namespace && reflection.nested)
+
+    // Traverse down the nested Namespaces until we find a message Type instance (which extends Namespace)
+    if (reflection instanceof Namespace && !(reflection instanceof Type) && reflection.nested)
       return this.getNestedTypeName(reflection.nested)
     return keys[0]
   }
