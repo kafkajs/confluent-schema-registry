@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2021-05-20
+
+This version is non-breaking for the overwhelming majority of users.
+
+When creating an instance of SchemaRegistry for Protobuf without the [`messageName`
+parameter](https://kafkajs.github.io/confluent-schema-registry/docs/usage#protobuf-1)
+confluent-schema-registry would, under certain circumstances, default
+to the wrong message type in the schema. Specifically, instead of defaulting to
+the first message type in the schema it would erroneously default to the first
+message type that did not define a nested type.
+
+**If you were relying on this behavior may need to either**:
+
+* Start passing [the `messageName` parameter](https://kafkajs.github.io/confluent-schema-registry/docs/usage#protobuf-1) instead of relying on the default behavior
+* Update your schemas and re-ingest messages accordingly
+
+See issue [#112](https://github.com/kafkajs/confluent-schema-registry/issues/112) for
+more info
+
+### Added
+
+- Allow setting HTTP agent [#108](https://github.com/kafkajs/confluent-schema-registry/pull/108)
+
+### Fixed
+
+- Fix default nested Protobuf type [#113](https://github.com/kafkajs/confluent-schema-registry/pull/113)
+
 ## [2.0.1] - 2021-04-02
 
 - Fix export of SchemaType [#100](https://github.com/kafkajs/confluent-schema-registry/pull/100)
