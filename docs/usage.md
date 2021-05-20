@@ -221,6 +221,21 @@ const registry = new SchemaRegistry({
 })
 ```
 
+### HTTP Agent
+
+Configuring the behavior of the HTTP requests towards the schema registry API
+can be done by passing in an instance of an [Agent](https://nodejs.org/api/https.html#https_class_https_agent).
+
+```ts
+import { Agent } from 'http'
+
+const agent = new Agent({ keepAlive: true })
+const registry = new SchemaRegistry({
+  host: 'http://localhost:8081',
+  agent
+})
+```
+
 ### Schema type options
 
 The second argument to the `SchemaRegistry` constructor is an object with keys for each `SchemaType`.
