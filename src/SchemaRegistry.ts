@@ -20,12 +20,15 @@ import {
   ConfluentSubject,
   SchemaRegistryAPIClientOptions,
   AvroConfluentSchema,
+  ProtocolOptions,
+  LegacyOptions
 } from './@types'
 import {
   helperTypeFromSchemaType,
   schemaTypeFromString,
   schemaFromConfluentSchema,
 } from './schemaTypeResolver'
+import { Type } from 'avsc/types'
 
 interface RegisteredSchema {
   id: number
@@ -34,7 +37,14 @@ interface RegisteredSchema {
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
+  subject: string,
+  referencedSchemaIds?: number[]
+}
+
+interface Reference {
+  name: string
   subject: string
+  version: number
 }
 
 const DEFAULT_OPTS = {
@@ -97,12 +107,23 @@ export default class SchemaRegistry {
     schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
-    const { compatibility, separator } = { ...DEFAULT_OPTS, ...userOpts }
+    const { compatibility, separator, referencedSchemaIds } = { ...DEFAULT_OPTS, ...userOpts }
+    let opts = this.options;
+
+    if (referencedSchemaIds) {
+      const referenceSchemas = Object.assign({}, ...await Promise.all(referencedSchemaIds.map(async (id) => {
+        const referencedSchema = await this.getSchema(id) as AvroSchema
+        return { [referencedSchema.name]: referencedSchema }
+      })))
+
+      opts = this.populateRegistryWithReferenceSchemas(referenceSchemas)
+    }
 
     const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
 
     const helper = helperTypeFromSchemaType(confluentSchema.type)
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
+    const schemaInstance = schemaFromConfluentSchema(confluentSchema, opts)
+    // const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options, referenceSchemas)
     helper.validate(schemaInstance)
 
     let subject: ConfluentSubject
@@ -138,6 +159,7 @@ export default class SchemaRegistry {
       body: {
         schemaType: confluentSchema.type,
         schema: confluentSchema.schema,
+        // ...(referencedSchemas && { references: referencedSchemas })
       },
     })
 
@@ -150,13 +172,26 @@ export default class SchemaRegistry {
 
   public async getSchema(registryId: number): Promise<Schema | AvroSchema> {
     const schema = this.cache.getSchema(registryId)
+    let opts = this.options
 
     if (schema) {
       return schema
     }
 
     const response = await this.getSchemaOriginRequest(registryId)
-    const foundSchema: { schema: string; schemaType: string } = response.data()
+    const foundSchema: { schema: string; schemaType: string; references?: Reference[]; } = response.data()
+
+    if (foundSchema.references) {
+      const referenceSchemas = Object.assign({}, ...await Promise.all(foundSchema.references.map(async (reference) => {
+        const referenceSchemaId = await this.getRegistryId(reference.subject, reference.version)
+        // @ts-ignore TODO: Fix typings for Schema...
+        const referenceType: Type = await this.getSchema(referenceSchemaId)
+        return { [reference.subject]: referenceType }
+      })));
+
+      opts = this.populateRegistryWithReferenceSchemas(referenceSchemas);
+    }
+
     const rawSchema = foundSchema.schema
     const schemaType = schemaTypeFromString(foundSchema.schemaType)
 
@@ -168,8 +203,22 @@ export default class SchemaRegistry {
       type: schemaType,
       schema: rawSchema,
     }
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
+    const schemaInstance = schemaFromConfluentSchema(confluentSchema, opts)
     return this.cache.setSchema(registryId, schemaInstance)
+  }
+
+  private populateRegistryWithReferenceSchemas(referenceSchemas: { [x: string]: Type }) {
+      const schemaOptions = (this.options as LegacyOptions)?.forSchemaOptions || (this.options as ProtocolOptions)?.[SchemaType.AVRO]
+
+      return {
+        [SchemaType.AVRO]: {
+          ...schemaOptions,
+          registry: {
+            ...schemaOptions?.registry,
+            ...referenceSchemas
+          }
+        }
+      }
   }
 
   public async encode(registryId: number, payload: any): Promise<Buffer> {
