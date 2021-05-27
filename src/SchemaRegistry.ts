@@ -34,11 +34,16 @@ interface RegisteredSchema {
   id: number
 }
 
+interface SchemaVersion {
+  subject: string
+  version: number
+}
+
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
   subject: string,
-  referencedSchemaIds?: number[]
+  referenceSchemaIds?: number[]
 }
 
 interface Reference {
@@ -107,13 +112,13 @@ export default class SchemaRegistry {
     schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
-    const { compatibility, separator, referencedSchemaIds } = { ...DEFAULT_OPTS, ...userOpts }
+    const { compatibility, separator, referenceSchemaIds } = { ...DEFAULT_OPTS, ...userOpts }
     let opts = this.options;
 
-    if (referencedSchemaIds) {
-      const referenceSchemas = Object.assign({}, ...await Promise.all(referencedSchemaIds.map(async (id) => {
-        const referencedSchema = await this.getSchema(id) as AvroSchema
-        return { [referencedSchema.name]: referencedSchema }
+    if (referenceSchemaIds) {
+      const referenceSchemas = Object.assign({}, ...await Promise.all(referenceSchemaIds.map(async (id) => {
+        const referenceSchema = await this.getSchema(id) as AvroSchema
+        return { [referenceSchema.name]: referenceSchema }
       })))
 
       opts = this.populateRegistryWithReferenceSchemas(referenceSchemas)
@@ -154,12 +159,26 @@ export default class SchemaRegistry {
       }
     }
 
+    let references;
+    if (referenceSchemaIds) {
+      references = await Promise.all(referenceSchemaIds.map(async (id) => {
+        const refResponseData: SchemaVersion[] = (await this.api.Schema.versions({ id })).data()
+        const name = refResponseData[0].subject.split(separator).slice(-1)[0];
+        return {
+          name,
+          subject: refResponseData[0].subject,
+          version: refResponseData[0].version
+        }
+      }))
+    }
+
+
     const response = await this.api.Subject.register({
       subject: subject.name,
       body: {
         schemaType: confluentSchema.type,
         schema: confluentSchema.schema,
-        // ...(referencedSchemas && { references: referencedSchemas })
+        references
       },
     })
 

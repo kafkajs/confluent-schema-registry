@@ -28,6 +28,7 @@ export interface SchemaRegistryAPIClientArgs {
 export type SchemaRegistryAPIClient = Client<{
   Schema: {
     find: (_: any) => any
+    versions: (_: any) => any
   }
   Subject: {
     all: (_: any) => any
@@ -65,6 +66,10 @@ export default ({
           method: 'get',
           path: '/schemas/ids/{id}',
         },
+        versions: {
+          method: 'get',
+          path: '/schemas/ids/{id}/versions'
+        }
       },
       Subject: {
         all: {
