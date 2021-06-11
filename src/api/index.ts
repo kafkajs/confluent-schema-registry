@@ -1,5 +1,5 @@
 import { Agent } from 'http'
-import forge, { Authorization, Client, Options } from 'mappersmith'
+import forge, { Authorization, Client, Options, GatewayConfiguration } from 'mappersmith'
 import RetryMiddleware, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
 
@@ -108,8 +108,10 @@ export default ({
   // if an agent was provided, bind the agent to the mappersmith configs
   if (agent) {
     // gatewayConfigs is not listed as a type on manifest object in mappersmith
-    ;(manifest as any).gatewayConfigs = {
-      configure: () => ({ agent }),
+    ;((manifest as unknown) as { gatewayConfigs: Partial<GatewayConfiguration> }).gatewayConfigs = {
+      HTTP: {
+        configure: () => ({ agent }),
+      },
     }
   }
   return forge(manifest)
