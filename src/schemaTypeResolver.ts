@@ -81,7 +81,7 @@ export const schemaFromConfluentSchema = (
         break
       }
       case SchemaType.JSON: {
-        const opts: JsonOptions = (options as ProtocolOptions)?.[SchemaType.JSON]
+        const opts: JsonOptions | undefined = (options as ProtocolOptions)?.[SchemaType.JSON]
         schema = new JsonSchema(confluentSchema, opts)
         break
       }

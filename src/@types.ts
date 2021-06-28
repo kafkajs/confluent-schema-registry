@@ -14,7 +14,7 @@ export interface SchemaHelper {
 }
 
 export type AvroOptions = Partial<ForSchemaOptions>
-export type JsonOptions = ConstructorParameters<typeof Ajv>[0]
+export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & { ajvInstance?: Ajv }
 export type ProtoOptions = { messageName: string }
 
 export interface LegacyOptions {
