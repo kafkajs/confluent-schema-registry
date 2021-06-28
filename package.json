@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "ajv": "^7.1.0",
-    "ajv-formats": "^1.5.1",
     "avsc": ">= 5.4.13 < 6",
     "mappersmith": ">= 2.30.1 < 3",
     "protobufjs": "^6.10.1"
