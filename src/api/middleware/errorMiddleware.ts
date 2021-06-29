@@ -4,6 +4,8 @@ interface ConfluenceResponse extends Omit<Response, 'data'> {
   data: () => {
     message: string
   }
+  responseData?: unknown
+  errors?: unknown[]
 }
 
 class ResponseError extends Error {
@@ -12,7 +14,14 @@ class ResponseError extends Error {
   url: string
 
   constructor(clientName: string, response: ConfluenceResponse) {
-    super(`${clientName} - ${response.data().message || `Error, status ${response.status()}`}`)
+    super(
+      `${clientName} - 
+       ${response.data().message ||
+         response.responseData ||
+         `Error, status ${response.status()} ${
+           response.errors ? JSON.stringify(response.errors) : ''
+         }`}`,
+    )
 
     const request = response.request()
     this.name = this.constructor.name

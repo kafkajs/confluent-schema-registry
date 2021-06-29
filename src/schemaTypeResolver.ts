@@ -55,7 +55,7 @@ export const helperTypeFromSchemaType = (
         break
       }
       default:
-        throw new ConfluentSchemaRegistryArgumentError('invalid schemaType')
+        throw new ConfluentSchemaRegistryArgumentError(`invalid schemaType ${schemaType}`)
     }
     helperTypeFromSchemaTypeMap[schemaTypeStr] = helper
   }
@@ -91,7 +91,9 @@ export const schemaFromConfluentSchema = (
         break
       }
       default:
-        throw new ConfluentSchemaRegistryArgumentError('invalid schemaType')
+        throw new ConfluentSchemaRegistryArgumentError(
+          `invalid schemaType ${(confluentSchema as ConfluentSchema).type}`,
+        )
     }
 
     return schema
