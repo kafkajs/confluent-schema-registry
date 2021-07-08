@@ -1,17 +1,37 @@
-// @ts-nocheck
 import { Schema, SchemaHelper, ConfluentSubject, ConfluentSchema } from './@types'
 import { ConfluentSchemaRegistryError } from './errors'
+import { parse } from 'protobufjs'
 
 export default class ProtoHelper implements SchemaHelper {
-  public validate(schema: Schema): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public validate(_schema: Schema): void {
     return
   }
 
   public getSubject(
-    confluentSchema: ConfluentSchema,
-    schema: Schema,
-    separator: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _confluentSchema: ConfluentSchema,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _schema: Schema,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _separator: string,
   ): ConfluentSubject {
     throw new ConfluentSchemaRegistryError('not implemented yet')
+  }
+
+  /**
+   * Get the schemas referenced by the provided schema.
+   *
+   * @param schema The schema to find references for
+   * @param fetchSchema A helper function that can fetch the schema definition given
+   *     the import path (reference name)
+   *
+   * @returns A map from Schema Registry subject to ConfluentSchema. The map describes
+   *     each imported/referenced schema that is used by the given schema.
+   */
+  public async referencedSchemas(schema: string): Promise<string[]> {
+    const parsed = parse(schema)
+    const out: string[] = []
+    return out.concat(parsed.imports || []).concat(parsed.weakImports || [])
   }
 }

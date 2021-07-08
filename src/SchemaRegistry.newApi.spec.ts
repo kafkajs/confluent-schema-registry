@@ -15,6 +15,7 @@ import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
 import encodedNestedV2Proto from '../fixtures/proto/encodedNestedV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
+import ProtoSchema from './ProtoSchema'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
@@ -456,6 +457,32 @@ describe('SchemaRegistry - new Api', () => {
       v3Opts = { [SchemaType.PROTOBUF]: { messageName: 'AnotherPerson' } },
       type = SchemaType.PROTOBUF
 
+    const protoV3 = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      message AnotherPerson {
+        string city = 2 [default = "Stockholm"];
+      }
+      `
+
+    const protoImportsV3 = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      import "referenced.proto";
+      message AnotherPerson {
+        string city = 1 [default = "Stockholm"];
+        ReferencedMessage referenced = 2;
+      }
+      `
+
+    const protoReferencedMessage = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      message ReferencedMessage {
+        string something = 1;
+      }
+      `
+
     beforeAll(() => {
       schemaRegistry = new SchemaRegistry(schemaRegistryArgs, v3Opts)
     })
@@ -542,6 +569,41 @@ describe('SchemaRegistry - new Api', () => {
           registryId: schema4.id,
           payload: Buffer.from(encodedNestedV2Proto),
         })
+      })
+
+      it('register and encode protocol buffer v3 schema', async () => {
+        const confluentSchemaV3: ConfluentSchema = {
+          type,
+          schema: protoV3,
+        }
+
+        const schema1 = await schemaRegistry.register(confluentSchemaV3, {
+          subject: `${type}_test_protoV3-value`,
+        })
+
+        await schemaRegistry.encode(schema1.id, payload)
+      })
+
+      it('register and encode protocol buffer v3 schema with import', async () => {
+        const confluentSchemaV3: ConfluentSchema = {
+          type,
+          schema: protoImportsV3,
+        }
+
+        async function fetchSchema(referenceName: string): Promise<ConfluentSchema> {
+          // eslint-disable-next-line no-console
+          console.log(`fetching schema for: ${referenceName}`)
+          return { type: SchemaType.PROTOBUF, schema: protoReferencedMessage }
+        }
+
+        /*const schema1 = */
+        await schemaRegistry.register(confluentSchemaV3, {
+          subject: `${type}_test_protoImportsV3-value`,
+          fetchSchema,
+        })
+
+        // TODO: fix encode, so it understands imported types
+        // await schemaRegistry.encode(schema1.id, payload)
       })
 
       it('decodes', async () => {
