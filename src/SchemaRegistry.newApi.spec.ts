@@ -591,8 +591,6 @@ describe('SchemaRegistry - new Api', () => {
         }
 
         async function fetchSchema(referenceName: string): Promise<ConfluentSchema> {
-          // eslint-disable-next-line no-console
-          console.log(`fetching schema for: ${referenceName}`)
           return { type: SchemaType.PROTOBUF, schema: protoReferencedMessage }
         }
 
