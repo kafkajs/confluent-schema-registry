@@ -23,11 +23,8 @@ export default class ProtoHelper implements SchemaHelper {
    * Get the schemas referenced by the provided schema.
    *
    * @param schema The schema to find references for
-   * @param fetchSchema A helper function that can fetch the schema definition given
-   *     the import path (reference name)
    *
-   * @returns A map from Schema Registry subject to ConfluentSchema. The map describes
-   *     each imported/referenced schema that is used by the given schema.
+   * @returns A list of imported/referenced schemas that is used by the given schema.
    */
   public async referencedSchemas(schema: string): Promise<string[]> {
     const parsed = parse(schema)
