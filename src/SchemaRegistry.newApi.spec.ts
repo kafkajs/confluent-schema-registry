@@ -596,14 +596,30 @@ describe('SchemaRegistry - new Api', () => {
           return { type: SchemaType.PROTOBUF, schema: protoReferencedMessage }
         }
 
-        /*const schema1 = */
-        await schemaRegistry.register(confluentSchemaV3, {
+        const schema1 = await schemaRegistry.register(confluentSchemaV3, {
           subject: `${type}_test_protoImportsV3-value`,
           fetchSchema,
         })
 
-        // TODO: fix encode, so it understands imported types
-        // await schemaRegistry.encode(schema1.id, payload)
+        // Check that we can encode with the cached version from the register() call
+        const payload = { referenced: { something: 'imported-schema' } }
+        const encoded1 = await schemaRegistry.encode(schema1.id, payload)
+        const decoded1 = await schemaRegistry.decode(encoded1)
+
+        // Clear the cache and try again to exercise getSchema()
+        schemaRegistry.cache.clear()
+        const encoded2 = await schemaRegistry.encode(schema1.id, payload)
+        schemaRegistry.cache.clear()
+        const decoded2 = await schemaRegistry.decode(encoded2)
+
+        expect(encoded1).toEqual(encoded2)
+        expect(decoded1).toEqual(decoded2)
+
+        // Check the default value
+        expect(decoded1.city).toEqual('Stockholm')
+
+        // Check the value in the field defined in imported schema
+        expect(decoded1.referenced.something).toEqual('imported-schema')
       })
 
       it('decodes', async () => {
