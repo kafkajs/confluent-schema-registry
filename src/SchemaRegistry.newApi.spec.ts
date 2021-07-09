@@ -465,21 +465,30 @@ describe('SchemaRegistry - new Api', () => {
       }
       `
 
-    const protoImportsV3 = `
+    const protoContact = `
       syntax = "proto3";
       package com.org.domain.fixtures;
-      import "referenced.proto";
-      message AnotherPerson {
-        string city = 1 [default = "Stockholm"];
-        ReferencedMessage referenced = 2;
+      message ContactMessage {
+        string email = 1;
       }
       `
 
-    const protoReferencedMessage = `
+    const protoEmployee = `
       syntax = "proto3";
       package com.org.domain.fixtures;
-      message ReferencedMessage {
-        string something = 1;
+      import "Contact.proto";
+      message Employee {
+        string city = 1 [default = "Stockholm"];
+        ContactMessage contact = 2;
+      }
+      `
+
+    const protoCompany = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      import "Employee.proto";
+      message Company {
+        Employee employee = 1;
       }
       `
 
@@ -587,11 +596,17 @@ describe('SchemaRegistry - new Api', () => {
       it('register and encode protocol buffer v3 schema with import', async () => {
         const confluentSchemaV3: ConfluentSchema = {
           type,
-          schema: protoImportsV3,
+          schema: protoCompany,
         }
 
         async function fetchSchema(referenceName: string): Promise<ConfluentSchema> {
-          return { type: SchemaType.PROTOBUF, schema: protoReferencedMessage }
+          if (referenceName === 'Contact.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoContact }
+          }
+          if (referenceName === 'Employee.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoEmployee }
+          }
+          throw `unknown reference ${referenceName}`
         }
 
         const schema1 = await schemaRegistry.register(confluentSchemaV3, {
@@ -600,7 +615,7 @@ describe('SchemaRegistry - new Api', () => {
         })
 
         // Check that we can encode with the cached version from the register() call
-        const payload = { referenced: { something: 'imported-schema' } }
+        const payload = { employee: { contact: { email: 'example@example.com' } } }
         const encoded1 = await schemaRegistry.encode(schema1.id, payload)
         const decoded1 = await schemaRegistry.decode(encoded1)
 
@@ -614,10 +629,10 @@ describe('SchemaRegistry - new Api', () => {
         expect(decoded1).toEqual(decoded2)
 
         // Check the default value
-        expect(decoded1.city).toEqual('Stockholm')
+        expect(decoded1.employee.city).toEqual('Stockholm')
 
         // Check the value in the field defined in imported schema
-        expect(decoded1.referenced.something).toEqual('imported-schema')
+        expect(decoded1.employee.contact.email).toEqual('example@example.com')
       })
 
       it('decodes', async () => {
