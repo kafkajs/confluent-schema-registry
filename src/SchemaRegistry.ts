@@ -139,7 +139,7 @@ export default class SchemaRegistry {
     const references = await this.registerReferences(opts, helper, confluentSchema)
     const referenceSchemas = await Promise.all(
       references.map(async reference => {
-        return this.getSchemaForSubject(reference.subject, reference.version)
+        return this.getSchema(await this.getRegistryId(reference.subject, reference.version))
       }),
     )
 
@@ -194,15 +194,6 @@ export default class SchemaRegistry {
     return registeredSchema
   }
 
-  public async getSchemaForSubject(subject: string, version: number): Promise<Schema | AvroSchema> {
-    const response = await this.api.Subject.version({
-      subject,
-      version,
-    })
-    const schema: { id: number } = response.data()
-    return await this.getSchema(schema.id)
-  }
-
   public async getSchema(registryId: number): Promise<Schema | AvroSchema> {
     const schema = this.cache.getSchema(registryId)
 
@@ -225,7 +216,7 @@ export default class SchemaRegistry {
 
     const referenceSchemas = await Promise.all(
       (foundSchema.references || []).map(async reference => {
-        return this.getSchemaForSubject(reference.subject, reference.version)
+        return this.getSchema(await this.getRegistryId(reference.subject, reference.version))
       }),
     )
 
