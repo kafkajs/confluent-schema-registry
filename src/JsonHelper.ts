@@ -14,4 +14,11 @@ export default class JsonHelper implements SchemaHelper {
   ): ConfluentSubject {
     throw new ConfluentSchemaRegistryError('not implemented yet')
   }
+
+  public async referencedSchemas(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _schema: string,
+  ): Promise<string[]> {
+    return []
+  }
 }

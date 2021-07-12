@@ -65,6 +65,7 @@ export const helperTypeFromSchemaType = (
 export const schemaFromConfluentSchema = (
   confluentSchema: ConfluentSchema,
   options?: SchemaRegistryAPIClientOptions,
+  referenceSchemas?: Schema[],
 ): Schema | AvroSchema => {
   try {
     let schema: Schema
@@ -87,7 +88,7 @@ export const schemaFromConfluentSchema = (
       }
       case SchemaType.PROTOBUF: {
         const opts: ProtoOptions | undefined = (options as ProtocolOptions)?.[SchemaType.PROTOBUF]
-        schema = new ProtoSchema(confluentSchema, opts)
+        schema = new ProtoSchema(confluentSchema, opts, referenceSchemas)
         break
       }
       default:

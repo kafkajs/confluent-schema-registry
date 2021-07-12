@@ -44,4 +44,11 @@ export default class AvroHelper implements SchemaHelper {
     }
     return subject
   }
+
+  public async referencedSchemas(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _schema: string,
+  ): Promise<string[]> {
+    return []
+  }
 }

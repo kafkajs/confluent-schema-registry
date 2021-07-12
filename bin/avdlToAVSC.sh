@@ -1,3 +1,5 @@
+#!/bin/sh
+
 avdl_path=$1
 avsc_name=$2
 

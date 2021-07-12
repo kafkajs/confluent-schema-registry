@@ -11,6 +11,7 @@ export enum SchemaType {
 export interface SchemaHelper {
   validate(schema: Schema): void
   getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
+  referencedSchemas(schema: string): Promise<string[]>
 }
 
 export type AvroOptions = Partial<ForSchemaOptions>

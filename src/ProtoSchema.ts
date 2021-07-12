@@ -8,11 +8,20 @@ import {
 
 export default class ProtoSchema implements Schema {
   private message: Type
+  private root: protobuf.Root
 
-  constructor(schema: ConfluentSchema, opts?: ProtoOptions) {
+  constructor(schema: ConfluentSchema, opts?: ProtoOptions, references?: Schema[]) {
     const parsedMessage = protobuf.parse(schema.schema)
-    const root = parsedMessage.root
-    this.message = root.lookupType(this.getTypeName(parsedMessage, opts))
+    this.root = parsedMessage.root
+
+    if (references) {
+      const schemas = references as ProtoSchema[]
+      schemas.forEach(reference => {
+        this.root.add(reference.root)
+      })
+    }
+
+    this.message = this.root.lookupType(this.getTypeName(parsedMessage, opts))
   }
 
   private getNestedTypeName(parent: { [k: string]: ReflectionObject } | undefined): string {
