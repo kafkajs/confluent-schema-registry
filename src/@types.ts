@@ -43,10 +43,7 @@ export interface RawAvroSchema {
   fields: any[]
 }
 
-export interface AvroSchema extends Schema, RawAvroSchema {
-  createResolver(writerSchema: AvroSchema): Resolver
-  equals(other: Schema): Boolean
-}
+export interface AvroSchema extends Schema, RawAvroSchema {}
 
 export interface ConfluentSubject {
   name: string
