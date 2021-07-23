@@ -262,7 +262,7 @@ export default class SchemaRegistry {
     return paths
   }
 
-  public async decode(buffer: Buffer): Promise<any> {
+  public async decode(buffer: Buffer, readerSchema?: AvroSchema): Promise<any> {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -276,8 +276,21 @@ export default class SchemaRegistry {
       )
     }
 
-    const schema = await this.getSchema(registryId)
-    return schema.fromBuffer(payload)
+    const writerSchema = await this.getSchema(registryId)
+    if (readerSchema) {
+      if (readerSchema.equals(writerSchema)){
+        /* Even when schemas are considered equal by `avsc`,
+         * they still aren't interchangeable:
+         * provided `readerSchema` may have different `opts` (e.g. logicalTypes / unionWrap flags)
+         * see https://github.com/mtth/avsc/issues/362 */
+        return readerSchema.fromBuffer(payload)
+      } else {
+        // decode using a resolver from writer type into reader type
+        return readerSchema.fromBuffer(payload, readerSchema.createResolver(writerSchema as AvroSchema))
+      }
+    } else {
+      return writerSchema.fromBuffer(payload)
+    }
   }
 
   public async getRegistryId(subject: string, version: number | string): Promise<number> {
