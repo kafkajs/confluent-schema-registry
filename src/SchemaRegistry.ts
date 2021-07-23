@@ -1,3 +1,4 @@
+import { Type } from 'avsc'
 import { Response } from 'mappersmith'
 
 import { encode, MAGIC_BYTE } from './wireEncoder'
@@ -262,7 +263,7 @@ export default class SchemaRegistry {
     return paths
   }
 
-  public async decode(buffer: Buffer, readerSchema?: AvroSchema): Promise<any> {
+  public async decode(buffer: Buffer, readerSchema?: Type): Promise<any> {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -278,7 +279,7 @@ export default class SchemaRegistry {
 
     const writerSchema = await this.getSchema(registryId)
     if (readerSchema) {
-      if (readerSchema.equals(writerSchema)){
+      if (readerSchema.equals(writerSchema as Type)){
         /* Even when schemas are considered equal by `avsc`,
          * they still aren't interchangeable:
          * provided `readerSchema` may have different `opts` (e.g. logicalTypes / unionWrap flags)
@@ -286,7 +287,7 @@ export default class SchemaRegistry {
         return readerSchema.fromBuffer(payload)
       } else {
         // decode using a resolver from writer type into reader type
-        return readerSchema.fromBuffer(payload, readerSchema.createResolver(writerSchema as AvroSchema))
+        return readerSchema.fromBuffer(payload, readerSchema.createResolver(writerSchema as Type))
       }
     } else {
       return writerSchema.fromBuffer(payload)
