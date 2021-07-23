@@ -1,9 +1,16 @@
-import {v4 as uuid} from 'uuid'
+import { Type } from 'avsc'
+import { v4 as uuid } from 'uuid'
 
 import SchemaRegistry from './SchemaRegistry'
-import {AvroSchema, ConfluentSchema, ConfluentSubject, SchemaType,} from './@types'
-import API, {SchemaRegistryAPIClient} from './api'
-import {COMPATIBILITY, DEFAULT_API_CLIENT_ID} from './constants'
+import {
+  ConfluentSubject,
+  ConfluentSchema,
+  SchemaType,
+  AvroConfluentSchema,
+  JsonConfluentSchema,
+} from './@types'
+import API, { SchemaRegistryAPIClient } from './api'
+import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2Avro from '../fixtures/avro/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
@@ -12,7 +19,6 @@ import wrongMagicByte from '../fixtures/wrongMagicByte'
 import Ajv2020 from 'ajv8/dist/2020'
 import Ajv from 'ajv'
 import { ConfluentSchemaRegistryValidationError } from './errors'
-import {Type} from "avsc";
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
@@ -365,10 +371,10 @@ describe('SchemaRegistry - new Api', () => {
         (type == SchemaType.AVRO ? it : it.skip)(
           'uses reader schema if specified (avro-only)', async () => {
             const writerBuffer = Buffer.from(await schemaRegistry.encode(registryId, payload))
-            const readerSchema = Type.forSchema(JSON.parse(schemaStringsByType[type].v2)) as any as AvroSchema
+            const readerSchema = Type.forSchema(JSON.parse(schemaStringsByType[type].v2))
             await expect(schemaRegistry.decode(writerBuffer, readerSchema)).resolves.toHaveProperty(
-                'city',
-                'Stockholm'
+              'city',
+              'Stockholm'
             )
           })
 
