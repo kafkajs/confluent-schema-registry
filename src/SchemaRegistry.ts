@@ -172,6 +172,23 @@ export default class SchemaRegistry {
     return this.cache.setSchema(registryId, schemaInstance)
   }
 
+  public async getSchemaByTopicName(topicName: string, version?: number): Promise<Schema | AvroSchema> {
+    const response = await this.getSubjectRequest(topicName, version)
+    const foundSchema: { schema: string; schemaType: string } = response.data()
+    const rawSchema = foundSchema.schema
+    const schemaType = schemaTypeFromString(foundSchema.schemaType)
+
+    if (schemaType === SchemaType.UNKNOWN) {
+      throw new ConfluentSchemaRegistryError(`Unknown schema type ${foundSchema.schemaType}`)
+    }
+
+    const confluentSchema: ConfluentSchema = {
+      type: schemaType,
+      schema: rawSchema,
+    }
+    return schemaFromConfluentSchema(confluentSchema, this.options)
+  }
+
   public async encode(registryId: number, payload: any): Promise<Buffer> {
     if (!registryId) {
       throw new ConfluentSchemaRegistryArgumentError(
@@ -269,6 +286,14 @@ export default class SchemaRegistry {
       this.cacheMissRequests[registryId] = request
 
       return request
+    }
+  }
+
+  private getSubjectRequest(topicName: string, version?: number) {
+    if (version) {
+      return this.api.Subject.version({ subject: topicName, version })
+    } else {
+      return this.api.Subject.latestVersion({ subject: topicName })
     }
   }
 }
