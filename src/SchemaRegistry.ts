@@ -172,7 +172,10 @@ export default class SchemaRegistry {
     return this.cache.setSchema(registryId, schemaInstance)
   }
 
-  public async getSchemaByTopicName(topicName: string, version?: number): Promise<Schema | AvroSchema> {
+  public async getSchemaByTopicName(
+    topicName: string,
+    version?: number,
+  ): Promise<Schema | AvroSchema> {
     const response = await this.getSubjectRequest(topicName, version)
     const foundSchema: { schema: string; schemaType: string } = response.data()
     const rawSchema = foundSchema.schema
