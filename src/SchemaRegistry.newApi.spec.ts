@@ -483,14 +483,24 @@ describe('SchemaRegistry - new Api', () => {
       }
       `
 
+    const protoOffice = `
+    syntax = "proto3";
+    package com.org.domain.fixtures;
+    message Office {
+      string address = 1;
+    }
+    `
+
     const protoCompany = `
       syntax = "proto3";
       package com.org.domain.fixtures;
       import "Employee.proto";
+      import "Office.proto";
       message Company {
         Employee employee = 1;
+        Office office = 2;
       }
-      `
+    `
 
     beforeAll(() => {
       schemaRegistry = new SchemaRegistry(schemaRegistryArgs, v3Opts)
@@ -606,6 +616,9 @@ describe('SchemaRegistry - new Api', () => {
           if (referenceName === 'Employee.proto') {
             return { type: SchemaType.PROTOBUF, schema: protoEmployee }
           }
+          if (referenceName === 'Office.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoOffice }
+          }
           throw `unknown reference ${referenceName}`
         }
 
@@ -615,7 +628,11 @@ describe('SchemaRegistry - new Api', () => {
         })
 
         // Check that we can encode with the cached version from the register() call
-        const payload = { employee: { contact: { email: 'example@example.com' } } }
+        const payload = {
+          employee: { contact: { email: 'example@example.com' } },
+          office: { address: 'Stockholm' },
+        }
+
         const encoded1 = await schemaRegistry.encode(schema1.id, payload)
         const decoded1 = await schemaRegistry.decode(encoded1)
 
@@ -633,6 +650,55 @@ describe('SchemaRegistry - new Api', () => {
 
         // Check the value in the field defined in imported schema
         expect(decoded1.employee.contact.email).toEqual('example@example.com')
+      })
+
+      it('no in-place changes to cached entry of imported schema', async () => {
+        const officeSchema: ConfluentSchema = {
+          type,
+          schema: protoOffice,
+        }
+
+        const companySchema: ConfluentSchema = {
+          type,
+          schema: protoCompany,
+        }
+
+        async function fetchSchema(referenceName: string): Promise<ConfluentSchema> {
+          if (referenceName === 'Contact.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoContact }
+          }
+          if (referenceName === 'Employee.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoEmployee }
+          }
+          if (referenceName === 'Office.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoOffice }
+          }
+          throw `unknown reference ${referenceName}`
+        }
+
+        // Register a schema with no dependencies and store it before registering anything else.
+        const registeredOfficeSchemaId = (
+          await schemaRegistry.register(officeSchema, {
+            subject: `${type}_test_officeSchema-value`,
+          })
+        ).id
+
+        const registeredOfficeSchemaBefore = JSON.stringify(
+          await schemaRegistry.getSchema(registeredOfficeSchemaId),
+        )
+
+        // Register a new schema that imports our already registered Office schema.
+        await schemaRegistry.register(companySchema, {
+          subject: `${type}_test_companySchema-value`,
+          fetchSchema,
+        })
+
+        // Check that registering this new schema did not modify the original imported schema.
+        const registeredOfficeSchemaAfter = JSON.stringify(
+          await schemaRegistry.getSchema(registeredOfficeSchemaId),
+        )
+
+        expect(registeredOfficeSchemaBefore).toEqual(registeredOfficeSchemaAfter)
       })
 
       it('decodes', async () => {

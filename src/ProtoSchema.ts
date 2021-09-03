@@ -17,7 +17,10 @@ export default class ProtoSchema implements Schema {
     if (references) {
       const schemas = references as ProtoSchema[]
       schemas.forEach(reference => {
-        this.root.add(reference.root)
+        // root.add() takes ownership over its input argument.
+        // add() can modify and extend the input schema, so we have to clone the reference to avoid polluting it.
+        const copy = reference.root.toJSON().nested
+        this.root.addJSON(copy)
       })
     }
 
