@@ -275,7 +275,7 @@ const options = {
 
 #### JSON Schema
 
-The JSON Schema schema type options are passed to the [Ajv constructor](https://ajv.js.org/docs/api.html#options).
+The JSON Schema schema type options are passed to the [Ajv constructor](https://ajv.js.org/options.html).
 For example:
 
 ```ts
