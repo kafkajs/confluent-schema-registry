@@ -296,7 +296,7 @@ export default class SchemaRegistry {
       const response = await this.api.Subject.registered({
         subject,
         body: {
-          schemaType: confluentSchema.type === SchemaType.AVRO ? undefined : confluentSchema.schema,
+          schemaType: confluentSchema.type === SchemaType.AVRO ? undefined : confluentSchema.type,
           schema: confluentSchema.schema,
         },
       })
