@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2021-11-03
+
+### Added
+
+- Allow passing in Ajv instance in JSON Schema options [#133](https://github.com/kafkajs/confluent-schema-registry/pull/133)
+
+### Fixed
+
+- Fix backwards compatibility with older Schema Registry versions [#158](https://github.com/kafkajs/confluent-schema-registry/pull/158)
+
+### Fixed
+
+- Fix gateway config for when setting HTTP agent [#127](https://github.com/kafkajs/confluent-schema-registry/pull/127)
+
 ## [3.0.1] - 2021-06-11
 ### Fixed
 

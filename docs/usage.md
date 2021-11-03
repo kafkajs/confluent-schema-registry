@@ -285,3 +285,14 @@ const options = {
   }
 }
 ```
+
+Alternatively, you can provide a custom Ajv instance using the `ajvInstance` option. This can be useful if you
+need to configure Ajv outside of what the constructor parameters allow.
+
+```ts
+const options = {
+  [SchemaType.JSON]: {
+    ajvInstance: new Ajv()
+  }
+}
+```
