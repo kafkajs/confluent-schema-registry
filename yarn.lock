@@ -709,7 +709,7 @@ acorn@^7.1.0, acorn@^7.1.1:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.1.1.tgz#e35668de0b402f359de515c5482a1ab9f89a69bf"
   integrity sha512-add7dgA5ppRPxCFJoAGfMDi7PIBXq1RtGo7BhbLaxwrXPOmw8gq48Y9ozT01hUKy9byMjlR20EJhu5zlkErEkg==
 
-"ajv8@npm:ajv":
+"ajv8@npm:ajv@^8.6.3":
   version "8.6.3"
   resolved "https://artifactory.klarna.net/artifactory/api/npm/v-npm-production/ajv/-/ajv-8.6.3.tgz#11a66527761dc3e9a3845ea775d2d3c0414e8764"
   integrity sha1-EaZlJ3Ydw+mjhF6nddLTwEFOh2Q=
