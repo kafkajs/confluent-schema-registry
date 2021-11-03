@@ -21,7 +21,7 @@ jobs:
   - job: lint
     displayName: Lint
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'ubuntu-latest'
     steps:
       - task: NodeTool@0
         inputs:
@@ -34,7 +34,7 @@ jobs:
   - job: build
     displayName: Build
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'ubuntu-latest'
     steps:
       - task: NodeTool@0
         inputs:
@@ -48,7 +48,7 @@ jobs:
     displayName: Tests
     dependsOn: lint
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'ubuntu-latest'
     steps:
       - task: NodeTool@0
         inputs:
@@ -68,7 +68,7 @@ jobs:
       - build
       - unit_tests
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'ubuntu-latest'
     steps:
       - task: NodeTool@0
         inputs:
@@ -95,7 +95,7 @@ jobs:
       - lint
       - unit_tests
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'ubuntu-latest'
     steps:
       - task: NodeTool@0
         inputs:
