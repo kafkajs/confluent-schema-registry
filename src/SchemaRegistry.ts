@@ -20,6 +20,7 @@ import {
   ConfluentSubject,
   SchemaRegistryAPIClientOptions,
   AvroConfluentSchema,
+  SchemaHelper,
 } from './@types'
 import {
   helperTypeFromSchemaType,
@@ -34,6 +35,7 @@ interface RegisteredSchema {
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
+  fetchSchema?: (referenceName: string) => Promise<ConfluentSchema>
   subject: string
 }
 
@@ -81,6 +83,35 @@ export default class SchemaRegistry {
     return confluentSchema
   }
 
+  async registerReferences(
+    opts: Omit<Opts, 'subject'> & { subject?: string },
+    helper: SchemaHelper,
+    confluentSchema: ConfluentSchema,
+  ): Promise<{ subject: string; name: string; version: number }[]> {
+    const fetchSchema = opts.fetchSchema
+    if (!fetchSchema) {
+      return []
+    }
+
+    const subjects = await helper.referencedSchemas(confluentSchema.schema)
+
+    return await Promise.all(
+      subjects.map(async subject => {
+        const schema = await fetchSchema(subject)
+        const registeredSchema = await this.register(schema, { ...opts, subject })
+        const response = await this.api.Schema.versions({ id: registeredSchema.id })
+        const allVersions: [{ subject: string; version: number }] = response.data()
+
+        const subjectVersion = allVersions
+          .filter(it => it.subject === subject)
+          .map(it => it.version)
+          .reduce((a, b) => Math.max(a, b))
+
+        return { subject, name: subject, version: subjectVersion }
+      }),
+    )
+  }
+
   public async register(
     schema: Exclude<ConfluentSchema, AvroConfluentSchema>,
     userOpts: Opts,
@@ -97,12 +128,26 @@ export default class SchemaRegistry {
     schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
-    const { compatibility, separator } = { ...DEFAULT_OPTS, ...userOpts }
+    const opts = { ...DEFAULT_OPTS, ...userOpts }
+    const { compatibility, separator } = opts
 
     const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
-
     const helper = helperTypeFromSchemaType(confluentSchema.type)
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
+
+    // If this schema depends on other schemas, we need to make sure those are registered first.
+    // Later, we pass their IDs to Schema Registry as our 'references'.
+    const references = await this.registerReferences(opts, helper, confluentSchema)
+    const referenceSchemas = await Promise.all(
+      references.map(async reference => {
+        return this.getSchema(await this.getRegistryId(reference.subject, reference.version))
+      }),
+    )
+
+    const schemaInstance = schemaFromConfluentSchema(
+      confluentSchema,
+      this.options,
+      referenceSchemas,
+    )
     helper.validate(schemaInstance)
 
     let subject: ConfluentSubject
@@ -138,6 +183,7 @@ export default class SchemaRegistry {
       body: {
         schemaType: confluentSchema.type === SchemaType.AVRO ? undefined : confluentSchema.type,
         schema: confluentSchema.schema,
+        references,
       },
     })
 
@@ -156,7 +202,11 @@ export default class SchemaRegistry {
     }
 
     const response = await this.getSchemaOriginRequest(registryId)
-    const foundSchema: { schema: string; schemaType: string } = response.data()
+    const foundSchema: {
+      schema: string
+      schemaType: string
+      references?: { name: string; subject: string; version: number }[]
+    } = response.data()
     const rawSchema = foundSchema.schema
     const schemaType = schemaTypeFromString(foundSchema.schemaType)
 
@@ -164,11 +214,23 @@ export default class SchemaRegistry {
       throw new ConfluentSchemaRegistryError(`Unknown schema type ${foundSchema.schemaType}`)
     }
 
+    const referenceSchemas = await Promise.all(
+      (foundSchema.references || []).map(async reference => {
+        return this.getSchema(await this.getRegistryId(reference.subject, reference.version))
+      }),
+    )
+
     const confluentSchema: ConfluentSchema = {
       type: schemaType,
       schema: rawSchema,
     }
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
+
+    const schemaInstance = schemaFromConfluentSchema(
+      confluentSchema,
+      this.options,
+      referenceSchemas,
+    )
+
     return this.cache.setSchema(registryId, schemaInstance)
   }
 

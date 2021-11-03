@@ -15,6 +15,7 @@ import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
 import encodedNestedV2Proto from '../fixtures/proto/encodedNestedV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
+import ProtoSchema from './ProtoSchema'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
@@ -456,6 +457,51 @@ describe('SchemaRegistry - new Api', () => {
       v3Opts = { [SchemaType.PROTOBUF]: { messageName: 'AnotherPerson' } },
       type = SchemaType.PROTOBUF
 
+    const protoV3 = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      message AnotherPerson {
+        string city = 2 [default = "Stockholm"];
+      }
+      `
+
+    const protoContact = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      message ContactMessage {
+        string email = 1;
+      }
+      `
+
+    const protoEmployee = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      import "Contact.proto";
+      message Employee {
+        string city = 1 [default = "Stockholm"];
+        ContactMessage contact = 2;
+      }
+      `
+
+    const protoOffice = `
+    syntax = "proto3";
+    package com.org.domain.fixtures;
+    message Office {
+      string address = 1;
+    }
+    `
+
+    const protoCompany = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      import "Employee.proto";
+      import "Office.proto";
+      message Company {
+        Employee employee = 1;
+        Office office = 2;
+      }
+    `
+
     beforeAll(() => {
       schemaRegistry = new SchemaRegistry(schemaRegistryArgs, v3Opts)
     })
@@ -542,6 +588,117 @@ describe('SchemaRegistry - new Api', () => {
           registryId: schema4.id,
           payload: Buffer.from(encodedNestedV2Proto),
         })
+      })
+
+      it('register and encode protocol buffer v3 schema', async () => {
+        const confluentSchemaV3: ConfluentSchema = {
+          type,
+          schema: protoV3,
+        }
+
+        const schema1 = await schemaRegistry.register(confluentSchemaV3, {
+          subject: `${type}_test_protoV3-value`,
+        })
+
+        await schemaRegistry.encode(schema1.id, payload)
+      })
+
+      it('register and encode protocol buffer v3 schema with import', async () => {
+        const confluentSchemaV3: ConfluentSchema = {
+          type,
+          schema: protoCompany,
+        }
+
+        async function fetchSchema(referenceName: string): Promise<ConfluentSchema> {
+          if (referenceName === 'Contact.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoContact }
+          }
+          if (referenceName === 'Employee.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoEmployee }
+          }
+          if (referenceName === 'Office.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoOffice }
+          }
+          throw `unknown reference ${referenceName}`
+        }
+
+        const schema1 = await schemaRegistry.register(confluentSchemaV3, {
+          subject: `${type}_test_protoImportsV3-value`,
+          fetchSchema,
+        })
+
+        // Check that we can encode with the cached version from the register() call
+        const payload = {
+          employee: { contact: { email: 'example@example.com' } },
+          office: { address: 'Stockholm' },
+        }
+
+        const encoded1 = await schemaRegistry.encode(schema1.id, payload)
+        const decoded1 = await schemaRegistry.decode(encoded1)
+
+        // Clear the cache and try again to exercise getSchema()
+        schemaRegistry.cache.clear()
+        const encoded2 = await schemaRegistry.encode(schema1.id, payload)
+        schemaRegistry.cache.clear()
+        const decoded2 = await schemaRegistry.decode(encoded2)
+
+        expect(encoded1).toEqual(encoded2)
+        expect(decoded1).toEqual(decoded2)
+
+        // Check the default value
+        expect(decoded1.employee.city).toEqual('Stockholm')
+
+        // Check the value in the field defined in imported schema
+        expect(decoded1.employee.contact.email).toEqual('example@example.com')
+      })
+
+      it('no in-place changes to cached entry of imported schema', async () => {
+        const officeSchema: ConfluentSchema = {
+          type,
+          schema: protoOffice,
+        }
+
+        const companySchema: ConfluentSchema = {
+          type,
+          schema: protoCompany,
+        }
+
+        async function fetchSchema(referenceName: string): Promise<ConfluentSchema> {
+          if (referenceName === 'Contact.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoContact }
+          }
+          if (referenceName === 'Employee.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoEmployee }
+          }
+          if (referenceName === 'Office.proto') {
+            return { type: SchemaType.PROTOBUF, schema: protoOffice }
+          }
+          throw `unknown reference ${referenceName}`
+        }
+
+        // Register a schema with no dependencies and store it before registering anything else.
+        const registeredOfficeSchemaId = (
+          await schemaRegistry.register(officeSchema, {
+            subject: `${type}_test_officeSchema-value`,
+          })
+        ).id
+
+        const registeredOfficeSchemaBefore = JSON.stringify(
+          await schemaRegistry.getSchema(registeredOfficeSchemaId),
+        )
+
+        // Register a new schema that imports our already registered Office schema.
+        await schemaRegistry.register(companySchema, {
+          subject: `${type}_test_companySchema-value`,
+          fetchSchema,
+        })
+
+        // Check that registering this new schema did not modify the original imported schema.
+        const registeredOfficeSchemaAfter = JSON.stringify(
+          await schemaRegistry.getSchema(registeredOfficeSchemaId),
+        )
+
+        expect(registeredOfficeSchemaBefore).toEqual(registeredOfficeSchemaAfter)
       })
 
       it('decodes', async () => {

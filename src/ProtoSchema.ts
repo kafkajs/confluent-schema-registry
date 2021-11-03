@@ -8,11 +8,23 @@ import {
 
 export default class ProtoSchema implements Schema {
   private message: Type
+  private root: protobuf.Root
 
-  constructor(schema: ConfluentSchema, opts?: ProtoOptions) {
+  constructor(schema: ConfluentSchema, opts?: ProtoOptions, references?: Schema[]) {
     const parsedMessage = protobuf.parse(schema.schema)
-    const root = parsedMessage.root
-    this.message = root.lookupType(this.getTypeName(parsedMessage, opts))
+    this.root = parsedMessage.root
+
+    if (references) {
+      const schemas = references as ProtoSchema[]
+      schemas.forEach(reference => {
+        // root.add() takes ownership over its input argument.
+        // add() can modify and extend the input schema, so we have to clone the reference to avoid polluting it.
+        const copy = reference.root.toJSON().nested
+        this.root.addJSON(copy)
+      })
+    }
+
+    this.message = this.root.lookupType(this.getTypeName(parsedMessage, opts))
   }
 
   private getNestedTypeName(parent: { [k: string]: ReflectionObject } | undefined): string {
