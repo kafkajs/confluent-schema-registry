@@ -38,7 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^2.1.0",
     "@typescript-eslint/parser": "^2.1.0",
     "@typescript-eslint/typescript-estree": "^2.1.0",
-    "dockest": "^2.1.0",
+    "dockest": "^3.0.0",
     "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-no-only-tests": "^2.3.1",
