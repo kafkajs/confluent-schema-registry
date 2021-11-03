@@ -711,8 +711,8 @@ acorn@^7.1.0, acorn@^7.1.1:
 
 "ajv8@npm:ajv@^8.6.3":
   version "8.6.3"
-  resolved "https://artifactory.klarna.net/artifactory/api/npm/v-npm-production/ajv/-/ajv-8.6.3.tgz#11a66527761dc3e9a3845ea775d2d3c0414e8764"
-  integrity sha1-EaZlJ3Ydw+mjhF6nddLTwEFOh2Q=
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.6.3.tgz#11a66527761dc3e9a3845ea775d2d3c0414e8764"
+  integrity sha512-SMJOdDP6LqTkD0Uq8qLi+gMwSt0imXLSV080qFVwJCpH9U6Mb+SUGHAXM0KNbcBPguytWyvFxcHgMLe2D2XSpw==
   dependencies:
     fast-deep-equal "^3.1.1"
     json-schema-traverse "^1.0.0"
@@ -1320,8 +1320,8 @@ diff@^4.0.1:
 
 dockest@^2.1.0:
   version "2.1.0"
-  resolved "https://artifactory.klarna.net/artifactory/api/npm/v-npm-production/dockest/-/dockest-2.1.0.tgz#efbeaca7bb6078b9bb0a431a050cdefc5b50f07e"
-  integrity sha1-776sp7tgeLm7CkMaBQze/FtQ8H4=
+  resolved "https://registry.yarnpkg.com/dockest/-/dockest-2.1.0.tgz#efbeaca7bb6078b9bb0a431a050cdefc5b50f07e"
+  integrity sha512-cEudMXrP9Sl1obedYDEyXoKSePGsmbT8750W2D1/W19szr+EbSlEpaRp3tIl5q8oeZ6UxFnfZjXzD+4nDrVhZw==
   dependencies:
     chalk "^3.0.0"
     execa "^4.0.0"
@@ -1585,8 +1585,8 @@ execa@^3.2.0:
 
 execa@^4.0.0:
   version "4.1.0"
-  resolved "https://artifactory.klarna.net/artifactory/api/npm/v-npm-production/execa/-/execa-4.1.0.tgz#4e5491ad1572f2f17a77d388c6c857135b22847a"
-  integrity sha1-TlSRrRVy8vF6d9OIxshXE1sihHo=
+  resolved "https://registry.yarnpkg.com/execa/-/execa-4.1.0.tgz#4e5491ad1572f2f17a77d388c6c857135b22847a"
+  integrity sha512-j5W0//W7f8UxAn8hXVnwG8tLwdiUy4FJLcSupCg6maBYZDpyBvTApK7KyuI4bKj8KOh1r2YH+6ucuYtJv1bTZA==
   dependencies:
     cross-spawn "^7.0.0"
     get-stream "^5.0.0"
@@ -1782,8 +1782,8 @@ form-data@~2.3.2:
 
 fp-ts@^2.8.3:
   version "2.11.5"
-  resolved "https://artifactory.klarna.net/artifactory/api/npm/v-npm-production/fp-ts/-/fp-ts-2.11.5.tgz#97cceb26655b1452d7088d6fb0864f84cceffbe4"
-  integrity sha1-l8zrJmVbFFLXCI1vsIZPhMzv++Q=
+  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.11.5.tgz#97cceb26655b1452d7088d6fb0864f84cceffbe4"
+  integrity sha512-OqlwJq1BdpB83BZXTqI+dNcA6uYk6qk4u9Cgnt64Y+XS7dwdbp/mobx8S2KXf2AXH+scNmA/UVK3SEFHR3vHZA==
 
 fragment-cache@^0.2.1:
   version "0.2.1"
@@ -2045,8 +2045,8 @@ inquirer@^7.0.0:
 
 io-ts@^2.2.10:
   version "2.2.16"
-  resolved "https://artifactory.klarna.net/artifactory/api/npm/v-npm-production/io-ts/-/io-ts-2.2.16.tgz#597dffa03db1913fc318c9c6df6931cb4ed808b2"
-  integrity sha1-WX3/oD2xkT/DGMnG32kxy07YCLI=
+  resolved "https://registry.yarnpkg.com/io-ts/-/io-ts-2.2.16.tgz#597dffa03db1913fc318c9c6df6931cb4ed808b2"
+  integrity sha512-y5TTSa6VP6le0hhmIyN0dqEXkrZeJLeC5KApJq6VLci3UEKF80lZ+KuoUs02RhBxNWlrqSNxzfI7otLX1Euv8Q==
 
 ip-regex@^2.1.0:
   version "2.1.0"
@@ -2113,8 +2113,8 @@ is-descriptor@^1.0.0, is-descriptor@^1.0.2:
 
 is-docker@^2.0.0:
   version "2.2.1"
-  resolved "https://artifactory.klarna.net/artifactory/api/npm/v-npm-production/is-docker/-/is-docker-2.2.1.tgz#33eeabe23cfe86f14bde4408a02c0cfb853acdaa"
-  integrity sha1-M+6r4jz+hvFL3kQIoCwM+4U6zao=
+  resolved "https://registry.yarnpkg.com/is-docker/-/is-docker-2.2.1.tgz#33eeabe23cfe86f14bde4408a02c0cfb853acdaa"
+  integrity sha512-F+i2BKsFrH66iaUFc0woD8sLy8getkwTwtOBjvs56Cx4CgJDeKQeqfz8wAYiSb8JOprWhHH5p77PbmYCvvUuXQ==
 
 is-extendable@^0.1.0, is-extendable@^0.1.1:
   version "0.1.1"
@@ -3453,8 +3453,8 @@ rxjs@^6.5.3:
 
 rxjs@^6.5.4:
   version "6.6.7"
-  resolved "https://artifactory.klarna.net/artifactory/api/npm/v-npm-production/rxjs/-/rxjs-6.6.7.tgz#90ac018acabf491bf65044235d5863c4dab804c9"
-  integrity sha1-kKwBisq/SRv2UEQjXVhjxNq4BMk=
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.6.7.tgz#90ac018acabf491bf65044235d5863c4dab804c9"
+  integrity sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ==
   dependencies:
     tslib "^1.9.0"
 
