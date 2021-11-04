@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.1.1] - 2021-11-03
+
+### Fixed
+
+- Support backwards incompatible changes in Ajv 8 when passing in Ajv instance in JSON Schema options [#163](https://github.com/kafkajs/confluent-schema-registry/pull/163)
+
 ## [3.1.0] - 2021-11-03
 
 ### Added
