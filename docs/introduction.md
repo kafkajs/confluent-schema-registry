@@ -43,10 +43,4 @@ const encodedPayload = await registry.encode(id, payload)
 
 // Decode the payload
 const decodedPayload = await registry.decode(encodedPayload)
-
-// Decode with resolving to a reader schema (avro-only)
-// Note: avsc opts, if needed, should be set to readerSchema
-const avsc = require('avsc')
-const readerSchema = avsc.Type.forSchema(/* schema, opts */)
-const resolvedPayload = await registry.decode(encodedPayload, readerSchema)
 ```
