@@ -38,6 +38,13 @@ interface Opts {
   subject: string
 }
 
+interface AvroDecodeOptions {
+  readerSchema?: RawAvroSchema | AvroSchema | Schema
+}
+interface DecodeOptions {
+  [SchemaType.AVRO]?: AvroDecodeOptions
+}
+
 const DEFAULT_OPTS = {
   compatibility: COMPATIBILITY.BACKWARD,
   separator: DEFAULT_SEPERATOR,
@@ -144,16 +151,18 @@ export default class SchemaRegistry {
 
     const registeredSchema: RegisteredSchema = response.data()
     this.cache.setLatestRegistryId(subject.name, registeredSchema.id)
-    this.cache.setSchema(registeredSchema.id, schemaInstance)
+    this.cache.setSchema(registeredSchema.id, confluentSchema.type, schemaInstance)
 
     return registeredSchema
   }
 
-  public async getSchema(registryId: number): Promise<Schema | AvroSchema> {
-    const schema = this.cache.getSchema(registryId)
+  private async _getSchema(
+    registryId: number,
+  ): Promise<{ type: SchemaType; schema: Schema | AvroSchema }> {
+    const cacheEntry = this.cache.getSchema(registryId)
 
-    if (schema) {
-      return schema
+    if (cacheEntry) {
+      return cacheEntry
     }
 
     const response = await this.getSchemaOriginRequest(registryId)
@@ -170,7 +179,11 @@ export default class SchemaRegistry {
       schema: rawSchema,
     }
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
-    return this.cache.setSchema(registryId, schemaInstance)
+    return this.cache.setSchema(registryId, schemaType, schemaInstance)
+  }
+
+  public async getSchema(registryId: number): Promise<Schema | AvroSchema> {
+    return await (await this._getSchema(registryId)).schema
   }
 
   public async encode(registryId: number, payload: any): Promise<Buffer> {
@@ -180,7 +193,7 @@ export default class SchemaRegistry {
       )
     }
 
-    const schema = await this.getSchema(registryId)
+    const { schema } = await this._getSchema(registryId)
     try {
       const serializedPayload = schema.toBuffer(payload)
       return encode(registryId, serializedPayload)
@@ -201,7 +214,7 @@ export default class SchemaRegistry {
     return paths
   }
 
-  public async decode(buffer: Buffer, readerSchema?: Type): Promise<any> {
+  public async decode(buffer: Buffer, options?: DecodeOptions): Promise<any> {
     if (!Buffer.isBuffer(buffer)) {
       throw new ConfluentSchemaRegistryArgumentError('Invalid buffer')
     }
@@ -215,9 +228,19 @@ export default class SchemaRegistry {
       )
     }
 
-    const writerSchema = await this.getSchema(registryId)
-    if (readerSchema) {
-      if (readerSchema.equals(writerSchema as Type)){
+    const { type, schema: writerSchema } = await this._getSchema(registryId)
+
+    let rawReaderSchema
+    switch (type) {
+      case SchemaType.AVRO:
+        rawReaderSchema = options?.[SchemaType.AVRO]?.readerSchema as RawAvroSchema | AvroSchema
+    }
+    if (rawReaderSchema) {
+      const readerSchema = schemaFromConfluentSchema(
+        { type: SchemaType.AVRO, schema: rawReaderSchema },
+        this.options,
+      ) as AvroSchema
+      if (readerSchema.equals(writerSchema as Type)) {
         /* Even when schemas are considered equal by `avsc`,
          * they still aren't interchangeable:
          * provided `readerSchema` may have different `opts` (e.g. logicalTypes / unionWrap flags)
@@ -227,9 +250,9 @@ export default class SchemaRegistry {
         // decode using a resolver from writer type into reader type
         return readerSchema.fromBuffer(payload, readerSchema.createResolver(writerSchema as Type))
       }
-    } else {
-      return writerSchema.fromBuffer(payload)
     }
+
+    return writerSchema.fromBuffer(payload)
   }
 
   public async getRegistryId(subject: string, version: number | string): Promise<number> {

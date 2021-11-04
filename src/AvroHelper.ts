@@ -11,11 +11,15 @@ import avro from 'avsc'
 
 export default class AvroHelper implements SchemaHelper {
   private getRawAvroSchema(schema: ConfluentSchema): RawAvroSchema {
-    return JSON.parse(schema.schema) as RawAvroSchema
+    return (typeof schema.schema === 'string'
+      ? JSON.parse(schema.schema)
+      : schema.schema) as RawAvroSchema
   }
 
-  public getAvroSchema(schema: ConfluentSchema, opts?: AvroOptions) {
-    const rawSchema: RawAvroSchema = this.getRawAvroSchema(schema)
+  public getAvroSchema(schema: ConfluentSchema | RawAvroSchema, opts?: AvroOptions) {
+    const rawSchema: RawAvroSchema = this.isRawAvroSchema(schema)
+      ? schema
+      : this.getRawAvroSchema(schema)
     // @ts-ignore TODO: Fix typings for Schema...
     const avroSchema: AvroSchema = avro.Type.forSchema(rawSchema, opts)
     return avroSchema
@@ -43,5 +47,10 @@ export default class AvroHelper implements SchemaHelper {
       name: [rawSchema.namespace, rawSchema.name].join(separator),
     }
     return subject
+  }
+
+  private isRawAvroSchema(schema: ConfluentSchema | RawAvroSchema): schema is RawAvroSchema {
+    const asRawAvroSchema = schema as RawAvroSchema
+    return asRawAvroSchema.name != null && asRawAvroSchema.type != null
   }
 }
