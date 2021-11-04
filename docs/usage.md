@@ -203,8 +203,7 @@ used to encode the message.
 import avro from 'avsc'
 import { readAVSCAsync } from '@kafkajs/confluent-schema-registry'
 
-const rawSchema = await readAVSCAsync('path/to/protocol.avdl')
-const readerSchema = avro.Type.forSchema(rawSchema)
+const readerSchema = await readAVSCAsync('path/to/protocol.avdl')
 
 const payload = await registry.decode(buffer, {
   [SchemaType.AVRO]: { readerSchema }
