@@ -1,4 +1,5 @@
 import { Resolver, ForSchemaOptions } from 'avsc'
+import { ValidateFunction } from './JsonSchema'
 import Ajv from 'ajv'
 
 export enum SchemaType {
@@ -14,7 +15,11 @@ export interface SchemaHelper {
 }
 
 export type AvroOptions = Partial<ForSchemaOptions>
-export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & { ajvInstance?: Ajv }
+export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
+  ajvInstance?: {
+    compile: (schema: any) => ValidateFunction
+  }
+}
 export type ProtoOptions = { messageName: string }
 
 export interface LegacyOptions {
