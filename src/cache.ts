@@ -1,8 +1,10 @@
-import { AvroSchema, Schema } from './@types'
+import { AvroSchema, Schema, SchemaType } from './@types'
+
+type CacheEntry = { type: SchemaType; schema: Schema | AvroSchema }
 
 export default class Cache {
   registryIdBySubject: { [key: string]: number }
-  schemasByRegistryId: { [key: string]: Schema }
+  schemasByRegistryId: { [key: string]: CacheEntry }
 
   constructor() {
     this.registryIdBySubject = {}
@@ -17,10 +19,10 @@ export default class Cache {
     return this.registryIdBySubject[subject]
   }
 
-  getSchema = (registryId: number): Schema | AvroSchema => this.schemasByRegistryId[registryId]
+  getSchema = (registryId: number): CacheEntry | undefined => this.schemasByRegistryId[registryId]
 
-  setSchema = (registryId: number, schema: Schema) => {
-    this.schemasByRegistryId[registryId] = schema
+  setSchema = (registryId: number, type: SchemaType, schema: Schema): CacheEntry => {
+    this.schemasByRegistryId[registryId] = { type, schema }
 
     return this.schemasByRegistryId[registryId]
   }

@@ -2,13 +2,7 @@ import { Type } from 'avsc'
 import { v4 as uuid } from 'uuid'
 
 import SchemaRegistry from './SchemaRegistry'
-import {
-  ConfluentSubject,
-  ConfluentSchema,
-  SchemaType,
-  AvroConfluentSchema,
-  JsonConfluentSchema,
-} from './@types'
+import { ConfluentSubject, ConfluentSchema, SchemaType } from './@types'
 import API, { SchemaRegistryAPIClient } from './api'
 import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2Avro from '../fixtures/avro/encodedAnotherPersonV2'
@@ -367,17 +361,7 @@ describe('SchemaRegistry - new Api', () => {
           await schemaRegistry.decode(buffer)
 
           expect(schemaRegistry.cache.getSchema(registryId)).toBeTruthy()
-        });
-
-        (type == SchemaType.AVRO ? it : it.skip)(
-          'uses reader schema if specified (avro-only)', async () => {
-            const writerBuffer = Buffer.from(await schemaRegistry.encode(registryId, payload))
-            const readerSchema = Type.forSchema(JSON.parse(schemaStringsByType[type].v2))
-            await expect(schemaRegistry.decode(writerBuffer, readerSchema)).resolves.toHaveProperty(
-              'city',
-              'Stockholm'
-            )
-          })
+        })
 
         it('creates a single origin request for a schema cache-miss', async () => {
           const buffer = Buffer.from(await schemaRegistry.encode(registryId, payload))
@@ -763,6 +747,32 @@ describe('SchemaRegistry - new Api', () => {
             expect(error.paths).toEqual([['/fullName']])
           }
         },
+      )
+    })
+  })
+
+  describe('Avro tests', () => {
+    it('uses reader schema if specified (avro-only)', async () => {
+      const subject: ConfluentSubject = {
+        name: [SchemaType.AVRO, 'com.org.domain.fixtures', 'AnotherPerson'].join('.'),
+      }
+      const schema: ConfluentSchema = {
+        type: SchemaType.AVRO,
+        schema: schemaStringsByType[SchemaType.AVRO].v1,
+      }
+      const registryId = (await schemaRegistry.register(schema, { subject: subject.name })).id
+      const writerBuffer = Buffer.from(await schemaRegistry.encode(registryId, payload))
+      const readerSchema = JSON.parse(schemaStringsByType[SchemaType.AVRO].v2)
+
+      await expect(
+        schemaRegistry.decode(writerBuffer, { [SchemaType.AVRO]: { readerSchema } }),
+      ).resolves.toHaveProperty('city', 'Stockholm')
+
+      const registeredReaderSchema = await schemaRegistry.getSchema(registryId)
+      await expect(
+        schemaRegistry.decode(writerBuffer, {
+          [SchemaType.AVRO]: { readerSchema: registeredReaderSchema },
+        }),
       )
     })
   })
