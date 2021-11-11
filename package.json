@@ -20,7 +20,8 @@
     "test": "ts-node ./dockest.ts",
     "test:debug": "ts-node ./dockest.ts debug",
     "lint": "eslint './src/**/*.ts'",
-    "format": "yarn lint --fix"
+    "format": "yarn lint --fix",
+    "security": "audit-known-issues"
   },
   "dependencies": {
     "avsc": ">= 5.4.13 < 6",
