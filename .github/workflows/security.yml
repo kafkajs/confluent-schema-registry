@@ -1,0 +1,28 @@
+name: Security Check
+
+on:
+  schedule:
+    - cron: '15 11 * * *' # 11:15 am UTC: 6:15 am EST / 7:15 am EDT
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security_check:
+    name: Security Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.dependencies.run()
+          nexus_npm_token: ${{ secrets.NEXUS_NPM_DEV_TOKEN }}
+          nexus_npm_url: ${{ secrets.NEXUS_NPM_URL }}
+
+      - name: Security
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.security.run()

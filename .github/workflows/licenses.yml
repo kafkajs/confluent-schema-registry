@@ -1,0 +1,41 @@
+name: Save licenses report
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  license_report:
+    name: Push license report to S3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.ACTIONS_GITHUB_INTSVC_ROLE_TO_ASSUME }}
+          role-skip-session-tagging: true
+          role-duration-seconds: 900
+
+      - name: Install Dependencies
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.dependencies.run()
+          nexus_npm_token: ${{ secrets.NEXUS_NPM_DEV_TOKEN }}
+          nexus_npm_url: ${{ secrets.NEXUS_NPM_URL }}
+
+      - name: Build and Push Report
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.licensed.run()

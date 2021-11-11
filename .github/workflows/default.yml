@@ -1,0 +1,89 @@
+name: Default
+
+# This workflow runs on when commits are pushed to the repo so we can test
+# changes and provide fast feedback. It does not get run when tags are pushed
+# because semantic-release pushes tags and this would create unecessary duplicate
+# workflow runs.  It also gets run when a pull request is created so that we can
+# run the Sonarqube quality gate (which needs information from the PR). Subsequent
+# pushes to the branch will provide PR information of any open PRs.
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  pull_request:
+    types: [opened, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # Unmaintained fork :(
+  preflight_check:
+    name: Preflight Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.dependencies.run()
+          nexus_npm_token: ${{ secrets.NEXUS_NPM_DEV_TOKEN }}
+          nexus_npm_url: ${{ secrets.NEXUS_NPM_URL }}
+
+      - name: Lint
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.lint.run()
+
+      - name: Security
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.security.run()
+
+      - name: Unit Tests
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.test.run()
+
+      - name: Analyze
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.analyze.run();
+          sonarqube_host: ${{ secrets.SONAR_HOST_URL }}
+          sonarqube_token: ${{ secrets.SONAR_LOGIN_TOKEN }}
+          github_api_token: ${{ secrets.WOLFBOT_GITHUB_ACTIONS_TOKEN }}
+
+  publish:
+    name: Publish package(s)
+    runs-on: ubuntu-latest
+    needs: [preflight_check]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.WOLFBOT_GITHUB_ACTIONS_TOKEN }}
+          # Needed to compare against older versions in publish-package
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.dependencies.run()
+          nexus_npm_token: ${{ secrets.NEXUS_NPM_DEV_TOKEN }}
+          nexus_npm_url: ${{ secrets.NEXUS_NPM_URL }}
+
+      # NOTE: If this repo need a build step, then that should be done as part
+      # of the prepublishOnly script in the package.json file
+      # eg. https://github.com/wealthsimple/settings-ui/blob/master/package.json#L18
+      - name: Publish Package
+        uses: wealthsimple/toolbox-script@v1
+        with:
+          script: toolbox.javascript.publish.run()
+          nexus_npm_token: ${{ secrets.NEXUS_NPM_WRITE_TOKEN }}
+          nexus_npm_url: ${{ secrets.NEXUS_NPM_URL }}
+          github_username: ${{ secrets.DEVTOOLS_GITHUB_USERNAME }}
+          github_api_token: ${{ secrets.DEVTOOLS_GITHUB_API_TOKEN }}
