@@ -1,4 +1,4 @@
-import { Resolver, ForSchemaOptions } from 'avsc'
+import { Resolver, ForSchemaOptions, Type } from 'avsc'
 import { ValidateFunction } from './JsonSchema'
 import Ajv from 'ajv'
 
@@ -48,7 +48,10 @@ export interface RawAvroSchema {
   fields: any[]
 }
 
-export interface AvroSchema extends Schema, RawAvroSchema {}
+export interface AvroSchema
+  extends Schema,
+    RawAvroSchema,
+    Pick<Type, 'equals' | 'createResolver'> {}
 
 export interface ConfluentSubject {
   name: string
@@ -56,7 +59,7 @@ export interface ConfluentSubject {
 
 export interface AvroConfluentSchema {
   type: SchemaType.AVRO
-  schema: string
+  schema: string | RawAvroSchema
 }
 
 export interface ProtoConfluentSchema {

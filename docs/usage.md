@@ -188,6 +188,28 @@ const payload = await registry.decode(buffer)
 // { full_name: 'John Doe' }
 ```
 
+`registry.decode` has an optional second `options` argument with options
+specific to each schema type.
+
+### Avro
+
+With Avro you can specify a specific reader schema to use to decode the
+message, rather than using the schema registered in the registry. This can
+be useful if you need a projection that is different from the writer schema,
+or if you want to decode a message with a different version than was
+used to encode the message.
+
+```js
+import avro from 'avsc'
+import { readAVSCAsync } from '@kafkajs/confluent-schema-registry'
+
+const readerSchema = await readAVSCAsync('path/to/protocol.avdl')
+
+const payload = await registry.decode(buffer, {
+  [SchemaType.AVRO]: { readerSchema }
+})
+```
+
 ## Configuration
 
 ### Retry
