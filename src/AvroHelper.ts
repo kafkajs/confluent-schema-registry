@@ -1,13 +1,13 @@
-import {
-  AvroSchema,
-  RawAvroSchema,
-  AvroOptions,
-  ConfluentSchema,
-  SchemaHelper,
-  ConfluentSubject,
-} from './@types'
-import { ConfluentSchemaRegistryArgumentError } from './errors'
 import avro from 'avsc'
+import {
+  AvroOptions,
+  AvroSchema,
+  ConfluentSchema,
+  ConfluentSubject,
+  RawAvroSchema,
+  SchemaHelper,
+} from './@types'
+import { ConfluentSchemaRegistryInvalidSchemaError } from './errors'
 
 export default class AvroHelper implements SchemaHelper {
   private getRawAvroSchema(schema: ConfluentSchema): RawAvroSchema {
@@ -27,7 +27,9 @@ export default class AvroHelper implements SchemaHelper {
 
   public validate(avroSchema: AvroSchema): void {
     if (!avroSchema.name) {
-      throw new ConfluentSchemaRegistryArgumentError(`Invalid name: ${avroSchema.name}`)
+      throw new ConfluentSchemaRegistryInvalidSchemaError(
+        `Schema validation failed: Invalid schema name: ${avroSchema.name}`,
+      )
     }
   }
 
@@ -40,7 +42,9 @@ export default class AvroHelper implements SchemaHelper {
     const rawSchema: RawAvroSchema = this.getRawAvroSchema(schema)
 
     if (!rawSchema.namespace) {
-      throw new ConfluentSchemaRegistryArgumentError(`Invalid namespace: ${rawSchema.namespace}`)
+      throw new ConfluentSchemaRegistryInvalidSchemaError(
+        `Schema validation failed: Invalid schema namespace: ${rawSchema.namespace}`,
+      )
     }
 
     const subject: ConfluentSubject = {
