@@ -1,10 +1,10 @@
 import {
-  AvroSchema,
-  RawAvroSchema,
   AvroOptions,
+  AvroSchema,
   ConfluentSchema,
-  SchemaHelper,
   ConfluentSubject,
+  RawAvroSchema,
+  SchemaHelper,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
 import avro from 'avsc'
@@ -39,14 +39,15 @@ export default class AvroHelper implements SchemaHelper {
   ): ConfluentSubject {
     const rawSchema: RawAvroSchema = this.getRawAvroSchema(schema)
 
-    if (!rawSchema.namespace) {
-      throw new ConfluentSchemaRegistryArgumentError(`Invalid namespace: ${rawSchema.namespace}`)
+    if (rawSchema.namespace) {
+      return {
+        name: [rawSchema.namespace, rawSchema.name].join(separator),
+      }
     }
 
-    const subject: ConfluentSubject = {
-      name: [rawSchema.namespace, rawSchema.name].join(separator),
+    return {
+      name: rawSchema.name,
     }
-    return subject
   }
 
   private isRawAvroSchema(schema: ConfluentSchema | RawAvroSchema): schema is RawAvroSchema {

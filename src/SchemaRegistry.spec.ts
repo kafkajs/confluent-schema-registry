@@ -81,14 +81,6 @@ describe('SchemaRegistry - old AVRO api', () => {
       )
     })
 
-    it('throws an error when schema does not have a namespace', async () => {
-      delete Schema.namespace
-      await expect(schemaRegistry.register(Schema)).rejects.toHaveProperty(
-        'message',
-        'Invalid namespace: undefined',
-      )
-    })
-
     it('accepts schema without a namespace when subject is specified', async () => {
       delete Schema.namespace
       const nonNamespaced = readAVSC(path.join(__dirname, '../fixtures/avsc/non_namespaced.avsc'))
