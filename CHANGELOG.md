@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.2.1] - 2022-01-28
+
+### Fixed
+
+- Don't swallow error message from client-side errors from registry requests [#176](https://github.com/kafkajs/confluent-schema-registry/pull/176)
+
 ## [3.2.0] - 2021-11-22
 
 ### Added
