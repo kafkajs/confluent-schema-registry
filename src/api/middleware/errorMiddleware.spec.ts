@@ -44,6 +44,18 @@ describe('ErrorMiddleware', () => {
       ).rejects.toHaveProperty('message', `${middlewareParams.clientId} - ${message}`)
     })
 
+    it('raises an error with a message in case of client-side errors', async () => {
+      const message = 'error message'
+      const response = createResponse(message)
+
+      await expect(
+        executedMiddleware.response(() => Promise.reject(response), undefined),
+      ).rejects.toHaveProperty(
+        'message',
+        `${middlewareParams.clientId} - Error, status 500: ${message}`,
+      )
+    })
+
     it('raise an error with a default message if the error payload is empty', async () => {
       const response = createResponse('')
 
