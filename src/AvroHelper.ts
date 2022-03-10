@@ -5,9 +5,13 @@ import {
   ConfluentSchema,
   SchemaHelper,
   ConfluentSubject,
+  ReferenceType,
+  AvroConfluentSchema,
+  ProtocolOptions,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
 import avro from 'avsc'
+import { SchemaResponse, SchemaType } from './@types'
 
 export default class AvroHelper implements SchemaHelper {
   private getRawAvroSchema(schema: ConfluentSchema): RawAvroSchema {
@@ -52,5 +56,17 @@ export default class AvroHelper implements SchemaHelper {
   private isRawAvroSchema(schema: ConfluentSchema | RawAvroSchema): schema is RawAvroSchema {
     const asRawAvroSchema = schema as RawAvroSchema
     return asRawAvroSchema.name != null && asRawAvroSchema.type != null
+  }
+
+  public toConfluentSchema(data: SchemaResponse): ConfluentSchema {
+    return { type: SchemaType.AVRO, schema: data.schema }
+  }
+
+  getReferences(_schema: AvroConfluentSchema): ReferenceType[] | undefined {
+    return undefined
+  }
+
+  updateOptions(options: ProtocolOptions, _referredSchemas: string[]): ProtocolOptions {
+    return options
   }
 }
