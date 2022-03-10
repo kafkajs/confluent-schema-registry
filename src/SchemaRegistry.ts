@@ -32,7 +32,7 @@ import {
   schemaFromConfluentSchema,
 } from './schemaTypeResolver'
 
-export interface RegisteredSchema {
+interface RegisteredSchema {
   id: number
 }
 
@@ -349,7 +349,7 @@ export default class SchemaRegistry {
     return id
   }
 
-  private async getSchemaOriginRequest(registryId: number) {
+  private getSchemaOriginRequest(registryId: number) {
     // ensure that cache-misses result in a single origin request
     if (this.cacheMissRequests[registryId]) {
       return this.cacheMissRequests[registryId]
