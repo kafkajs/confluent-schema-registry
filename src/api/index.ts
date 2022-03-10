@@ -6,6 +6,7 @@ import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
 import { DEFAULT_API_CLIENT_ID } from '../constants'
 import errorMiddleware from './middleware/errorMiddleware'
 import confluentEncoder from './middleware/confluentEncoderMiddleware'
+import userAgentMiddleware from './middleware/userAgent'
 
 const DEFAULT_RETRY = {
   maxRetryTimeInSecs: 5,
@@ -44,17 +45,19 @@ export type SchemaRegistryAPIClient = Client<{
 
 export default ({
   auth,
-  clientId,
+  clientId: userClientId,
   host,
   retry = {},
   agent,
 }: SchemaRegistryAPIClientArgs): SchemaRegistryAPIClient => {
+  const clientId = userClientId || DEFAULT_API_CLIENT_ID
   // FIXME: ResourcesType typings is not exposed by mappersmith
   const manifest: Options<any> = {
-    clientId: clientId || DEFAULT_API_CLIENT_ID,
+    clientId,
     ignoreGlobalMiddleware: true,
     host,
     middleware: [
+      userAgentMiddleware,
       confluentEncoder,
       RetryMiddleware(Object.assign(DEFAULT_RETRY, retry)),
       errorMiddleware,
