@@ -182,10 +182,10 @@ export default class SchemaRegistry {
     helper: SchemaHelper,
   ): Promise<(string | RawAvroSchema)[]> {
     const referencesSet = new Set<string>()
-    return this._getReferences(schema, helper, referencesSet)
+    return this.getReferencesRecursive(schema, helper, referencesSet)
   }
 
-  private async _getReferences(
+  private async getReferencesRecursive(
     schema: ConfluentSchema,
     helper: SchemaHelper,
     referencesSet: Set<string>,
@@ -193,12 +193,12 @@ export default class SchemaRegistry {
     const references = helper.getReferences(schema) || []
     // execute in parallel
     const schemaPromise = references.map(reference =>
-      this.getReferenceFromReference(reference, helper, referencesSet),
+      this.getReferencesFromReference(reference, helper, referencesSet),
     )
     return (await Promise.all(schemaPromise)).flat()
   }
 
-  async getReferenceFromReference(
+  async getReferencesFromReference(
     reference: ReferenceType,
     helper: SchemaHelper,
     referencesSet: Set<string>,
@@ -215,7 +215,7 @@ export default class SchemaRegistry {
     const foundSchema = versionResponse.data() as SchemaResponse
 
     const subSchema = helper.toConfluentSchema(foundSchema)
-    const referredSchemas = await this._getReferences(subSchema, helper, referencesSet)
+    const referredSchemas = await this.getReferencesRecursive(subSchema, helper, referencesSet)
 
     referredSchemas.push(subSchema.schema)
     return referredSchemas
