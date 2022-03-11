@@ -32,7 +32,7 @@ import {
   schemaFromConfluentSchema,
 } from './schemaTypeResolver'
 
-interface RegisteredSchema {
+export interface RegisteredSchema {
   id: number
 }
 
