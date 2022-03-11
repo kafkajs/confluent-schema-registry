@@ -25,6 +25,7 @@ import {
   ProtoConfluentSchema,
   ProtocolOptions,
   SchemaHelper,
+  ReferenceType,
 } from './@types'
 import {
   helperTypeFromSchemaType,
@@ -189,29 +190,34 @@ export default class SchemaRegistry {
     helper: SchemaHelper,
     referencesSet: Set<string>,
   ): Promise<(string | RawAvroSchema)[]> {
-    let referredSchemas: (string | RawAvroSchema)[] = []
+    const references = helper.getReferences(schema) || []
+    // execute in parallel
+    const schemaPromise = references.map(reference =>
+      this.getReferenceFromReference(reference, helper, referencesSet),
+    )
+    return (await Promise.all(schemaPromise)).flat()
+  }
 
-    const references = helper.getReferences(schema)
-    if (references) {
-      for (const reference of references) {
-        const { name, subject, version } = reference
-        const key = `${name}-${subject}-${version}`
+  async getReferenceFromReference(
+    reference: ReferenceType,
+    helper: SchemaHelper,
+    referencesSet: Set<string>,
+  ): Promise<(string | RawAvroSchema)[]> {
+    const { name, subject, version } = reference
+    const key = `${name}-${subject}-${version}`
 
-        if (referencesSet.has(key)) {
-          continue
-        }
-        referencesSet.add(key)
-
-        const versionResponse = await this.api.Subject.version(reference)
-        const foundSchema = versionResponse.data() as SchemaResponse
-
-        const subSchema = helper.toConfluentSchema(foundSchema)
-        const subReferredSchemas = await this._getReferences(subSchema, helper, referencesSet)
-
-        referredSchemas.push(subSchema.schema)
-        referredSchemas = referredSchemas.concat(subReferredSchemas)
-      }
+    if (referencesSet.has(key)) {
+      return []
     }
+    referencesSet.add(key)
+
+    const versionResponse = await this.api.Subject.version(reference)
+    const foundSchema = versionResponse.data() as SchemaResponse
+
+    const subSchema = helper.toConfluentSchema(foundSchema)
+    const referredSchemas = await this._getReferences(subSchema, helper, referencesSet)
+
+    referredSchemas.push(subSchema.schema)
     return referredSchemas
   }
 
