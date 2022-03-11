@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import path from 'path'
 import { v4 as uuid } from 'uuid'
 
