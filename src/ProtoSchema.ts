@@ -13,6 +13,7 @@ export default class ProtoSchema implements Schema {
     const parsedMessage = protobuf.parse(schema.schema)
     const root = parsedMessage.root
 
+    // handle all schema references independent on nested references
     if (opts?.referredSchemas) {
       opts.referredSchemas.forEach(rawSchema => protobuf.parse(rawSchema, root))
     }
