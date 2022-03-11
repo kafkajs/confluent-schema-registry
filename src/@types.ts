@@ -13,7 +13,7 @@ export interface SchemaHelper {
   getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
   toConfluentSchema(data: SchemaResponse): ConfluentSchema
   getReferences(schema: ConfluentSchema): ReferenceType[] | undefined
-  updateOptionsFromReferences(
+  updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
     referredSchemas: (string | RawAvroSchema)[],
   ): ProtocolOptions

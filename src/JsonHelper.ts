@@ -25,6 +25,7 @@ export default class JsonHelper implements SchemaHelper {
   }
 
   public toConfluentSchema(data: SchemaResponse): ConfluentSchema {
+    // TODO: implement for JSON references
     return { type: SchemaType.JSON, schema: data.schema }
   }
 
@@ -33,7 +34,7 @@ export default class JsonHelper implements SchemaHelper {
     return undefined
   }
 
-  updateOptionsFromReferences(
+  updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
     _referredSchemas: string[],
   ): ProtocolOptions {

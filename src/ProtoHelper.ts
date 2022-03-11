@@ -32,7 +32,7 @@ export default class ProtoHelper implements SchemaHelper {
     return schema.references
   }
 
-  updateOptionsFromReferences(
+  updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
     referredSchemas: string[],
   ): ProtocolOptions {

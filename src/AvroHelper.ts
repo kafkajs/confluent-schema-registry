@@ -59,6 +59,7 @@ export default class AvroHelper implements SchemaHelper {
   }
 
   public toConfluentSchema(data: SchemaResponse): ConfluentSchema {
+    // TODO: implement for Avro references
     return { type: SchemaType.AVRO, schema: data.schema }
   }
 
@@ -67,7 +68,7 @@ export default class AvroHelper implements SchemaHelper {
     return undefined
   }
 
-  updateOptionsFromReferences(
+  updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
     _referredSchemas: (string | RawAvroSchema)[],
   ): ProtocolOptions {
