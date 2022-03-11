@@ -32,8 +32,11 @@ export default class ProtoHelper implements SchemaHelper {
     return schema.references
   }
 
-  updateOptions(options: ProtocolOptions, referredSchemas: string[]): ProtocolOptions {
-    const result = { ...options }
-    return { ...result, [SchemaType.PROTOBUF]: { ...result[SchemaType.PROTOBUF], referredSchemas } }
+  updateOptionsFromReferences(
+    options: ProtocolOptions,
+    referredSchemas: string[],
+  ): ProtocolOptions {
+    const opt = { ...options }
+    return { ...opt, [SchemaType.PROTOBUF]: { ...opt[SchemaType.PROTOBUF], referredSchemas } }
   }
 }

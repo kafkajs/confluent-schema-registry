@@ -114,7 +114,7 @@ export default class SchemaRegistry {
 
     const helper = helperTypeFromSchemaType(confluentSchema.type)
 
-    this.options = await this.updateOptions(this.options, confluentSchema)
+    this.options = await this.updateOptionsFromReferences(this.options, confluentSchema)
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
     helper.validate(schemaInstance)
 
@@ -167,13 +167,13 @@ export default class SchemaRegistry {
     return registeredSchema
   }
 
-  private async updateOptions(
+  private async updateOptionsFromReferences(
     options: SchemaRegistryAPIClientOptions | undefined,
     schema: ConfluentSchema,
   ) {
     const helper = helperTypeFromSchemaType(schema.type)
     const referredSchemas = await this.getReferences(schema, helper)
-    return helper.updateOptions(options as ProtocolOptions, referredSchemas)
+    return helper.updateOptionsFromReferences(options as ProtocolOptions, referredSchemas)
   }
 
   private async getReferences(
@@ -232,7 +232,7 @@ export default class SchemaRegistry {
     const helper = helperTypeFromSchemaType(schemaType)
     const confluentSchema = helper.toConfluentSchema(foundSchema)
 
-    this.options = await this.updateOptions(this.options, confluentSchema)
+    this.options = await this.updateOptionsFromReferences(this.options, confluentSchema)
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
     return this.cache.setSchema(registryId, schemaType, schemaInstance)
   }

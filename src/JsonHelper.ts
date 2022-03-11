@@ -29,10 +29,15 @@ export default class JsonHelper implements SchemaHelper {
   }
 
   getReferences(_schema: JsonConfluentSchema): ReferenceType[] | undefined {
+    // TODO: implement for JSON references
     return undefined
   }
 
-  updateOptions(options: ProtocolOptions, _referredSchemas: string[]): ProtocolOptions {
+  updateOptionsFromReferences(
+    options: ProtocolOptions,
+    _referredSchemas: string[],
+  ): ProtocolOptions {
+    // TODO: implement for JSON references
     return options
   }
 }

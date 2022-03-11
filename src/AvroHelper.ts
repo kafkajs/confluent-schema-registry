@@ -63,10 +63,15 @@ export default class AvroHelper implements SchemaHelper {
   }
 
   getReferences(_schema: AvroConfluentSchema): ReferenceType[] | undefined {
+    // TODO: implement for Avro references
     return undefined
   }
 
-  updateOptions(options: ProtocolOptions, _referredSchemas: string[]): ProtocolOptions {
+  updateOptionsFromReferences(
+    options: ProtocolOptions,
+    _referredSchemas: (string | RawAvroSchema)[],
+  ): ProtocolOptions {
+    // TODO: implement for Avro references
     return options
   }
 }
