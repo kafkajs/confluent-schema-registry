@@ -24,6 +24,7 @@ export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
   ajvInstance?: {
     compile: (schema: any) => ValidateFunction
   }
+  referredSchemas?: string[]
 }
 export type ProtoOptions = { messageName?: string; referredSchemas?: string[] }
 
@@ -80,6 +81,7 @@ export interface ProtoConfluentSchema {
 export interface JsonConfluentSchema {
   type: SchemaType.JSON
   schema: string
+  references?: ReferenceType[]
 }
 export interface SchemaResponse {
   schema: string

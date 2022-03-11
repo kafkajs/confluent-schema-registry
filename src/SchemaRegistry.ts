@@ -148,7 +148,7 @@ export default class SchemaRegistry {
     }
 
     const references =
-      confluentSchema.type === SchemaType.PROTOBUF
+      confluentSchema.type === SchemaType.PROTOBUF || confluentSchema.type === SchemaType.JSON
         ? (confluentSchema as ProtoConfluentSchema).references
         : undefined
 

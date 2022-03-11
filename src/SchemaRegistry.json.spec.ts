@@ -1,89 +1,93 @@
 import SchemaRegistry, { RegisteredSchema } from './SchemaRegistry'
 import API from './api'
-import { ProtoConfluentSchema, SchemaType } from './@types'
+import { JsonConfluentSchema, SchemaType } from './@types'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
 const schemaRegistryArgs = { host: REGISTRY_HOST }
 
 const TestSchemas = {
-  FirstLevelSchema: {
-    type: SchemaType.PROTOBUF,
+  ThirdLevelSchema: {
+    type: SchemaType.JSON,
     schema: `
-	syntax = "proto3";
-	package test;
-	import "test/second_level_A.proto";
-	import "test/second_level_B.proto";
-
-	message FirstLevel {
-		int32 id1 = 1;
-		SecondLevelA level1a = 2;
-		SecondLevelB level1b = 3;
-	}`,
-    references: [
-      {
-        name: 'test/second_level_A.proto',
-        subject: 'Proto:SecondLevelA',
-        version: undefined,
-      },
-      {
-        name: 'test/second_level_B.proto',
-        subject: 'Proto:SecondLevelB',
-        version: undefined,
-      },
-    ],
-  } as ProtoConfluentSchema,
+		{
+			"$id": "https://sumup.com/schemas/ThirdLevel",
+			"type": "object",
+			"properties": {
+				"id3": { "type": "number" }
+			}
+		}
+		`,
+  } as JsonConfluentSchema,
 
   SecondLevelASchema: {
-    type: SchemaType.PROTOBUF,
+    type: SchemaType.JSON,
     schema: `
-	  syntax = "proto3";
-	  package test;
-	  import "test/third_level.proto";
-
-	  message SecondLevelA {
-		int32 id2a = 1;
-		ThirdLevel level2a = 2;
-	  }`,
+		{
+			"$id": "https://sumup.com/schemas/SecondLevelA",
+			"type": "object",
+			"properties": {
+				"id2a": { "type": "number" },
+				"level2a": { "$ref": "https://sumup.com/schemas/ThirdLevel" }
+			}
+		}
+		`,
     references: [
       {
-        name: 'test/third_level.proto',
-        subject: 'Proto:ThirdLevel',
+        name: 'https://sumup.com/schemas/ThirdLevel',
+        subject: 'JSON:ThirdLevel',
         version: undefined,
       },
     ],
-  } as ProtoConfluentSchema,
+  } as JsonConfluentSchema,
 
   SecondLevelBSchema: {
-    type: SchemaType.PROTOBUF,
+    type: SchemaType.JSON,
     schema: `
-	  syntax = "proto3";
-	  package test;
-	  import "test/third_level.proto";
-
-	  message SecondLevelB {
-		int32 id2b = 1;
-		ThirdLevel level2b = 2;
-	  }`,
+		{
+			"$id": "https://sumup.com/schemas/SecondLevelB",
+			"type": "object",
+			"properties": {
+				"id2b": { "type": "number" },
+				"level2b": { "$ref": "https://sumup.com/schemas/ThirdLevel" }
+			}
+		}
+		`,
     references: [
       {
-        name: 'test/third_level.proto',
-        subject: 'Proto:ThirdLevel',
+        name: 'https://sumup.com/schemas/ThirdLevel',
+        subject: 'JSON:ThirdLevel',
         version: undefined,
       },
     ],
-  } as ProtoConfluentSchema,
+  } as JsonConfluentSchema,
 
-  ThirdLevelSchema: {
-    type: SchemaType.PROTOBUF,
+  FirstLevelSchema: {
+    type: SchemaType.JSON,
     schema: `
-		syntax = "proto3";
-		package test;
-
-		message ThirdLevel {
-			int32 id3 = 1;
-		}`,
-  } as ProtoConfluentSchema,
+		{
+			"$id": "https://sumup.com/schemas/FirstLevel",
+			"type": "object",
+			"properties": {
+				"id1": { "type": "number" },
+				"level1a": { "$ref": "https://sumup.com/schemas/SecondLevelA" },
+				"level1b": { "$ref": "https://sumup.com/schemas/SecondLevelB" }
+			}
+		}
+		`,
+    references: [
+      {
+        name: 'https://sumup.com/schemas/SecondLevelA',
+        subject: 'JSON:SecondLevelA',
+        version: undefined,
+      },
+      {
+        name: 'https://sumup.com/schemas/SecondLevelB',
+        subject: 'JSON:SecondLevelB',
+        version: undefined,
+      },
+    ],
+  } as JsonConfluentSchema,
 }
 
 function apiResponse(result) {
@@ -104,7 +108,7 @@ describe('SchemaRegistry', () => {
     describe('when no reference', () => {
       beforeEach(async () => {
         registeredSchema = await schemaRegistry.register(TestSchemas.ThirdLevelSchema, {
-          subject: 'Proto:ThirdLevel',
+          subject: 'JSON:ThirdLevel',
         })
       })
       it('should return schema id', async () => {
@@ -127,13 +131,13 @@ describe('SchemaRegistry', () => {
 
       beforeEach(async () => {
         await schemaRegistry.register(TestSchemas.ThirdLevelSchema, {
-          subject: 'Proto:ThirdLevel',
+          subject: 'JSON:ThirdLevel',
         })
 
-        const latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:ThirdLevel' }))
+        const latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:ThirdLevel' }))
         TestSchemas.SecondLevelASchema.references[0].version = latest.version
         registeredSchema = await schemaRegistry.register(TestSchemas.SecondLevelASchema, {
-          subject: 'Proto:SecondLevelA',
+          subject: 'JSON:SecondLevelA',
         })
         schemaId = registeredSchema.id
 
@@ -144,8 +148,9 @@ describe('SchemaRegistry', () => {
       it('should return schema id', async () => {
         expect(schemaId).toEqual(expect.any(Number))
       })
+
       it('should create a schema with reference', async () => {
-        expect(referenceSchema).toEqual('Proto:ThirdLevel')
+        expect(referenceSchema).toEqual('JSON:ThirdLevel')
       })
 
       it('should be able to encode/decode', async () => {
@@ -163,27 +168,27 @@ describe('SchemaRegistry', () => {
         let latest
 
         await schemaRegistry.register(TestSchemas.ThirdLevelSchema, {
-          subject: 'Proto:ThirdLevel',
+          subject: 'JSON:ThirdLevel',
         })
 
-        latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:ThirdLevel' }))
+        latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:ThirdLevel' }))
         TestSchemas.SecondLevelASchema.references[0].version = latest.version
         registeredSchema = await schemaRegistry.register(TestSchemas.SecondLevelASchema, {
-          subject: 'Proto:SecondLevelA',
+          subject: 'JSON:SecondLevelA',
         })
 
-        latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:ThirdLevel' }))
+        latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:ThirdLevel' }))
         TestSchemas.SecondLevelBSchema.references[0].version = latest.version
         registeredSchema = await schemaRegistry.register(TestSchemas.SecondLevelBSchema, {
-          subject: 'Proto:SecondLevelB',
+          subject: 'JSON:SecondLevelB',
         })
 
-        latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:SecondLevelA' }))
+        latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:SecondLevelA' }))
         TestSchemas.FirstLevelSchema.references[0].version = latest.version
-        latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:SecondLevelB' }))
+        latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:SecondLevelB' }))
         TestSchemas.FirstLevelSchema.references[1].version = latest.version
         registeredSchema = await schemaRegistry.register(TestSchemas.FirstLevelSchema, {
-          subject: 'Proto:FirstLevel',
+          subject: 'JSON:FirstLevel',
         })
       })
 
@@ -208,13 +213,9 @@ describe('SchemaRegistry', () => {
     describe('no references', () => {
       beforeEach(async () => {
         registeredSchema = await schemaRegistry.register(TestSchemas.ThirdLevelSchema, {
-          subject: 'Proto:ThirdLevel',
+          subject: 'JSON:ThirdLevel',
         })
         ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
-      })
-
-      it('should return schema that match message', async () => {
-        expect(schema.message.name).toEqual('ThirdLevel')
       })
 
       it('should be able to encode/decode', async () => {
@@ -229,18 +230,14 @@ describe('SchemaRegistry', () => {
 
     describe('with references', () => {
       beforeEach(async () => {
-        await schemaRegistry.register(TestSchemas.ThirdLevelSchema, { subject: 'Proto:ThirdLevel' })
+        await schemaRegistry.register(TestSchemas.ThirdLevelSchema, { subject: 'JSON:ThirdLevel' })
 
-        const latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:ThirdLevel' }))
+        const latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:ThirdLevel' }))
         TestSchemas.SecondLevelASchema.references[0].version = latest.version
         registeredSchema = await schemaRegistry.register(TestSchemas.SecondLevelASchema, {
-          subject: 'Proto:SecondLevelA',
+          subject: 'JSON:SecondLevelA',
         })
         ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
-      })
-
-      it('should return schema that match message', async () => {
-        expect(schema.message.name).toEqual('SecondLevelA')
       })
 
       it('should be able to encode/decode', async () => {
@@ -258,33 +255,29 @@ describe('SchemaRegistry', () => {
         let latest
 
         await schemaRegistry.register(TestSchemas.ThirdLevelSchema, {
-          subject: 'Proto:ThirdLevel',
+          subject: 'JSON:ThirdLevel',
         })
 
-        latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:ThirdLevel' }))
+        latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:ThirdLevel' }))
         TestSchemas.SecondLevelASchema.references[0].version = latest.version
         registeredSchema = await schemaRegistry.register(TestSchemas.SecondLevelASchema, {
-          subject: 'Proto:SecondLevelA',
+          subject: 'JSON:SecondLevelA',
         })
 
-        latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:ThirdLevel' }))
+        latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:ThirdLevel' }))
         TestSchemas.SecondLevelBSchema.references[0].version = latest.version
         registeredSchema = await schemaRegistry.register(TestSchemas.SecondLevelBSchema, {
-          subject: 'Proto:SecondLevelB',
+          subject: 'JSON:SecondLevelB',
         })
 
-        latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:SecondLevelA' }))
+        latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:SecondLevelA' }))
         TestSchemas.FirstLevelSchema.references[0].version = latest.version
-        latest = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:SecondLevelB' }))
+        latest = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:SecondLevelB' }))
         TestSchemas.FirstLevelSchema.references[1].version = latest.version
         registeredSchema = await schemaRegistry.register(TestSchemas.FirstLevelSchema, {
-          subject: 'Proto:FirstLevel',
+          subject: 'JSON:FirstLevel',
         })
         ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
-      })
-
-      it('should return schema that match message', async () => {
-        expect(schema.message.name).toEqual('FirstLevel')
       })
 
       it('should be able to encode/decode', async () => {

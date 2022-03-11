@@ -25,20 +25,18 @@ export default class JsonHelper implements SchemaHelper {
   }
 
   public toConfluentSchema(data: SchemaResponse): ConfluentSchema {
-    // TODO: implement for JSON references
-    return { type: SchemaType.JSON, schema: data.schema }
+    return { type: SchemaType.JSON, schema: data.schema, references: data.references }
   }
 
-  getReferences(_schema: JsonConfluentSchema): ReferenceType[] | undefined {
-    // TODO: implement for JSON references
-    return undefined
+  getReferences(schema: JsonConfluentSchema): ReferenceType[] | undefined {
+    return schema.references
   }
 
   updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
-    _referredSchemas: string[],
+    referredSchemas: string[],
   ): ProtocolOptions {
-    // TODO: implement for JSON references
-    return options
+    const opt = { ...options }
+    return { ...opt, [SchemaType.JSON]: { ...opt[SchemaType.JSON], referredSchemas } }
   }
 }
