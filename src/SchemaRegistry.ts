@@ -206,6 +206,7 @@ export default class SchemaRegistry {
     const { name, subject, version } = reference
     const key = `${name}-${subject}-${version}`
 
+    // avoid duplicates
     if (referencesSet.has(key)) {
       return []
     }
@@ -214,10 +215,10 @@ export default class SchemaRegistry {
     const versionResponse = await this.api.Subject.version(reference)
     const foundSchema = versionResponse.data() as SchemaResponse
 
-    const subSchema = helper.toConfluentSchema(foundSchema)
-    const referredSchemas = await this.getReferencesRecursive(subSchema, helper, referencesSet)
+    const schema = helper.toConfluentSchema(foundSchema)
+    const referredSchemas = await this.getReferencesRecursive(schema, helper, referencesSet)
 
-    referredSchemas.push(subSchema.schema)
+    referredSchemas.push(schema.schema)
     return referredSchemas
   }
 
