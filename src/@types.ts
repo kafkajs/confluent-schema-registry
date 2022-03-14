@@ -8,10 +8,15 @@ export enum SchemaType {
   PROTOBUF = 'PROTOBUF',
   UNKNOWN = 'UNKNOWN',
 }
-
 export interface SchemaHelper {
   validate(schema: Schema): void
   getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
+  toConfluentSchema(data: SchemaResponse): ConfluentSchema
+  getReferences(schema: ConfluentSchema): ReferenceType[] | undefined
+  updateOptionsFromSchemaReferences(
+    options: ProtocolOptions,
+    referredSchemas: (string | RawAvroSchema)[],
+  ): ProtocolOptions
 }
 
 export type AvroOptions = Partial<ForSchemaOptions>
@@ -19,8 +24,9 @@ export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
   ajvInstance?: {
     compile: (schema: any) => ValidateFunction
   }
+  referredSchemas?: string[]
 }
-export type ProtoOptions = { messageName: string }
+export type ProtoOptions = { messageName?: string; referredSchemas?: string[] }
 
 export interface LegacyOptions {
   forSchemaOptions?: AvroOptions
@@ -62,14 +68,25 @@ export interface AvroConfluentSchema {
   schema: string | RawAvroSchema
 }
 
+export type ReferenceType = {
+  name: string
+  subject: string
+  version: number
+}
 export interface ProtoConfluentSchema {
   type: SchemaType.PROTOBUF
   schema: string
+  references?: ReferenceType[]
 }
-
 export interface JsonConfluentSchema {
   type: SchemaType.JSON
   schema: string
+  references?: ReferenceType[]
+}
+export interface SchemaResponse {
+  schema: string
+  schemaType: string
+  references?: ReferenceType[]
 }
 
 export type ConfluentSchema = AvroConfluentSchema | ProtoConfluentSchema | JsonConfluentSchema

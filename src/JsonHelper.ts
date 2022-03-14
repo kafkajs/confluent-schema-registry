@@ -1,17 +1,42 @@
-// @ts-nocheck
-import { Schema, SchemaHelper, ConfluentSubject, ConfluentSchema } from './@types'
+import {
+  Schema,
+  SchemaHelper,
+  ConfluentSubject,
+  ConfluentSchema,
+  SchemaResponse,
+  SchemaType,
+  ReferenceType,
+  JsonConfluentSchema,
+  ProtocolOptions,
+} from './@types'
 import { ConfluentSchemaRegistryError } from './errors'
 
 export default class JsonHelper implements SchemaHelper {
-  public validate(schema: Schema): void {
+  public validate(_schema: Schema): void {
     return
   }
 
   public getSubject(
-    confluentSchema: ConfluentSchema,
-    schema: Schema,
-    separator: string,
+    _confluentSchema: ConfluentSchema,
+    _schema: Schema,
+    _separator: string,
   ): ConfluentSubject {
     throw new ConfluentSchemaRegistryError('not implemented yet')
+  }
+
+  public toConfluentSchema(data: SchemaResponse): ConfluentSchema {
+    return { type: SchemaType.JSON, schema: data.schema, references: data.references }
+  }
+
+  getReferences(schema: JsonConfluentSchema): ReferenceType[] | undefined {
+    return schema.references
+  }
+
+  updateOptionsFromSchemaReferences(
+    options: ProtocolOptions,
+    referredSchemas: string[],
+  ): ProtocolOptions {
+    const opt = { ...options }
+    return { ...opt, [SchemaType.JSON]: { ...opt[SchemaType.JSON], referredSchemas } }
   }
 }
