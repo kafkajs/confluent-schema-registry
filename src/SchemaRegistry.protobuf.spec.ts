@@ -301,4 +301,53 @@ describe('SchemaRegistry', () => {
       })
     })
   })
+
+  describe('when document example', async () => {
+    it('should encode/decode', async () => {
+      const schemaA = `
+		syntax = "proto3";
+		package test;
+		import "test/B.proto";
+
+		message A {
+			int32 id = 1;
+			B b = 2;
+		}`
+
+      const schemaB = `
+		syntax = "proto3";
+		package test;
+
+		message B {
+			int32 id = 1;
+		}`
+
+      await schemaRegistry.register(
+        { type: SchemaType.PROTOBUF, schema: schemaB },
+        { subject: 'Proto:B' },
+      )
+
+      const { id } = await schemaRegistry.register(
+        {
+          type: SchemaType.PROTOBUF,
+          schema: schemaA,
+          references: [
+            {
+              name: 'test/B.proto',
+              subject: 'Proto:B',
+              version: 1,
+            },
+          ],
+        },
+        { subject: 'Proto:A' },
+      )
+
+      const obj = { id: 1, b: { id: 2 } }
+
+      const buffer = await schemaRegistry.encode(id, obj)
+      const decodedObj = await schemaRegistry.decode(buffer)
+
+      expect(decodedObj).toEqual(obj)
+    })
+  })
 })

@@ -294,4 +294,52 @@ describe('SchemaRegistry', () => {
       })
     })
   })
+
+  describe('when document example', async () => {
+    it('should encode/decode', async () => {
+      const schemaA = `
+		{
+			"$id": "https://sumup.com/schemas/A",
+			"type": "object",
+			"properties": {
+				"id": { "type": "number" },
+				"b": { "$ref": "https://sumup.com/schemas/B" }
+			}
+		}`
+
+      const schemaB = `
+		{
+			"$id": "https://sumup.com/schemas/B",
+			"type": "object",
+			"properties": {
+				"id": { "type": "number" }
+			}
+		}`
+
+      await schemaRegistry.register(
+        { type: SchemaType.JSON, schema: schemaB },
+        { subject: 'JSON:B' },
+      )
+
+      const { id } = await schemaRegistry.register(
+        {
+          type: SchemaType.JSON,
+          schema: schemaA,
+          references: [
+            {
+              name: 'https://sumup.com/schemas/B',
+              subject: 'JSON:B',
+              version: 1,
+            },
+          ],
+        },
+        { subject: 'JSON:A' },
+      )
+
+      const obj = { id: 1, b: { id: 2 } }
+
+      const buffer = await schemaRegistry.encode(id, obj)
+      const decodedObj = await schemaRegistry.decode(buffer)
+    })
+  })
 })
