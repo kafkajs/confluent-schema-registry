@@ -5,8 +5,6 @@ import {
   ConfluentSchema,
   SchemaHelper,
   ConfluentSubject,
-  ReferenceType,
-  AvroConfluentSchema,
   ProtocolOptions,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'

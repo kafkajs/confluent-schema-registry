@@ -5,8 +5,6 @@ import {
   ConfluentSchema,
   SchemaResponse,
   SchemaType,
-  ReferenceType,
-  ProtoConfluentSchema,
   ProtocolOptions,
 } from './@types'
 import { ConfluentSchemaRegistryError } from './errors'
