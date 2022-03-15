@@ -10,7 +10,7 @@ import {
   ProtocolOptions,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
-import avro from 'avsc'
+import avro, { ForSchemaOptions } from 'avsc'
 import { SchemaResponse, SchemaType } from './@types'
 
 export default class AvroHelper implements SchemaHelper {
@@ -25,7 +25,28 @@ export default class AvroHelper implements SchemaHelper {
       ? schema
       : this.getRawAvroSchema(schema)
     // @ts-ignore TODO: Fix typings for Schema...
-    const avroSchema: AvroSchema = avro.Type.forSchema(rawSchema, opts)
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const me = this
+    const avroSchema = avro.Type.forSchema(rawSchema, {
+      ...opts,
+      // @ts-ignore
+      typeHook:
+        opts?.typeHook ||
+        function(_schema: avro.Schema, opts: ForSchemaOptions) {
+          const avroOpts = opts as AvroOptions
+          avroOpts?.referredSchemas?.forEach(subSchema => {
+            const confluentSchema = {
+              schema: subSchema,
+              type: SchemaType.AVRO,
+            } as ConfluentSchema
+            const rawSubSchema = me.getRawAvroSchema(confluentSchema)
+            avroOpts.typeHook = undefined
+            avro.Type.forSchema(rawSubSchema, avroOpts)
+          })
+        },
+    })
+
     return avroSchema
   }
 
@@ -59,20 +80,14 @@ export default class AvroHelper implements SchemaHelper {
   }
 
   public toConfluentSchema(data: SchemaResponse): ConfluentSchema {
-    // TODO: implement for Avro references
-    return { type: SchemaType.AVRO, schema: data.schema }
-  }
-
-  getReferences(_schema: AvroConfluentSchema): ReferenceType[] | undefined {
-    // TODO: implement for Avro references
-    return undefined
+    return { type: SchemaType.AVRO, schema: data.schema, references: data.references }
   }
 
   updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
-    _referredSchemas: (string | RawAvroSchema)[],
+    referredSchemas: (string | RawAvroSchema)[],
   ): ProtocolOptions {
-    // TODO: implement for Avro references
-    return options
+    const opts = options ?? {}
+    return { ...opts, [SchemaType.AVRO]: { ...opts[SchemaType.AVRO], referredSchemas } }
   }
 }

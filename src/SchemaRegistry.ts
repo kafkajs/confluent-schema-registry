@@ -22,7 +22,6 @@ import {
   SchemaRegistryAPIClientOptions,
   AvroConfluentSchema,
   SchemaResponse,
-  ProtoConfluentSchema,
   ProtocolOptions,
   SchemaHelper,
   ReferenceType,
@@ -115,8 +114,8 @@ export default class SchemaRegistry {
 
     const helper = helperTypeFromSchemaType(confluentSchema.type)
 
-    this.options = await this.updateOptionsWithSchemaReferences(this.options, confluentSchema)
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
+    const options = await this.updateOptionsWithSchemaReferences(this.options, confluentSchema)
+    const schemaInstance = schemaFromConfluentSchema(confluentSchema, options)
     helper.validate(schemaInstance)
 
     let subject: ConfluentSubject
@@ -147,17 +146,12 @@ export default class SchemaRegistry {
       }
     }
 
-    const references =
-      confluentSchema.type === SchemaType.PROTOBUF || confluentSchema.type === SchemaType.JSON
-        ? (confluentSchema as ProtoConfluentSchema).references
-        : undefined
-
     const response = await this.api.Subject.register({
       subject: subject.name,
       body: {
         schemaType: confluentSchema.type === SchemaType.AVRO ? undefined : confluentSchema.type,
         schema: confluentSchema.schema,
-        references,
+        references: confluentSchema.references,
       },
     })
 
@@ -190,12 +184,14 @@ export default class SchemaRegistry {
     helper: SchemaHelper,
     referencesSet: Set<string>,
   ): Promise<(string | RawAvroSchema)[]> {
-    const references = helper.getReferences(schema) || []
-    // execute in parallel
-    const schemaPromise = references.map(reference =>
-      this.getReferredSchemasFromReference(reference, helper, referencesSet),
-    )
-    return (await Promise.all(schemaPromise)).flat()
+    const references = schema.references || []
+
+    let referredSchemas: (string | RawAvroSchema)[] = []
+    for (const reference of references) {
+      const schemas = await this.getReferredSchemasFromReference(reference, helper, referencesSet)
+      referredSchemas = referredSchemas.concat(schemas.flat())
+    }
+    return referredSchemas
   }
 
   async getReferredSchemasFromReference(
@@ -239,8 +235,8 @@ export default class SchemaRegistry {
     const helper = helperTypeFromSchemaType(schemaType)
     const confluentSchema = helper.toConfluentSchema(foundSchema)
 
-    this.options = await this.updateOptionsWithSchemaReferences(this.options, confluentSchema)
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
+    const options = await this.updateOptionsWithSchemaReferences(this.options, confluentSchema)
+    const schemaInstance = schemaFromConfluentSchema(confluentSchema, options)
     return this.cache.setSchema(registryId, schemaType, schemaInstance)
   }
 

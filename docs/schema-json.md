@@ -57,12 +57,14 @@ await schemaRegistry.register(
 	{ type: SchemaType.JSON, schema: schemaB },
 	{ subject: 'B'})
 
+const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'B' }))
+
 const { id } = await schemaRegistry.register(
 	{ type: SchemaType.JSON, schema: schemaA, references: [
       {
         name: 'https://sumup.com/schemas/B',
         subject: 'B',
-        version: 1,
+        version,
       },
     ]},
 	{ subject: 'A' })

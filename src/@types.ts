@@ -12,14 +12,15 @@ export interface SchemaHelper {
   validate(schema: Schema): void
   getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
   toConfluentSchema(data: SchemaResponse): ConfluentSchema
-  getReferences(schema: ConfluentSchema): ReferenceType[] | undefined
   updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
     referredSchemas: (string | RawAvroSchema)[],
   ): ProtocolOptions
 }
 
-export type AvroOptions = Partial<ForSchemaOptions>
+export type AvroOptions = Partial<ForSchemaOptions> & {
+  referredSchemas?: (string | RawAvroSchema)[]
+}
 export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
   ajvInstance?: {
     compile: (schema: any) => ValidateFunction
@@ -66,6 +67,7 @@ export interface ConfluentSubject {
 export interface AvroConfluentSchema {
   type: SchemaType.AVRO
   schema: string | RawAvroSchema
+  references?: ReferenceType[]
 }
 
 export type ReferenceType = {
