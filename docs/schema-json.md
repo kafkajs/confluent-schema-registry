@@ -29,7 +29,7 @@ You might want to split the JSON definition into several schemas one for each ty
 }
 ```
 
-To registry schemas with references they have to be registered in reverse order, so the referred schemas already exists. In this case B has to be registered before A. Furthermore A must define an array references to the referred schemas. A reference consist of a `name`, that should match the import statement, a schema `subject` and a schema `version`.
+To registry schemas with references they have to be registered in reverse order, so the referred schemas already exists. In this case B has to be registered before A. Furthermore A must define an array references to the referred schemas. A reference consist of a `name`, that should match the $ref, a schema `subject` and a schema `version`.
 
 Notice the library will handle an arbitrary number of nested levels.
 
