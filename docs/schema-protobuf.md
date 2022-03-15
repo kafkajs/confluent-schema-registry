@@ -55,12 +55,14 @@ await schemaRegistry.register(
 	{ type: SchemaType.PROTOBUF, schema: schemaB },
 	{ subject: 'B'})
 
+const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'B' }))
+
 const { id } = await schemaRegistry.register(
 	{ type: SchemaType.PROTOBUF, schema: schemaA, references: [
       {
         name: 'test/B.proto',
         subject: 'B',
-        version: 1,
+        version,
       },
     ]},
 	{ subject: 'A' })

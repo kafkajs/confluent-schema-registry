@@ -28,15 +28,11 @@ export default class ProtoHelper implements SchemaHelper {
     return { type: SchemaType.PROTOBUF, schema: data.schema, references: data.references }
   }
 
-  getReferences(schema: ProtoConfluentSchema): ReferenceType[] | undefined {
-    return schema.references
-  }
-
   updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
     referredSchemas: string[],
   ): ProtocolOptions {
-    const opt = { ...options }
-    return { ...opt, [SchemaType.PROTOBUF]: { ...opt[SchemaType.PROTOBUF], referredSchemas } }
+    const opts = options ?? {}
+    return { ...opts, [SchemaType.PROTOBUF]: { ...opts[SchemaType.PROTOBUF], referredSchemas } }
   }
 }

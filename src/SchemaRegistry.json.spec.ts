@@ -204,6 +204,22 @@ describe('SchemaRegistry', () => {
 
         expect(resultObj).toEqual(obj)
       })
+
+      it('should be able to encode/decode independent', async () => {
+        const obj = {
+          id1: 1,
+          level1a: { id2a: 2, level2a: { id3: 3 } },
+          level1b: { id2b: 4, level2b: { id3: 5 } },
+        }
+
+        schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
+        const buffer = await schemaRegistry.encode(registeredSchema.id, obj)
+
+        schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
+        const resultObj = await schemaRegistry.decode(buffer)
+
+        expect(resultObj).toEqual(obj)
+      })
     })
   })
 
@@ -295,7 +311,7 @@ describe('SchemaRegistry', () => {
     })
   })
 
-  describe('when document example', async () => {
+  describe('when document example', () => {
     it('should encode/decode', async () => {
       const schemaA = `
 		{
@@ -321,6 +337,8 @@ describe('SchemaRegistry', () => {
         { subject: 'JSON:B' },
       )
 
+      const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:B' }))
+
       const { id } = await schemaRegistry.register(
         {
           type: SchemaType.JSON,
@@ -329,7 +347,7 @@ describe('SchemaRegistry', () => {
             {
               name: 'https://sumup.com/schemas/B',
               subject: 'JSON:B',
-              version: 1,
+              version,
             },
           ],
         },

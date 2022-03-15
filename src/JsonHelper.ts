@@ -28,15 +28,11 @@ export default class JsonHelper implements SchemaHelper {
     return { type: SchemaType.JSON, schema: data.schema, references: data.references }
   }
 
-  getReferences(schema: JsonConfluentSchema): ReferenceType[] | undefined {
-    return schema.references
-  }
-
   updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
     referredSchemas: string[],
   ): ProtocolOptions {
-    const opt = { ...options }
-    return { ...opt, [SchemaType.JSON]: { ...opt[SchemaType.JSON], referredSchemas } }
+    const opts = options ?? {}
+    return { ...opts, [SchemaType.JSON]: { ...opts[SchemaType.JSON], referredSchemas } }
   }
 }
