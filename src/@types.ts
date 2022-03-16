@@ -14,20 +14,20 @@ export interface SchemaHelper {
   toConfluentSchema(data: SchemaResponse): ConfluentSchema
   updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
-    referredSchemas: (string | RawAvroSchema)[],
+    referredSchemas: ConfluentSchema[],
   ): ProtocolOptions
 }
 
 export type AvroOptions = Partial<ForSchemaOptions> & {
-  referredSchemas?: (string | RawAvroSchema)[]
+  referredSchemas?: AvroConfluentSchema[]
 }
 export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
   ajvInstance?: {
     compile: (schema: any) => ValidateFunction
   }
-  referredSchemas?: string[]
+  referredSchemas?: JsonConfluentSchema[]
 }
-export type ProtoOptions = { messageName?: string; referredSchemas?: string[] }
+export type ProtoOptions = { messageName?: string; referredSchemas?: ProtoConfluentSchema[] }
 
 export interface LegacyOptions {
   forSchemaOptions?: AvroOptions

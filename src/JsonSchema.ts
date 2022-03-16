@@ -29,9 +29,10 @@ export default class JsonSchema implements Schema {
 
   private getJsonSchema(schema: JsonConfluentSchema, opts?: JsonOptions) {
     const ajv = opts?.ajvInstance ?? new Ajv(opts)
-    if (opts?.referredSchemas) {
-      opts.referredSchemas.forEach(rawSchema => {
-        const $schema = JSON.parse(rawSchema)
+    const referredSchemas = opts?.referredSchemas
+    if (referredSchemas) {
+      referredSchemas.forEach(rawSchema => {
+        const $schema = JSON.parse(rawSchema.schema as string)
         // @ts-ignore
         ajv.addSchema($schema, $schema['$id'])
       })

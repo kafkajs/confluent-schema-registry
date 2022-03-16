@@ -2,10 +2,10 @@ import {
   Schema,
   SchemaHelper,
   ConfluentSubject,
-  ConfluentSchema,
   SchemaResponse,
   SchemaType,
   ProtocolOptions,
+  JsonConfluentSchema,
 } from './@types'
 import { ConfluentSchemaRegistryError } from './errors'
 
@@ -15,20 +15,20 @@ export default class JsonHelper implements SchemaHelper {
   }
 
   public getSubject(
-    _confluentSchema: ConfluentSchema,
+    _confluentSchema: JsonConfluentSchema,
     _schema: Schema,
     _separator: string,
   ): ConfluentSubject {
     throw new ConfluentSchemaRegistryError('not implemented yet')
   }
 
-  public toConfluentSchema(data: SchemaResponse): ConfluentSchema {
+  public toConfluentSchema(data: SchemaResponse): JsonConfluentSchema {
     return { type: SchemaType.JSON, schema: data.schema, references: data.references }
   }
 
   updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
-    referredSchemas: string[],
+    referredSchemas: JsonConfluentSchema[],
   ): ProtocolOptions {
     const opts = options ?? {}
     return { ...opts, [SchemaType.JSON]: { ...opts[SchemaType.JSON], referredSchemas } }

@@ -6,6 +6,7 @@ import {
   SchemaHelper,
   ConfluentSubject,
   ProtocolOptions,
+  AvroConfluentSchema,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
 import avro, { ForSchemaOptions } from 'avsc'
@@ -34,11 +35,7 @@ export default class AvroHelper implements SchemaHelper {
         function(_schema: avro.Schema, opts: ForSchemaOptions) {
           const avroOpts = opts as AvroOptions
           avroOpts?.referredSchemas?.forEach(subSchema => {
-            const confluentSchema = {
-              schema: subSchema,
-              type: SchemaType.AVRO,
-            } as ConfluentSchema
-            const rawSubSchema = me.getRawAvroSchema(confluentSchema)
+            const rawSubSchema = me.getRawAvroSchema(subSchema)
             avroOpts.typeHook = undefined
             avro.Type.forSchema(rawSubSchema, avroOpts)
           })
@@ -55,7 +52,7 @@ export default class AvroHelper implements SchemaHelper {
   }
 
   public getSubject(
-    schema: ConfluentSchema,
+    schema: AvroConfluentSchema,
     // @ts-ignore
     avroSchema: AvroSchema,
     separator: string,
@@ -77,13 +74,13 @@ export default class AvroHelper implements SchemaHelper {
     return asRawAvroSchema.name != null && asRawAvroSchema.type != null
   }
 
-  public toConfluentSchema(data: SchemaResponse): ConfluentSchema {
+  public toConfluentSchema(data: SchemaResponse): AvroConfluentSchema {
     return { type: SchemaType.AVRO, schema: data.schema, references: data.references }
   }
 
   updateOptionsFromSchemaReferences(
     options: ProtocolOptions,
-    referredSchemas: (string | RawAvroSchema)[],
+    referredSchemas: AvroConfluentSchema[],
   ): ProtocolOptions {
     const opts = options ?? {}
     return { ...opts, [SchemaType.AVRO]: { ...opts[SchemaType.AVRO], referredSchemas } }
