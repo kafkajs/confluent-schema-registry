@@ -36,47 +36,44 @@ To registry schemas with references they have to be registered in reverse order,
 Notice the library will handle an arbitrary number of nested levels.
 
 ```js
-const schemaA = `
-{
-	"type" : "record",
-	"namespace" : "test",
-	"name" : "A",
-	"fields" : [
-	{ "name" : "id" , "type" : "int" },
-	{ "name" : "b" , "type" : "test.B" }
-	]
-}`
+const schemaA = {
+	type: 'record',
+	namespace: 'test',
+	name: 'A',
+	fields: [
+		{ name: 'id', type: 'int' },
+		{ name: 'b', type: 'test.B' },
+	],
+}
 
-const schemaB = `
-{
-	"type" : "record",
-	"namespace" : "test",
-	"name" : "B",
-	"fields" : [
-	{ "name" : "id" , "type" : "int" }
-	]
-}`
+const schemaB = {
+	type: 'record',
+	namespace: 'test',
+	name: 'B',
+	fields: [{ name: 'id', type: 'int' }],
+}
 
 await schemaRegistry.register(
-{ type: SchemaType.AVRO, schema: schemaB },
-{ subject: 'B' },
+	{ type: SchemaType.AVRO, schema: JSON.stringify(schemaB) },
+	{ subject: 'Avro:B' },
 )
 
-const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'B' }))
+const response = await schemaRegistry.api.Subject.latestVersion({ subject: 'Avro:B' })
+const { version } = JSON.parse(response.responseData)
 
 const { id } = await schemaRegistry.register(
 {
 	type: SchemaType.AVRO,
-	schema: schemaA,
+	schema: JSON.stringify(schemaA),
 	references: [
 	{
 		name: 'test.B',
-		subject: 'B',
+		subject: 'Avro:B',
 		version,
 	},
 	],
 },
-{ subject: 'A' },
+{ subject: 'Avro:A' },
 )
 
 const obj = { id: 1, b: { id: 2 } }

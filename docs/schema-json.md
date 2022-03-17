@@ -34,40 +34,45 @@ To registry schemas with references they have to be registered in reverse order,
 Notice the library will handle an arbitrary number of nested levels.
 
 ```js
-const schemaA = `
-{
-	"$id": "https://sumup.com/schemas/A",
-	"type": "object",
-	"properties": {
-		"id": { "type": "number" },
-		"b": { "$ref": "https://sumup.com/schemas/B" }
-	}
-}`
+const schemaA = {
+	$id: 'https://sumup.com/schemas/A',
+	type: 'object',
+	properties: {
+		id: { type: 'number' },
+		b: { $ref: 'https://sumup.com/schemas/B' },
+	},
+}
 
-const schemaB = `
-{
-	"$id": "https://sumup.com/schemas/B",
-	"type": "object",
-	"properties": {
-		"id": { "type": "number" }
-	}
-}`
+const schemaB = {
+	$id: 'https://sumup.com/schemas/B',
+	type: 'object',
+	properties: {
+		id: { type: 'number' },
+	},
+}
 
 await schemaRegistry.register(
-	{ type: SchemaType.JSON, schema: schemaB },
-	{ subject: 'B'})
+	{ type: SchemaType.JSON, schema: JSON.stringify(schemaB) },
+	{ subject: 'JSON:B' },
+)
 
-const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'B' }))
+const response = await schemaRegistry.api.Subject.latestVersion({ subject: 'JSON:B' })
+const { version } = JSON.parse(response.responseData)
 
 const { id } = await schemaRegistry.register(
-	{ type: SchemaType.JSON, schema: schemaA, references: [
-      {
-        name: 'https://sumup.com/schemas/B',
-        subject: 'B',
-        version,
-      },
-    ]},
-	{ subject: 'A' })
+{
+	type: SchemaType.JSON,
+	schema: JSON.stringify(schemaA),
+	references: [
+	{
+		name: 'https://sumup.com/schemas/B',
+		subject: 'JSON:B',
+		version,
+	},
+	],
+},
+{ subject: 'JSON:A' },
+)
 
 const obj = { id: 1, b: { id: 2 } }
 

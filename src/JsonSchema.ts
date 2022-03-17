@@ -32,7 +32,7 @@ export default class JsonSchema implements Schema {
     const referredSchemas = opts?.referredSchemas
     if (referredSchemas) {
       referredSchemas.forEach(rawSchema => {
-        const $schema = JSON.parse(rawSchema.schema as string)
+        const $schema = JSON.parse(rawSchema.schema)
         // @ts-ignore
         ajv.addSchema($schema, $schema['$id'])
       })

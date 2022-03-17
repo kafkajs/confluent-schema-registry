@@ -53,19 +53,26 @@ const schemaB = `
 
 await schemaRegistry.register(
 	{ type: SchemaType.PROTOBUF, schema: schemaB },
-	{ subject: 'B'})
+	{ subject: 'Proto:B' },
+)
 
-const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'B' }))
+const response = await schemaRegistry.api.Subject.latestVersion({ subject: 'Proto:B' })
+const { version } = JSON.parse(response.responseData)
 
 const { id } = await schemaRegistry.register(
-	{ type: SchemaType.PROTOBUF, schema: schemaA, references: [
-      {
-        name: 'test/B.proto',
-        subject: 'B',
-        version,
-      },
-    ]},
-	{ subject: 'A' })
+{
+	type: SchemaType.PROTOBUF,
+	schema: schemaA,
+	references: [
+	{
+		name: 'test/B.proto',
+		subject: 'Proto:B',
+		version,
+	},
+	],
+},
+{ subject: 'Proto:A' },
+)
 
 const obj = { id: 1, b: { id: 2 } }
 
