@@ -326,38 +326,35 @@ describe('SchemaRegistry', () => {
 
   describe('when document example', () => {
     it('should encode/decode', async () => {
-      const schemaA = `
-		{
-			"type" : "record",
-			"namespace" : "test",
-			"name" : "A",
-			"fields" : [
-			{ "name" : "id" , "type" : "int" },
-			{ "name" : "b" , "type" : "test.B" }
-			]
-		}`
+      const schemaA = {
+        type: 'record',
+        namespace: 'test',
+        name: 'A',
+        fields: [
+          { name: 'id', type: 'int' },
+          { name: 'b', type: 'test.B' },
+        ],
+      }
 
-      const schemaB = `
-		{
-			"type" : "record",
-			"namespace" : "test",
-			"name" : "B",
-			"fields" : [
-			{ "name" : "id" , "type" : "int" }
-			]
-		}`
+      const schemaB = {
+        type: 'record',
+        namespace: 'test',
+        name: 'B',
+        fields: [{ name: 'id', type: 'int' }],
+      }
 
       await schemaRegistry.register(
-        { type: SchemaType.AVRO, schema: schemaB },
+        { type: SchemaType.AVRO, schema: JSON.stringify(schemaB) },
         { subject: 'Avro:B' },
       )
 
-      const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'Avro:B' }))
+      const response = await schemaRegistry.api.Subject.latestVersion({ subject: 'Avro:B' })
+      const { version } = JSON.parse(response.responseData)
 
       const { id } = await schemaRegistry.register(
         {
           type: SchemaType.AVRO,
-          schema: schemaA,
+          schema: JSON.stringify(schemaA),
           references: [
             {
               name: 'test.B',

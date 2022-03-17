@@ -25,21 +25,18 @@ export default class AvroHelper implements SchemaHelper {
       : this.getRawAvroSchema(schema)
     // @ts-ignore TODO: Fix typings for Schema...
 
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const me = this
+    const typeHook = (_schema: avro.Schema, opts: ForSchemaOptions) => {
+      const avroOpts = opts as AvroOptions
+      avroOpts?.referredSchemas?.forEach(subSchema => {
+        const rawSubSchema = this.getRawAvroSchema(subSchema)
+        avroOpts.typeHook = undefined
+        avro.Type.forSchema(rawSubSchema, avroOpts)
+      })
+    }
     const avroSchema = avro.Type.forSchema(rawSchema, {
       ...opts,
       // @ts-ignore
-      typeHook:
-        opts?.typeHook ||
-        function(_schema: avro.Schema, opts: ForSchemaOptions) {
-          const avroOpts = opts as AvroOptions
-          avroOpts?.referredSchemas?.forEach(subSchema => {
-            const rawSubSchema = me.getRawAvroSchema(subSchema)
-            avroOpts.typeHook = undefined
-            avro.Type.forSchema(rawSubSchema, avroOpts)
-          })
-        },
+      typeHook: opts?.typeHook || typeHook,
     })
 
     return avroSchema

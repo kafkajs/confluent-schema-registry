@@ -343,7 +343,8 @@ describe('SchemaRegistry', () => {
         { subject: 'Proto:B' },
       )
 
-      const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'Proto:B' }))
+      const response = await schemaRegistry.api.Subject.latestVersion({ subject: 'Proto:B' })
+      const { version } = JSON.parse(response.responseData)
 
       const { id } = await schemaRegistry.register(
         {

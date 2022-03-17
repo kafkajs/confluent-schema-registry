@@ -313,36 +313,35 @@ describe('SchemaRegistry', () => {
 
   describe('when document example', () => {
     it('should encode/decode', async () => {
-      const schemaA = `
-		{
-			"$id": "https://sumup.com/schemas/A",
-			"type": "object",
-			"properties": {
-				"id": { "type": "number" },
-				"b": { "$ref": "https://sumup.com/schemas/B" }
-			}
-		}`
+      const schemaA = {
+        $id: 'https://sumup.com/schemas/A',
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          b: { $ref: 'https://sumup.com/schemas/B' },
+        },
+      }
 
-      const schemaB = `
-		{
-			"$id": "https://sumup.com/schemas/B",
-			"type": "object",
-			"properties": {
-				"id": { "type": "number" }
-			}
-		}`
+      const schemaB = {
+        $id: 'https://sumup.com/schemas/B',
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+        },
+      }
 
       await schemaRegistry.register(
-        { type: SchemaType.JSON, schema: schemaB },
+        { type: SchemaType.JSON, schema: JSON.stringify(schemaB) },
         { subject: 'JSON:B' },
       )
 
-      const { version } = apiResponse(await api.Subject.latestVersion({ subject: 'JSON:B' }))
+      const response = await schemaRegistry.api.Subject.latestVersion({ subject: 'JSON:B' })
+      const { version } = JSON.parse(response.responseData)
 
       const { id } = await schemaRegistry.register(
         {
           type: SchemaType.JSON,
-          schema: schemaA,
+          schema: JSON.stringify(schemaA),
           references: [
             {
               name: 'https://sumup.com/schemas/B',
@@ -358,6 +357,8 @@ describe('SchemaRegistry', () => {
 
       const buffer = await schemaRegistry.encode(id, obj)
       const decodedObj = await schemaRegistry.decode(buffer)
+
+      expect(decodedObj).toEqual(obj)
     })
   })
 })
