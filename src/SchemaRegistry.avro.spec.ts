@@ -1,10 +1,22 @@
 import SchemaRegistry, { RegisteredSchema } from './SchemaRegistry'
 import API from './api'
 import { AvroConfluentSchema, SchemaType } from './@types'
+import avro from 'avsc'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
 const schemaRegistryArgs = { host: REGISTRY_HOST }
+
+enum Color {
+  RED = 1,
+  GREEN = 2,
+  BLUE = 3,
+}
+
+enum Direction {
+  UP = 1,
+  DOWN = 2,
+}
 
 const TestSchemas = {
   FirstLevelSchema: {
@@ -87,6 +99,56 @@ const TestSchemas = {
 		   { "name" : "id3" , "type" : "int" }
 		]
 	 }`,
+  } as AvroConfluentSchema,
+
+  EnumSchema: {
+    type: SchemaType.AVRO,
+    schema: `
+	{
+		"type" : "record",
+		"namespace" : "test",
+		"name" : "EnumSchema",
+		"fields" : [
+			{
+				"name": "color",
+				"type": ["null", {
+						"type": "enum",
+						"name": "Color",
+						"symbols": ["RED", "GREEN", "BLUE"]
+					}
+				]
+			}
+		]
+	 }`,
+  } as AvroConfluentSchema,
+
+  EnumWithReferencesSchema: {
+    type: SchemaType.AVRO,
+    schema: `
+	{
+		"type" : "record",
+		"namespace" : "test",
+		"name" : "EnumWithReferences",
+		"fields" : [
+			{
+				"name": "direction",
+				"type": ["null", {
+						"type": "enum",
+						"name": "Direction",
+						"symbols": ["UP", "DOWN"]
+					}
+				]
+			},
+			{ "name" : "attributes" , "type" : "test.EnumSchema" }
+		]
+	 }`,
+    references: [
+      {
+        name: 'test.EnumSchema',
+        subject: 'Avro:EnumSchema',
+        version: undefined,
+      },
+    ],
   } as AvroConfluentSchema,
 }
 
@@ -372,6 +434,92 @@ describe('SchemaRegistry', () => {
       const decodedObj = await schemaRegistry.decode(buffer)
 
       expect(decodedObj).toEqual(obj)
+    })
+  })
+
+  describe('with EnumType types and nested schemas', () => {
+    /**
+     * Hook which will decode/encode enums to/from integers.
+     *
+     * The default `EnumType` implementation represents enum values as strings
+     * (consistent with the JSON representation). This hook can be used to provide
+     * an alternate representation (which is for example compatible with TypeScript
+     * enums).
+     *
+     * For simplicity, we don't do any bound checking here but we could by
+     * implementing a "bounded long" logical type and returning that instead.
+     *
+     * https://gist.github.com/mtth/c0088c745de048c4e466#file-long-enum-js
+     */
+    function typeHook(attrs, opts) {
+      if (attrs.type === 'enum') {
+        return avro.parse('long', opts)
+      }
+    }
+
+    let schema
+
+    describe('with no enum typeHook defined', () => {
+      beforeEach(async () => {
+        const schemaRegistry = new SchemaRegistry(schemaRegistryArgs)
+
+        await schemaRegistry.register(TestSchemas.EnumSchema, {
+          subject: 'Avro:EnumSchema',
+        })
+
+        const latest = apiResponse(await api.Subject.latestVersion({ subject: 'Avro:EnumSchema' }))
+        TestSchemas.EnumWithReferencesSchema.references[0].version = latest.version
+        const registeredSchema = await schemaRegistry.register(
+          TestSchemas.EnumWithReferencesSchema,
+          {
+            subject: 'Avro:EnumWithReferences',
+          },
+        )
+        ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
+      })
+
+      it('should not be able to encode/decode enums schemas', async () => {
+        const obj = {
+          direction: Direction.UP,
+          attributes: { color: Color.BLUE },
+        }
+
+        expect(() => schema.toBuffer(obj)).toThrow(Error)
+      })
+    })
+
+    describe('with enum typeHook defined', () => {
+      beforeEach(async () => {
+        const schemaRegistry = new SchemaRegistry(schemaRegistryArgs, {
+          [SchemaType.AVRO]: { typeHook },
+        })
+
+        await schemaRegistry.register(TestSchemas.EnumSchema, {
+          subject: 'Avro:EnumSchema',
+        })
+
+        const latest = apiResponse(await api.Subject.latestVersion({ subject: 'Avro:EnumSchema' }))
+        TestSchemas.EnumWithReferencesSchema.references[0].version = latest.version
+        const registeredSchema = await schemaRegistry.register(
+          TestSchemas.EnumWithReferencesSchema,
+          {
+            subject: 'Avro:EnumWithReferences',
+          },
+        )
+        ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
+      })
+
+      it('should be able to encode/decode enums schemas', async () => {
+        const obj = {
+          direction: Direction.UP,
+          attributes: { color: Color.BLUE },
+        }
+
+        const buffer = await schema.toBuffer(obj)
+        const resultObj = await schema.fromBuffer(buffer)
+
+        expect(resultObj).toEqual(obj)
+      })
     })
   })
 })
