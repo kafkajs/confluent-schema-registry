@@ -9,9 +9,10 @@ import {
   AvroConfluentSchema,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
-import avro, { ForSchemaOptions } from 'avsc'
+import avro, { ForSchemaOptions, Schema, Type } from 'avsc'
 import { SchemaResponse, SchemaType } from './@types'
 
+type TypeHook = (schema: Schema, opts: ForSchemaOptions) => Type
 export default class AvroHelper implements SchemaHelper {
   private getRawAvroSchema(schema: ConfluentSchema): RawAvroSchema {
     return (typeof schema.schema === 'string'
@@ -25,18 +26,24 @@ export default class AvroHelper implements SchemaHelper {
       : this.getRawAvroSchema(schema)
     // @ts-ignore TODO: Fix typings for Schema...
 
-    const typeHook = (_schema: avro.Schema, opts: ForSchemaOptions) => {
+    const addReferredSchemas = (userHook?: TypeHook): TypeHook => (
+      schema: avro.Schema,
+      opts: ForSchemaOptions,
+    ) => {
       const avroOpts = opts as AvroOptions
       avroOpts?.referredSchemas?.forEach(subSchema => {
         const rawSubSchema = this.getRawAvroSchema(subSchema)
-        avroOpts.typeHook = undefined
+        avroOpts.typeHook = userHook
         avro.Type.forSchema(rawSubSchema, avroOpts)
       })
+      if (userHook) {
+        return userHook(schema, opts)
+      }
     }
+
     const avroSchema = avro.Type.forSchema(rawSchema, {
       ...opts,
-      // @ts-ignore
-      typeHook: opts?.typeHook || typeHook,
+      typeHook: addReferredSchemas(opts?.typeHook),
     })
 
     return avroSchema
