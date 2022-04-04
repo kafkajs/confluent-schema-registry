@@ -180,10 +180,6 @@ export default class SchemaRegistry {
       if (error.status !== 404) {
         throw error
       }
-
-      if (compatibility) {
-        await this.api.Subject.updateConfig({ subject: subject.name, body: { compatibility } })
-      }
     }
 
     const response = await this.api.Subject.register({
@@ -194,6 +190,10 @@ export default class SchemaRegistry {
         references,
       },
     })
+
+    if (compatibility) {
+      await this.api.Subject.updateConfig({ subject: subject.name, body: { compatibility } })
+    }
 
     const registeredSchema: RegisteredSchema = response.data()
     this.cache.setLatestRegistryId(subject.name, registeredSchema.id)
