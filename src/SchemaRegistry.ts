@@ -157,7 +157,7 @@ export default class SchemaRegistry {
       referenceSchemas,
     )
     helper.validate(schemaInstance)
-
+    let isFirstTimeRegistration = false
     let subject: ConfluentSubject
     if (userOpts?.subject) {
       subject = {
@@ -179,6 +179,8 @@ export default class SchemaRegistry {
     } catch (error) {
       if (error.status !== 404) {
         throw error
+      } else {
+        isFirstTimeRegistration = true
       }
     }
 
@@ -191,7 +193,7 @@ export default class SchemaRegistry {
       },
     })
 
-    if (compatibility) {
+    if (compatibility && isFirstTimeRegistration) {
       await this.api.Subject.updateConfig({ subject: subject.name, body: { compatibility } })
     }
 
