@@ -117,7 +117,7 @@ export default class SchemaRegistry {
     const options = await this.updateOptionsWithSchemaReferences(this.options, confluentSchema)
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, options)
     helper.validate(schemaInstance)
-
+    let isFirstTimeRegistration = false
     let subject: ConfluentSubject
     if (userOpts?.subject) {
       subject = {
@@ -139,10 +139,8 @@ export default class SchemaRegistry {
     } catch (error) {
       if (error.status !== 404) {
         throw error
-      }
-
-      if (compatibility) {
-        await this.api.Subject.updateConfig({ subject: subject.name, body: { compatibility } })
+      } else {
+        isFirstTimeRegistration = true
       }
     }
 
@@ -154,6 +152,10 @@ export default class SchemaRegistry {
         references: confluentSchema.references,
       },
     })
+
+    if (compatibility && isFirstTimeRegistration) {
+      await this.api.Subject.updateConfig({ subject: subject.name, body: { compatibility } })
+    }
 
     const registeredSchema: RegisteredSchema = response.data()
     this.cache.setLatestRegistryId(subject.name, registeredSchema.id)
