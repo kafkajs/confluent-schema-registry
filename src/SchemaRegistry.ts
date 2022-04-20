@@ -243,7 +243,7 @@ export default class SchemaRegistry {
       referenceSchemas,
     )
 
-    return this.cache.setSchema(registryId, schemaInstance)
+    return this.cache.setSchema(registryId, schemaType, schemaInstance)
   }
 
   public async getSchema(registryId: number): Promise<Schema | AvroSchema> {
