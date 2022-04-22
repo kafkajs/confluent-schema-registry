@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // @ts-nocheck
 import { Schema, SchemaHelper, ConfluentSubject, ConfluentSchema } from './@types'
 import { ConfluentSchemaRegistryError } from './errors'
@@ -13,5 +14,9 @@ export default class JsonHelper implements SchemaHelper {
     separator: string,
   ): ConfluentSubject {
     throw new ConfluentSchemaRegistryError('not implemented yet')
+  }
+
+  public async referencedSchemas(schema: string): Promise<string[]> {
+    return []
   }
 }

@@ -21,6 +21,8 @@ import {
   ConfluentSubject,
   SchemaRegistryAPIClientOptions,
   AvroConfluentSchema,
+  SchemaHelper,
+  ProtoConfluentSchema,
 } from './@types'
 import {
   helperTypeFromSchemaType,
@@ -32,9 +34,14 @@ interface RegisteredSchema {
   id: number
 }
 
+export type ImportSubjects =
+  | ((referenceName: string) => Promise<[string, number | null]>)
+  | ((referenceName: string) => Promise<string>)
+
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
+  importSubjects?: ImportSubjects
   subject: string
 }
 
@@ -48,6 +55,19 @@ interface DecodeOptions {
 const DEFAULT_OPTS = {
   compatibility: COMPATIBILITY.BACKWARD,
   separator: DEFAULT_SEPERATOR,
+}
+
+function filterUnique<T, U>(items: T[], key: (item: T) => U): T[] {
+  const keysSeen = new Set<U>()
+
+  return items.filter(item => {
+    const itemKey = key(item)
+    const itemSeen = keysSeen.has(itemKey)
+    if (!itemSeen) {
+      keysSeen.add(itemKey)
+    }
+    return !itemSeen
+  })
 }
 
 export default class SchemaRegistry {
@@ -89,6 +109,53 @@ export default class SchemaRegistry {
     return confluentSchema
   }
 
+  private async getImportReference(
+    reference: string,
+    importSubjects?: ImportSubjects,
+  ): Promise<[string, number | null]> {
+    if (!importSubjects) {
+      return [reference, null]
+    }
+    const lookupResult = await importSubjects(reference)
+    if (Array.isArray(lookupResult)) {
+      return lookupResult
+    }
+    return [lookupResult, null]
+  }
+
+  private async getSubjectSchema(
+    subject: string,
+    version: number | null,
+  ): Promise<(ProtoConfluentSchema & { version: number }) | undefined> {
+    const response = await this.api.Subject.version({ subject, version: version ?? 'latest' })
+    return response.data()
+  }
+
+  async registerReferences(
+    opts: Omit<Opts, 'subject'> & { subject?: string },
+    helper: SchemaHelper,
+    confluentSchema: ConfluentSchema,
+  ): Promise<{ subject: string; name: string; version: number }[]> {
+    const references = await helper.referencedSchemas(confluentSchema.schema as string)
+
+    const nestedResults = await Promise.all(
+      references.map(async reference => {
+        const [subject, version] = await this.getImportReference(reference, opts.importSubjects)
+
+        const schema = await this.getSubjectSchema(subject, version)
+        if (!schema) {
+          throw new ConfluentSchemaRegistryError(
+            `Schema not found for subject '${subject}', version '${version}'`,
+          )
+        }
+        const nested = await this.registerReferences(opts, helper, schema)
+
+        return [{ subject, name: reference, version: schema.version }, ...nested]
+      }),
+    )
+    return filterUnique(nestedResults.flat(), item => item.subject)
+  }
+
   public async register(
     schema: Exclude<ConfluentSchema, AvroConfluentSchema>,
     userOpts: Opts,
@@ -105,12 +172,25 @@ export default class SchemaRegistry {
     schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
-    const { compatibility, separator } = { ...DEFAULT_OPTS, ...userOpts }
+    const opts = { ...DEFAULT_OPTS, ...userOpts }
+    const { compatibility, separator } = opts
 
     const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
-
     const helper = helperTypeFromSchemaType(confluentSchema.type)
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
+
+    const references = await this.registerReferences(opts, helper, confluentSchema)
+    const referenceSchemas = await Promise.all(
+      references.map(async reference => {
+        const referenceId = await this.getRegistryId(reference.subject, reference.version)
+        return this.getSchema(referenceId)
+      }),
+    )
+
+    const schemaInstance = schemaFromConfluentSchema(
+      confluentSchema,
+      this.options,
+      referenceSchemas,
+    )
     helper.validate(schemaInstance)
     let isFirstTimeRegistration = false
     let subject: ConfluentSubject
@@ -132,7 +212,7 @@ export default class SchemaRegistry {
         )
       }
     } catch (error) {
-      if (error.status !== 404) {
+      if (error && (error as { status?: number }).status !== 404) {
         throw error
       } else {
         isFirstTimeRegistration = true
@@ -144,6 +224,7 @@ export default class SchemaRegistry {
       body: {
         schemaType: confluentSchema.type === SchemaType.AVRO ? undefined : confluentSchema.type,
         schema: confluentSchema.schema,
+        references,
       },
     })
 
@@ -168,7 +249,11 @@ export default class SchemaRegistry {
     }
 
     const response = await this.getSchemaOriginRequest(registryId)
-    const foundSchema: { schema: string; schemaType: string } = response.data()
+    const foundSchema: {
+      schema: string
+      schemaType: string
+      references?: { name: string; subject: string; version: number }[]
+    } = response.data()
     const rawSchema = foundSchema.schema
     const schemaType = schemaTypeFromString(foundSchema.schemaType)
 
@@ -176,11 +261,23 @@ export default class SchemaRegistry {
       throw new ConfluentSchemaRegistryError(`Unknown schema type ${foundSchema.schemaType}`)
     }
 
+    const referenceSchemas = await Promise.all(
+      (foundSchema.references || []).map(async reference => {
+        return this.getSchema(await this.getRegistryId(reference.subject, reference.version))
+      }),
+    )
+
     const confluentSchema: ConfluentSchema = {
       type: schemaType,
       schema: rawSchema,
     }
-    const schemaInstance = schemaFromConfluentSchema(confluentSchema, this.options)
+
+    const schemaInstance = schemaFromConfluentSchema(
+      confluentSchema,
+      this.options,
+      referenceSchemas,
+    )
+
     return this.cache.setSchema(registryId, schemaType, schemaInstance)
   }
 
@@ -281,7 +378,8 @@ export default class SchemaRegistry {
 
       return id
     } catch (error) {
-      if (error.status && error.status === 404) {
+      const status = error ? (error as { status?: number })?.status : undefined
+      if (status === 404) {
         throw new ConfluentSchemaRegistryError(error)
       }
 
@@ -298,7 +396,7 @@ export default class SchemaRegistry {
 
   private getSchemaOriginRequest(registryId: number) {
     // ensure that cache-misses result in a single origin request
-    if (this.cacheMissRequests[registryId]) {
+    if (registryId in this.cacheMissRequests) {
       return this.cacheMissRequests[registryId]
     } else {
       const request = this.api.Schema.find({ id: registryId }).finally(() => {
