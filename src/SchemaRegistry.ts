@@ -178,8 +178,6 @@ export default class SchemaRegistry {
     const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
     const helper = helperTypeFromSchemaType(confluentSchema.type)
 
-    // If this schema depends on other schemas, we need to make sure those are registered first.
-    // Later, we pass their IDs to Schema Registry as our 'references'.
     const references = await this.registerReferences(opts, helper, confluentSchema)
     const referenceSchemas = await Promise.all(
       references.map(async reference => {
@@ -380,7 +378,8 @@ export default class SchemaRegistry {
 
       return id
     } catch (error) {
-      if (error.status && error.status === 404) {
+      const status = error ? (error as { status?: number })?.status : undefined
+      if (status === 404) {
         throw new ConfluentSchemaRegistryError(error)
       }
 
