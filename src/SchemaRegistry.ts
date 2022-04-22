@@ -22,6 +22,7 @@ import {
   SchemaRegistryAPIClientOptions,
   AvroConfluentSchema,
   SchemaHelper,
+  ProtoConfluentSchema,
 } from './@types'
 import {
   helperTypeFromSchemaType,
@@ -33,10 +34,14 @@ interface RegisteredSchema {
   id: number
 }
 
+export type ImportSubjects =
+  | ((referenceName: string) => Promise<[string, number | null]>)
+  | ((referenceName: string) => Promise<string>)
+
 interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
-  fetchSchema?: (referenceName: string) => Promise<ConfluentSchema>
+  importSubjects?: ImportSubjects
   subject: string
 }
 
@@ -50,6 +55,19 @@ interface DecodeOptions {
 const DEFAULT_OPTS = {
   compatibility: COMPATIBILITY.BACKWARD,
   separator: DEFAULT_SEPERATOR,
+}
+
+function filterUnique<T, U>(items: T[], key: (item: T) => U): T[] {
+  const keysSeen = new Set<U>()
+
+  return items.filter(item => {
+    const itemKey = key(item)
+    const itemSeen = keysSeen.has(itemKey)
+    if (!itemSeen) {
+      keysSeen.add(itemKey)
+    }
+    return !itemSeen
+  })
 }
 
 export default class SchemaRegistry {
@@ -91,33 +109,51 @@ export default class SchemaRegistry {
     return confluentSchema
   }
 
+  private async getImportReference(
+    reference: string,
+    importSubjects?: ImportSubjects,
+  ): Promise<[string, number | null]> {
+    if (!importSubjects) {
+      return [reference, null]
+    }
+    const lookupResult = await importSubjects(reference)
+    if (Array.isArray(lookupResult)) {
+      return lookupResult
+    }
+    return [lookupResult, null]
+  }
+
+  private async getSubjectSchema(
+    subject: string,
+    version: number | null,
+  ): Promise<(ProtoConfluentSchema & { version: number }) | undefined> {
+    const response = await this.api.Subject.version({ subject, version: version ?? 'latest' })
+    return response.data()
+  }
+
   async registerReferences(
     opts: Omit<Opts, 'subject'> & { subject?: string },
     helper: SchemaHelper,
     confluentSchema: ConfluentSchema,
   ): Promise<{ subject: string; name: string; version: number }[]> {
-    const fetchSchema = opts.fetchSchema
-    if (!fetchSchema) {
-      return []
-    }
+    const references = await helper.referencedSchemas(confluentSchema.schema as string)
 
-    const subjects = await helper.referencedSchemas(confluentSchema.schema)
+    const nestedResults = await Promise.all(
+      references.map(async reference => {
+        const [subject, version] = await this.getImportReference(reference, opts.importSubjects)
 
-    return await Promise.all(
-      subjects.map(async subject => {
-        const schema = await fetchSchema(subject)
-        const registeredSchema = await this.register(schema, { ...opts, subject })
-        const response = await this.api.Schema.versions({ id: registeredSchema.id })
-        const allVersions: [{ subject: string; version: number }] = response.data()
+        const schema = await this.getSubjectSchema(subject, version)
+        if (!schema) {
+          throw new ConfluentSchemaRegistryError(
+            `Schema not found for subject '${subject}', version '${version}'`,
+          )
+        }
+        const nested = await this.registerReferences(opts, helper, schema)
 
-        const subjectVersion = allVersions
-          .filter(it => it.subject === subject)
-          .map(it => it.version)
-          .reduce((a, b) => Math.max(a, b))
-
-        return { subject, name: subject, version: subjectVersion }
+        return [{ subject, name: reference, version: schema.version }, ...nested]
       }),
     )
+    return filterUnique(nestedResults.flat(), item => item.subject)
   }
 
   public async register(
@@ -147,7 +183,8 @@ export default class SchemaRegistry {
     const references = await this.registerReferences(opts, helper, confluentSchema)
     const referenceSchemas = await Promise.all(
       references.map(async reference => {
-        return this.getSchema(await this.getRegistryId(reference.subject, reference.version))
+        const referenceId = await this.getRegistryId(reference.subject, reference.version)
+        return this.getSchema(referenceId)
       }),
     )
 
@@ -177,7 +214,7 @@ export default class SchemaRegistry {
         )
       }
     } catch (error) {
-      if (error.status !== 404) {
+      if (error && (error as { status?: number }).status !== 404) {
         throw error
       } else {
         isFirstTimeRegistration = true
@@ -360,7 +397,7 @@ export default class SchemaRegistry {
 
   private getSchemaOriginRequest(registryId: number) {
     // ensure that cache-misses result in a single origin request
-    if (this.cacheMissRequests[registryId]) {
+    if (registryId in this.cacheMissRequests) {
       return this.cacheMissRequests[registryId]
     } else {
       const request = this.api.Schema.find({ id: registryId }).finally(() => {

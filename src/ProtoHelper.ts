@@ -1,6 +1,6 @@
 import { Schema, SchemaHelper, ConfluentSubject, ConfluentSchema } from './@types'
-import { ConfluentSchemaRegistryError } from './errors'
-import { parse } from 'protobufjs'
+import { ConfluentSchemaRegistryArgumentError, ConfluentSchemaRegistryError } from './errors'
+import { IParserResult, parse } from 'protobufjs'
 
 export default class ProtoHelper implements SchemaHelper {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -27,7 +27,12 @@ export default class ProtoHelper implements SchemaHelper {
    * @returns A list of imported/referenced schemas that is used by the given schema.
    */
   public async referencedSchemas(schema: string): Promise<string[]> {
-    const parsed = parse(schema)
+    let parsed: IParserResult
+    try {
+      parsed = parse(schema)
+    } catch (err) {
+      throw new ConfluentSchemaRegistryArgumentError(err)
+    }
     const out: string[] = []
     return out.concat(parsed.imports || []).concat(parsed.weakImports || [])
   }

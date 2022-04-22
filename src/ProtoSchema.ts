@@ -1,10 +1,14 @@
 import { Schema, ProtoOptions, ProtoConfluentSchema } from './@types'
-import protobuf from 'protobufjs'
+import protobuf, { AnyNestedObject } from 'protobufjs'
 import { IParserResult, ReflectionObject, Namespace, Type } from 'protobufjs/light'
 import {
   ConfluentSchemaRegistryArgumentError,
   ConfluentSchemaRegistryValidationError,
 } from './errors'
+
+interface NestedSchema {
+  [k: string]: AnyNestedObject
+}
 
 export default class ProtoSchema implements Schema {
   private message: Type
@@ -19,12 +23,41 @@ export default class ProtoSchema implements Schema {
       schemas.forEach(reference => {
         // root.add() takes ownership over its input argument.
         // add() can modify and extend the input schema, so we have to clone the reference to avoid polluting it.
-        const copy = reference.root.toJSON().nested
-        this.root.addJSON(copy)
+        const root = reference.root.toJSON().nested
+        if (!root) {
+          return
+        }
+
+        // make sure we add the items one-by-one to avoid adding duplicate items (which are not tolerated)
+        this.spreadReference(root)
+          .filter(item => {
+            const referencePath = this.referencePath(item)
+            return !this.root.lookup(referencePath)
+          })
+          .forEach(item => this.root.addJSON(item))
       })
     }
 
     this.message = this.root.lookupType(this.getTypeName(parsedMessage, opts))
+  }
+
+  private referencePath(namespace: NestedSchema): string[] {
+    const [key, entry] = Object.entries(namespace)[0]
+    if ('nested' in entry && entry.nested) {
+      return [key, ...this.referencePath(entry.nested)]
+    }
+    return [key]
+  }
+
+  private spreadReference(namespace: NestedSchema): NestedSchema[] {
+    return Object.entries(namespace).flatMap(([key, entry]): NestedSchema[] => {
+      if ('nested' in entry && entry.nested) {
+        const nested: NestedSchema[] = this.spreadReference(entry.nested)
+        return nested.map((it: NestedSchema) => ({ [key]: { nested: it } }))
+      }
+      return [{ [key]: entry }]
+      //
+    })
   }
 
   private getNestedTypeName(parent: { [k: string]: ReflectionObject } | undefined): string {

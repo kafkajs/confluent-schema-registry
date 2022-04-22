@@ -1,7 +1,7 @@
-import { Type } from 'avsc'
 import { v4 as uuid } from 'uuid'
+import { Agent } from 'http'
 
-import SchemaRegistry from './SchemaRegistry'
+import SchemaRegistry, { ImportSubjects } from './SchemaRegistry'
 import { ConfluentSubject, ConfluentSchema, SchemaType } from './@types'
 import API, { SchemaRegistryAPIClient } from './api'
 import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
@@ -10,14 +10,14 @@ import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
 import encodedNestedV2Proto from '../fixtures/proto/encodedNestedV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
-import ProtoSchema from './ProtoSchema'
 import Ajv2020 from 'ajv8/dist/2020'
 import Ajv from 'ajv'
 import { ConfluentSchemaRegistryValidationError } from './errors'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
-const schemaRegistryArgs = { host: REGISTRY_HOST }
+const agent = new Agent({ keepAlive: true })
+const schemaRegistryArgs = { host: REGISTRY_HOST, agent }
 
 const payload = { fullName: 'John Doe' }
 
@@ -26,6 +26,7 @@ type KnownSchemaTypes = Exclude<SchemaType, SchemaType.UNKNOWN>
 describe('SchemaRegistry - new Api', () => {
   let schemaRegistry: SchemaRegistry
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const schemaStringsByType: Record<KnownSchemaTypes, any> = {
     [SchemaType.AVRO]: {
       random: (namespace: string) => `
@@ -368,7 +369,8 @@ describe('SchemaRegistry - new Api', () => {
 
           schemaRegistry.cache.clear()
 
-          const spy = jest.spyOn((schemaRegistry as any).api.Schema, 'find')
+          const exposedPrivateApi = (schemaRegistry as unknown) as { api: SchemaRegistryAPIClient }
+          const spy = jest.spyOn(exposedPrivateApi.api.Schema, 'find')
 
           await Promise.all([
             schemaRegistry.decode(buffer),
@@ -500,6 +502,56 @@ describe('SchemaRegistry - new Api', () => {
       }
     `
 
+    const protoA = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      
+      import "B.proto";
+      import "C.proto";
+      
+      message messageA {
+        string id = 1;
+        messageB valuesB = 2;
+        messageC valuesC = 3;
+      }
+    `
+
+    const protoB = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      
+      import "D.proto";
+      
+      message messageB {
+        string id = 1;
+        messageD meta = 2;
+        string value = 3;
+      }
+    `
+
+    const protoC = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      
+      import "D.proto";
+      
+      message messageC {
+        string id = 1;
+        messageD meta = 2;
+      }
+    `
+    // repeated messageD values = 3;
+
+    const protoD = `
+      syntax = "proto3";
+      package com.org.domain.fixtures;
+      
+      message messageD {
+        string user = 1;
+        string time = 2;
+      }
+    `
+
     beforeAll(() => {
       schemaRegistry = new SchemaRegistry(schemaRegistryArgs, v3Opts)
     })
@@ -606,23 +658,27 @@ describe('SchemaRegistry - new Api', () => {
           type,
           schema: protoCompany,
         }
-
-        async function fetchSchema(referenceName: string): Promise<ConfluentSchema> {
-          if (referenceName === 'Contact.proto') {
-            return { type: SchemaType.PROTOBUF, schema: protoContact }
-          }
-          if (referenceName === 'Employee.proto') {
-            return { type: SchemaType.PROTOBUF, schema: protoEmployee }
-          }
-          if (referenceName === 'Office.proto') {
-            return { type: SchemaType.PROTOBUF, schema: protoOffice }
-          }
-          throw `unknown reference ${referenceName}`
+        const officeSchema: ConfluentSchema = {
+          type,
+          schema: protoOffice,
         }
+
+        const contactSchema: ConfluentSchema = {
+          type,
+          schema: protoContact,
+        }
+
+        const employeeSchema: ConfluentSchema = {
+          type,
+          schema: protoEmployee,
+        }
+
+        await schemaRegistry.register(officeSchema, { subject: 'Office.proto' })
+        await schemaRegistry.register(contactSchema, { subject: 'Contact.proto' })
+        await schemaRegistry.register(employeeSchema, { subject: 'Employee.proto' })
 
         const schema1 = await schemaRegistry.register(confluentSchemaV3, {
           subject: `${type}_test_protoImportsV3-value`,
-          fetchSchema,
         })
 
         // Check that we can encode with the cached version from the register() call
@@ -661,15 +717,32 @@ describe('SchemaRegistry - new Api', () => {
           schema: protoCompany,
         }
 
-        async function fetchSchema(referenceName: string): Promise<ConfluentSchema> {
-          if (referenceName === 'Contact.proto') {
-            return { type: SchemaType.PROTOBUF, schema: protoContact }
-          }
-          if (referenceName === 'Employee.proto') {
-            return { type: SchemaType.PROTOBUF, schema: protoEmployee }
-          }
-          if (referenceName === 'Office.proto') {
-            return { type: SchemaType.PROTOBUF, schema: protoOffice }
+        const contactSchema: ConfluentSchema = {
+          type,
+          schema: protoContact,
+        }
+
+        const employeeSchema: ConfluentSchema = {
+          type,
+          schema: protoEmployee,
+        }
+
+        await schemaRegistry.register(officeSchema, { subject: 'Office.proto' })
+        await schemaRegistry.register(contactSchema, {
+          subject: `${type}_test_contactSchema-value`,
+        })
+        await schemaRegistry.register(employeeSchema, {
+          subject: `${type}_test_employeeSchema-value`,
+        })
+
+        const importSubjects: ImportSubjects = async (referenceName: string) => {
+          switch (referenceName) {
+            case 'Contact.proto':
+              return `${type}_test_contactSchema-value`
+            case 'Employee.proto':
+              return `${type}_test_employeeSchema-value`
+            case 'Office.proto':
+              return `${type}_test_officeSchema-value`
           }
           throw `unknown reference ${referenceName}`
         }
@@ -688,7 +761,7 @@ describe('SchemaRegistry - new Api', () => {
         // Register a new schema that imports our already registered Office schema.
         await schemaRegistry.register(companySchema, {
           subject: `${type}_test_companySchema-value`,
-          fetchSchema,
+          importSubjects,
         })
 
         // Check that registering this new schema did not modify the original imported schema.
@@ -713,6 +786,66 @@ describe('SchemaRegistry - new Api', () => {
         const data = await schemaRegistry.decode(buffer)
 
         expect(data).toEqual(nestedPayload)
+      })
+
+      it('handles references shared through multiple files', async () => {
+        const aSchema: ConfluentSchema = { type, schema: protoA }
+        const bSchema: ConfluentSchema = { type, schema: protoB }
+        const cSchema: ConfluentSchema = { type, schema: protoC }
+        const dSchema: ConfluentSchema = { type, schema: protoD }
+
+        const importSubjects: ImportSubjects = async (referenceName: string) => {
+          switch (referenceName) {
+            case 'A.proto':
+              return `${type}_test_aSchema-value`
+            case 'B.proto':
+              return `${type}_test_bSchema-value`
+            case 'C.proto':
+              return `${type}_test_cSchema-value`
+            case 'D.proto':
+              return `${type}_test_dSchema-value`
+          }
+          throw `unknown reference ${referenceName}`
+        }
+
+        await schemaRegistry.register(dSchema, { subject: `${type}_test_dSchema-value` })
+
+        await schemaRegistry.register(cSchema, {
+          subject: `${type}_test_cSchema-value`,
+          importSubjects,
+        })
+
+        await schemaRegistry.register(bSchema, {
+          subject: `${type}_test_bSchema-value`,
+          importSubjects,
+        })
+
+        const registeredASchema = await schemaRegistry.register(aSchema, {
+          subject: `${type}_test_aSchema-value`,
+          importSubjects,
+        })
+        const registeredASchemaId = registeredASchema.id
+
+        const payload = {
+          id: 'iAmIdA',
+          valuesB: {
+            id: 'iAmIdA.B',
+            meta: { user: 'iAmUserA.B.D', time: 'iAmTimeA.B.D' },
+            value: 'iAMValueA.B',
+          },
+          valuesC: {
+            id: 'iAmIdA.C',
+            meta: {}, // user: 'iAmUserA.C.meta', time: 'iAmTimeA.C.meta' },
+            // messageD: [
+            //   { user: 'iAmUserA.C.0.D', time: 'iAmTimeA.C.0.D' },
+            //   { user: 'iAmUserA.C.1.D', time: 'iAmTimeA.C.1.D' },
+            // ],
+          },
+        }
+        const buffer = Buffer.from(await schemaRegistry.encode(registeredASchemaId, payload))
+        const data = await schemaRegistry.decode(buffer)
+
+        expect(data).toEqual(payload)
       })
     })
   })
