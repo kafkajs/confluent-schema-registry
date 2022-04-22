@@ -56,7 +56,6 @@ export default class ProtoSchema implements Schema {
         return nested.map((it: NestedSchema) => ({ [key]: { nested: it } }))
       }
       return [{ [key]: entry }]
-      //
     })
   }
 
