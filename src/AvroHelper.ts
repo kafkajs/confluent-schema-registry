@@ -23,6 +23,7 @@ export default class AvroHelper implements SchemaHelper {
 
     // The `avro.Type.forSchema` will mutate the options object passed. This can cause issues if you calling `getAvroSchema`
     // for multiple schemas as stale state will bleed between the calls on the mutated options.
+    // This is a work around for: https://github.com/mtth/avsc/issues/312
     const optionsCopy = { ...opts }
 
     // @ts-ignore TODO: Fix typings for Schema...
