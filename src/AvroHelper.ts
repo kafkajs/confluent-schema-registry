@@ -20,8 +20,13 @@ export default class AvroHelper implements SchemaHelper {
     const rawSchema: RawAvroSchema = this.isRawAvroSchema(schema)
       ? schema
       : this.getRawAvroSchema(schema)
+
+    // The `avro.Type.forSchema` will mutate the options object passed. This can cause issues if you calling `getAvroSchema`
+    // for multiple schemas as stale state will bleed between the calls on the mutated options.
+    const optionsCopy = { ...opts }
+
     // @ts-ignore TODO: Fix typings for Schema...
-    const avroSchema: AvroSchema = avro.Type.forSchema(rawSchema, opts)
+    const avroSchema: AvroSchema = avro.Type.forSchema(rawSchema, optionsCopy)
     return avroSchema
   }
 
