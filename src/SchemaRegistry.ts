@@ -24,7 +24,8 @@ import {
   SchemaResponse,
   ProtocolOptions,
   SchemaHelper,
-  ReferenceType,
+  SchemaReference,
+  LegacyOptions,
 } from './@types'
 import {
   helperTypeFromSchemaType,
@@ -114,7 +115,7 @@ export default class SchemaRegistry {
 
     const helper = helperTypeFromSchemaType(confluentSchema.type)
 
-    const options = await this.updateOptionsWithSchemaReferences(this.options, confluentSchema)
+    const options = await this.updateOptionsWithSchemaReferences(confluentSchema, this.options)
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, options)
     helper.validate(schemaInstance)
     let isFirstTimeRegistration = false
@@ -165,39 +166,50 @@ export default class SchemaRegistry {
   }
 
   private async updateOptionsWithSchemaReferences(
-    options: SchemaRegistryAPIClientOptions | undefined,
     schema: ConfluentSchema,
+    options: SchemaRegistryAPIClientOptions | undefined,
   ) {
     const helper = helperTypeFromSchemaType(schema.type)
-    const referredSchemas = await this.getReferredSchemas(schema, helper)
-    return helper.updateOptionsFromSchemaReferences(options as ProtocolOptions, referredSchemas)
+    const referencedSchemas = await this.getreferencedSchemas(schema, helper)
+
+    const protocolOptions = this.asProtocolOptions(options)
+    return helper.updateOptionsFromSchemaReferences(referencedSchemas, protocolOptions)
   }
 
-  private async getReferredSchemas(
+  private asProtocolOptions(options?: SchemaRegistryAPIClientOptions): ProtocolOptions | undefined {
+    if (!(options as LegacyOptions)?.forSchemaOptions) {
+      return options as ProtocolOptions | undefined
+    }
+    return {
+      [SchemaType.AVRO]: (options as LegacyOptions)?.forSchemaOptions,
+    }
+  }
+
+  private async getreferencedSchemas(
     schema: ConfluentSchema,
     helper: SchemaHelper,
   ): Promise<ConfluentSchema[]> {
     const referencesSet = new Set<string>()
-    return this.getReferredSchemasRecursive(schema, helper, referencesSet)
+    return this.getreferencedSchemasRecursive(schema, helper, referencesSet)
   }
 
-  private async getReferredSchemasRecursive(
+  private async getreferencedSchemasRecursive(
     schema: ConfluentSchema,
     helper: SchemaHelper,
     referencesSet: Set<string>,
   ): Promise<ConfluentSchema[]> {
     const references = schema.references || []
 
-    let referredSchemas: ConfluentSchema[] = []
+    let referencedSchemas: ConfluentSchema[] = []
     for (const reference of references) {
-      const schemas = await this.getReferredSchemasFromReference(reference, helper, referencesSet)
-      referredSchemas = referredSchemas.concat(schemas)
+      const schemas = await this.getreferencedSchemasFromReference(reference, helper, referencesSet)
+      referencedSchemas = referencedSchemas.concat(schemas)
     }
-    return referredSchemas
+    return referencedSchemas
   }
 
-  async getReferredSchemasFromReference(
-    reference: ReferenceType,
+  async getreferencedSchemasFromReference(
+    reference: SchemaReference,
     helper: SchemaHelper,
     referencesSet: Set<string>,
   ): Promise<ConfluentSchema[]> {
@@ -214,10 +226,14 @@ export default class SchemaRegistry {
     const foundSchema = versionResponse.data() as SchemaResponse
 
     const schema = helper.toConfluentSchema(foundSchema)
-    const referredSchemas = await this.getReferredSchemasRecursive(schema, helper, referencesSet)
+    const referencedSchemas = await this.getreferencedSchemasRecursive(
+      schema,
+      helper,
+      referencesSet,
+    )
 
-    referredSchemas.push(schema)
-    return referredSchemas
+    referencedSchemas.push(schema)
+    return referencedSchemas
   }
 
   private async _getSchema(
@@ -237,7 +253,7 @@ export default class SchemaRegistry {
     const helper = helperTypeFromSchemaType(schemaType)
     const confluentSchema = helper.toConfluentSchema(foundSchema)
 
-    const options = await this.updateOptionsWithSchemaReferences(this.options, confluentSchema)
+    const options = await this.updateOptionsWithSchemaReferences(confluentSchema, this.options)
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, options)
     return this.cache.setSchema(registryId, schemaType, schemaInstance)
   }

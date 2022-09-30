@@ -11,7 +11,7 @@ const TestSchemas = {
     type: SchemaType.JSON,
     schema: `
 		{
-			"$id": "https://sumup.com/schemas/ThirdLevel",
+			"$id": "https://example.com/schemas/ThirdLevel",
 			"type": "object",
 			"properties": {
 				"id3": { "type": "number" }
@@ -24,17 +24,17 @@ const TestSchemas = {
     type: SchemaType.JSON,
     schema: `
 		{
-			"$id": "https://sumup.com/schemas/SecondLevelA",
+			"$id": "https://example.com/schemas/SecondLevelA",
 			"type": "object",
 			"properties": {
 				"id2a": { "type": "number" },
-				"level2a": { "$ref": "https://sumup.com/schemas/ThirdLevel" }
+				"level2a": { "$ref": "https://example.com/schemas/ThirdLevel" }
 			}
 		}
 		`,
     references: [
       {
-        name: 'https://sumup.com/schemas/ThirdLevel',
+        name: 'https://example.com/schemas/ThirdLevel',
         subject: 'JSON:ThirdLevel',
         version: undefined,
       },
@@ -45,17 +45,17 @@ const TestSchemas = {
     type: SchemaType.JSON,
     schema: `
 		{
-			"$id": "https://sumup.com/schemas/SecondLevelB",
+			"$id": "https://example.com/schemas/SecondLevelB",
 			"type": "object",
 			"properties": {
 				"id2b": { "type": "number" },
-				"level2b": { "$ref": "https://sumup.com/schemas/ThirdLevel" }
+				"level2b": { "$ref": "https://example.com/schemas/ThirdLevel" }
 			}
 		}
 		`,
     references: [
       {
-        name: 'https://sumup.com/schemas/ThirdLevel',
+        name: 'https://example.com/schemas/ThirdLevel',
         subject: 'JSON:ThirdLevel',
         version: undefined,
       },
@@ -66,23 +66,23 @@ const TestSchemas = {
     type: SchemaType.JSON,
     schema: `
 		{
-			"$id": "https://sumup.com/schemas/FirstLevel",
+			"$id": "https://example.com/schemas/FirstLevel",
 			"type": "object",
 			"properties": {
 				"id1": { "type": "number" },
-				"level1a": { "$ref": "https://sumup.com/schemas/SecondLevelA" },
-				"level1b": { "$ref": "https://sumup.com/schemas/SecondLevelB" }
+				"level1a": { "$ref": "https://example.com/schemas/SecondLevelA" },
+				"level1b": { "$ref": "https://example.com/schemas/SecondLevelB" }
 			}
 		}
 		`,
     references: [
       {
-        name: 'https://sumup.com/schemas/SecondLevelA',
+        name: 'https://example.com/schemas/SecondLevelA',
         subject: 'JSON:SecondLevelA',
         version: undefined,
       },
       {
-        name: 'https://sumup.com/schemas/SecondLevelB',
+        name: 'https://example.com/schemas/SecondLevelB',
         subject: 'JSON:SecondLevelB',
         version: undefined,
       },
@@ -314,16 +314,16 @@ describe('SchemaRegistry', () => {
   describe('when document example', () => {
     it('should encode/decode', async () => {
       const schemaA = {
-        $id: 'https://sumup.com/schemas/A',
+        $id: 'https://example.com/schemas/A',
         type: 'object',
         properties: {
           id: { type: 'number' },
-          b: { $ref: 'https://sumup.com/schemas/B' },
+          b: { $ref: 'https://example.com/schemas/B' },
         },
       }
 
       const schemaB = {
-        $id: 'https://sumup.com/schemas/B',
+        $id: 'https://example.com/schemas/B',
         type: 'object',
         properties: {
           id: { type: 'number' },
@@ -344,7 +344,7 @@ describe('SchemaRegistry', () => {
           schema: JSON.stringify(schemaA),
           references: [
             {
-              name: 'https://sumup.com/schemas/B',
+              name: 'https://example.com/schemas/B',
               subject: 'JSON:B',
               version,
             },

@@ -26,12 +26,12 @@ export default class AvroHelper implements SchemaHelper {
       : this.getRawAvroSchema(schema)
     // @ts-ignore TODO: Fix typings for Schema...
 
-    const addReferredSchemas = (userHook?: TypeHook): TypeHook => (
+    const addReferencedSchemas = (userHook?: TypeHook): TypeHook => (
       schema: avro.Schema,
       opts: ForSchemaOptions,
     ) => {
       const avroOpts = opts as AvroOptions
-      avroOpts?.referredSchemas?.forEach(subSchema => {
+      avroOpts?.referencedSchemas?.forEach(subSchema => {
         const rawSubSchema = this.getRawAvroSchema(subSchema)
         avroOpts.typeHook = userHook
         avro.Type.forSchema(rawSubSchema, avroOpts)
@@ -43,7 +43,7 @@ export default class AvroHelper implements SchemaHelper {
 
     const avroSchema = avro.Type.forSchema(rawSchema, {
       ...opts,
-      typeHook: addReferredSchemas(opts?.typeHook),
+      typeHook: addReferencedSchemas(opts?.typeHook),
     })
 
     return avroSchema
@@ -83,10 +83,10 @@ export default class AvroHelper implements SchemaHelper {
   }
 
   updateOptionsFromSchemaReferences(
-    options: ProtocolOptions,
-    referredSchemas: AvroConfluentSchema[],
+    referencedSchemas: AvroConfluentSchema[],
+    options?: ProtocolOptions,
   ): ProtocolOptions {
     const opts = options ?? {}
-    return { ...opts, [SchemaType.AVRO]: { ...opts[SchemaType.AVRO], referredSchemas } }
+    return { ...opts, [SchemaType.AVRO]: { ...opts[SchemaType.AVRO], referencedSchemas } }
   }
 }

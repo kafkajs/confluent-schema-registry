@@ -521,5 +521,38 @@ describe('SchemaRegistry', () => {
         expect(resultObj).toEqual(obj)
       })
     })
+    describe('with enum typeHook defined as LegacyOptions', () => {
+      beforeEach(async () => {
+        const schemaRegistry = new SchemaRegistry(schemaRegistryArgs, {
+          forSchemaOptions: { typeHook },
+        })
+
+        await schemaRegistry.register(TestSchemas.EnumSchema, {
+          subject: 'Avro:EnumSchema',
+        })
+
+        const latest = apiResponse(await api.Subject.latestVersion({ subject: 'Avro:EnumSchema' }))
+        TestSchemas.EnumWithReferencesSchema.references[0].version = latest.version
+        const registeredSchema = await schemaRegistry.register(
+          TestSchemas.EnumWithReferencesSchema,
+          {
+            subject: 'Avro:EnumWithReferences',
+          },
+        )
+        ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
+      })
+
+      it('should be able to encode/decode enums schemas', async () => {
+        const obj = {
+          direction: Direction.UP,
+          attributes: { color: Color.BLUE },
+        }
+
+        const buffer = await schema.toBuffer(obj)
+        const resultObj = await schema.fromBuffer(buffer)
+
+        expect(resultObj).toEqual(obj)
+      })
+    })
   })
 })

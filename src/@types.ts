@@ -13,21 +13,21 @@ export interface SchemaHelper {
   getSubject(confluentSchema: ConfluentSchema, schema: Schema, separator: string): ConfluentSubject
   toConfluentSchema(data: SchemaResponse): ConfluentSchema
   updateOptionsFromSchemaReferences(
-    options: ProtocolOptions,
-    referredSchemas: ConfluentSchema[],
+    referencedSchemas: ConfluentSchema[],
+    options?: ProtocolOptions,
   ): ProtocolOptions
 }
 
 export type AvroOptions = Partial<ForSchemaOptions> & {
-  referredSchemas?: AvroConfluentSchema[]
+  referencedSchemas?: AvroConfluentSchema[]
 }
 export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
   ajvInstance?: {
     compile: (schema: any) => ValidateFunction
   }
-  referredSchemas?: JsonConfluentSchema[]
+  referencedSchemas?: JsonConfluentSchema[]
 }
-export type ProtoOptions = { messageName?: string; referredSchemas?: ProtoConfluentSchema[] }
+export type ProtoOptions = { messageName?: string; referencedSchemas?: ProtoConfluentSchema[] }
 
 export interface LegacyOptions {
   forSchemaOptions?: AvroOptions
@@ -67,10 +67,10 @@ export interface ConfluentSubject {
 export interface AvroConfluentSchema {
   type: SchemaType.AVRO
   schema: string | RawAvroSchema
-  references?: ReferenceType[]
+  references?: SchemaReference[]
 }
 
-export type ReferenceType = {
+export type SchemaReference = {
   name: string
   subject: string
   version: number
@@ -78,17 +78,17 @@ export type ReferenceType = {
 export interface ProtoConfluentSchema {
   type: SchemaType.PROTOBUF
   schema: string
-  references?: ReferenceType[]
+  references?: SchemaReference[]
 }
 export interface JsonConfluentSchema {
   type: SchemaType.JSON
   schema: string
-  references?: ReferenceType[]
+  references?: SchemaReference[]
 }
 export interface SchemaResponse {
   schema: string
   schemaType: string
-  references?: ReferenceType[]
+  references?: SchemaReference[]
 }
 
 export type ConfluentSchema = AvroConfluentSchema | ProtoConfluentSchema | JsonConfluentSchema
