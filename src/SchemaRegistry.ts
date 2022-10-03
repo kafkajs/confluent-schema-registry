@@ -167,7 +167,7 @@ export default class SchemaRegistry {
 
   private async updateOptionsWithSchemaReferences(
     schema: ConfluentSchema,
-    options: SchemaRegistryAPIClientOptions | undefined,
+    options?: SchemaRegistryAPIClientOptions,
   ) {
     const helper = helperTypeFromSchemaType(schema.type)
     const referencedSchemas = await this.getreferencedSchemas(schema, helper)
