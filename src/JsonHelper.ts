@@ -28,9 +28,8 @@ export default class JsonHelper implements SchemaHelper {
 
   updateOptionsFromSchemaReferences(
     referencedSchemas: JsonConfluentSchema[],
-    options?: ProtocolOptions,
+    options: ProtocolOptions = {},
   ): ProtocolOptions {
-    const opts = options ?? {}
-    return { ...opts, [SchemaType.JSON]: { ...opts[SchemaType.JSON], referencedSchemas } }
+    return { ...options, [SchemaType.JSON]: { ...options[SchemaType.JSON], referencedSchemas } }
   }
 }

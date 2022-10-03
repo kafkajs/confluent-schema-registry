@@ -28,9 +28,11 @@ export default class ProtoHelper implements SchemaHelper {
 
   updateOptionsFromSchemaReferences(
     referencedSchemas: ProtoConfluentSchema[],
-    options?: ProtocolOptions,
+    options: ProtocolOptions = {},
   ): ProtocolOptions {
-    const opts = options ?? {}
-    return { ...opts, [SchemaType.PROTOBUF]: { ...opts[SchemaType.PROTOBUF], referencedSchemas } }
+    return {
+      ...options,
+      [SchemaType.PROTOBUF]: { ...options[SchemaType.PROTOBUF], referencedSchemas },
+    }
   }
 }

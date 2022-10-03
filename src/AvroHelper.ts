@@ -84,9 +84,8 @@ export default class AvroHelper implements SchemaHelper {
 
   updateOptionsFromSchemaReferences(
     referencedSchemas: AvroConfluentSchema[],
-    options?: ProtocolOptions,
+    options: ProtocolOptions = {},
   ): ProtocolOptions {
-    const opts = options ?? {}
-    return { ...opts, [SchemaType.AVRO]: { ...opts[SchemaType.AVRO], referencedSchemas } }
+    return { ...options, [SchemaType.AVRO]: { ...options[SchemaType.AVRO], referencedSchemas } }
   }
 }
