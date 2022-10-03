@@ -10,18 +10,18 @@ You might want to split the JSON definition into several schemas one for each ty
 
 ```JSON
 {
-	"$id": "https://sumup.com/schemas/A",
+	"$id": "https://example.com/schemas/A",
 	"type": "object",
 	"properties": {
 		"id": { "type": "number" },
-		"b": { "$ref": "https://sumup.com/schemas/B" }
+		"b": { "$ref": "https://example.com/schemas/B" }
 	}
 }
 ```
 
 ```JSON
 {
-	"$id": "https://sumup.com/schemas/B",
+	"$id": "https://example.com/schemas/B",
 	"type": "object",
 	"properties": {
 		"id": { "type": "number" }
@@ -29,22 +29,26 @@ You might want to split the JSON definition into several schemas one for each ty
 }
 ```
 
-To registry schemas with references they have to be registered in reverse order, so the referred schemas already exists. In this case B has to be registered before A. Furthermore A must define an array references to the referred schemas. A reference consist of a `name`, that should match the $ref, a schema `subject` and a schema `version`.
+To register schemas with references, the schemas have to be registered in reverse order. The schema that references another schema has to be registered after the schema it references. In this example B has to be registered before A. Furthermore, when registering A, a list of references have to be provided. A reference consist of:
 
-Notice the library will handle an arbitrary number of nested levels.
+ * `name` - A URL matching the `$ref` from the schema
+ * `subject` - the subject the schema is registered under in the registry
+ * `version` - the version of the schema you want to use
+
+The library will handle an arbitrary number of nested levels.
 
 ```js
 const schemaA = {
-	$id: 'https://sumup.com/schemas/A',
+	$id: 'https://example.com/schemas/A',
 	type: 'object',
 	properties: {
 		id: { type: 'number' },
-		b: { $ref: 'https://sumup.com/schemas/B' },
+		b: { $ref: 'https://example.com/schemas/B' },
 	},
 }
 
 const schemaB = {
-	$id: 'https://sumup.com/schemas/B',
+	$id: 'https://example.com/schemas/B',
 	type: 'object',
 	properties: {
 		id: { type: 'number' },
@@ -65,7 +69,7 @@ const { id } = await schemaRegistry.register(
 	schema: JSON.stringify(schemaA),
 	references: [
 	{
-		name: 'https://sumup.com/schemas/B',
+		name: 'https://example.com/schemas/B',
 		subject: 'JSON:B',
 		version,
 	},

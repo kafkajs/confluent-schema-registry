@@ -12,11 +12,11 @@ export default class ProtoSchema implements Schema {
   constructor(schema: ProtoConfluentSchema, opts?: ProtoOptions) {
     const parsedMessage = protobuf.parse(schema.schema)
     const root = parsedMessage.root
-    const referredSchemas = opts?.referredSchemas
+    const referencedSchemas = opts?.referencedSchemas
 
     // handle all schema references independent on nested references
-    if (referredSchemas) {
-      referredSchemas.forEach(rawSchema => protobuf.parse(rawSchema.schema as string, root))
+    if (referencedSchemas) {
+      referencedSchemas.forEach(rawSchema => protobuf.parse(rawSchema.schema as string, root))
     }
 
     this.message = root.lookupType(this.getTypeName(parsedMessage, opts))

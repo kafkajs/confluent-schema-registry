@@ -31,9 +31,13 @@ You might want to split the Avro definition into several schemas one for each ty
 }
 ```
 
-To registry schemas with references they have to be registered in reverse order, so the referred schemas already exists. In this case B has to be registered before A. Furthermore A must define an array references to the referred schemas. A reference consist of a `name`, that should match the namespace + name, a schema `subject` and a schema `version`.
+To register schemas with references, the schemas have to be registered in reverse order. The schema that references another schema has to be registered after the schema it references. In this example B has to be registered before A. Furthermore, when registering A, a list of references have to be provided. A reference consist of:
 
-Notice the library will handle an arbitrary number of nested levels.
+ * `name` - the fully qualified name of the referenced schema. Example: `test.B`
+ * `subject` - the subject the schema is registered under in the registry
+ * `version` - the version of the schema you want to use
+
+The library will handle an arbitrary number of nested levels.
 
 ```js
 const schemaA = {
