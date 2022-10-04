@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2022-10-04
+
+### Added
+
+- Support [schema references](https://docs.confluent.io/platform/current/schema-registry/serdes-develop/index.html#schema-references) for Avro, Protocol Buffer, and JSON schema [#197](https://github.com/kafkajs/confluent-schema-registry/pull/197)
+
+### Fixed
+
+- Fix Apicurio compatibility with register function [#201](https://github.com/kafkajs/confluent-schema-registry/pull/201)
+
 ## [3.2.1] - 2022-01-28
 
 ### Fixed
