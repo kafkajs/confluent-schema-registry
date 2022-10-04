@@ -246,7 +246,7 @@ export default class SchemaRegistry {
     }
 
     const response = await this.getSchemaOriginRequest(registryId)
-    const foundSchema = response.data() as SchemaResponse
+    const foundSchema: SchemaResponse = response.data()
 
     const schemaType = schemaTypeFromString(foundSchema.schemaType)
 
