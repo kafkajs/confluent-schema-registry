@@ -21,8 +21,10 @@ export interface SchemaHelper {
 export type AvroOptions = Partial<ForSchemaOptions> & {
   referencedSchemas?: AvroConfluentSchema[]
 }
+
 export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
   ajvInstance?: {
+    addSchema: Ajv['addSchema']
     compile: (schema: any) => ValidateFunction
   }
   referencedSchemas?: JsonConfluentSchema[]
