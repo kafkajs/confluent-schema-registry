@@ -6,7 +6,6 @@ interface BaseAjvValidationError {
   data?: unknown
   schema?: unknown
 }
-
 interface OldAjvValidationError extends BaseAjvValidationError {
   dataPath: string
   instancePath?: string
@@ -30,6 +29,13 @@ export default class JsonSchema implements Schema {
 
   private getJsonSchema(schema: JsonConfluentSchema, opts?: JsonOptions) {
     const ajv = opts?.ajvInstance ?? new Ajv(opts)
+    const referencedSchemas = opts?.referencedSchemas
+    if (referencedSchemas) {
+      referencedSchemas.forEach(rawSchema => {
+        const $schema = JSON.parse(rawSchema.schema)
+        ajv.addSchema($schema, $schema['$id'])
+      })
+    }
     const validate = ajv.compile(JSON.parse(schema.schema))
     return validate
   }

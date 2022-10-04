@@ -5,10 +5,14 @@ import {
   ConfluentSchema,
   SchemaHelper,
   ConfluentSubject,
+  ProtocolOptions,
+  AvroConfluentSchema,
 } from './@types'
 import { ConfluentSchemaRegistryArgumentError } from './errors'
-import avro from 'avsc'
+import avro, { ForSchemaOptions, Schema, Type } from 'avsc'
+import { SchemaResponse, SchemaType } from './@types'
 
+type TypeHook = (schema: Schema, opts: ForSchemaOptions) => Type
 export default class AvroHelper implements SchemaHelper {
   private getRawAvroSchema(schema: ConfluentSchema): RawAvroSchema {
     return (typeof schema.schema === 'string'
@@ -21,7 +25,27 @@ export default class AvroHelper implements SchemaHelper {
       ? schema
       : this.getRawAvroSchema(schema)
     // @ts-ignore TODO: Fix typings for Schema...
-    const avroSchema: AvroSchema = avro.Type.forSchema(rawSchema, opts)
+
+    const addReferencedSchemas = (userHook?: TypeHook): TypeHook => (
+      schema: avro.Schema,
+      opts: ForSchemaOptions,
+    ) => {
+      const avroOpts = opts as AvroOptions
+      avroOpts?.referencedSchemas?.forEach(subSchema => {
+        const rawSubSchema = this.getRawAvroSchema(subSchema)
+        avroOpts.typeHook = userHook
+        avro.Type.forSchema(rawSubSchema, avroOpts)
+      })
+      if (userHook) {
+        return userHook(schema, opts)
+      }
+    }
+
+    const avroSchema = avro.Type.forSchema(rawSchema, {
+      ...opts,
+      typeHook: addReferencedSchemas(opts?.typeHook),
+    })
+
     return avroSchema
   }
 
@@ -32,7 +56,7 @@ export default class AvroHelper implements SchemaHelper {
   }
 
   public getSubject(
-    schema: ConfluentSchema,
+    schema: AvroConfluentSchema,
     // @ts-ignore
     avroSchema: AvroSchema,
     separator: string,
@@ -52,5 +76,16 @@ export default class AvroHelper implements SchemaHelper {
   private isRawAvroSchema(schema: ConfluentSchema | RawAvroSchema): schema is RawAvroSchema {
     const asRawAvroSchema = schema as RawAvroSchema
     return asRawAvroSchema.name != null && asRawAvroSchema.type != null
+  }
+
+  public toConfluentSchema(data: SchemaResponse): AvroConfluentSchema {
+    return { type: SchemaType.AVRO, schema: data.schema, references: data.references }
+  }
+
+  updateOptionsFromSchemaReferences(
+    referencedSchemas: AvroConfluentSchema[],
+    options: ProtocolOptions = {},
+  ): ProtocolOptions {
+    return { ...options, [SchemaType.AVRO]: { ...options[SchemaType.AVRO], referencedSchemas } }
   }
 }
