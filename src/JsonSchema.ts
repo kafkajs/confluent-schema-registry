@@ -33,7 +33,6 @@ export default class JsonSchema implements Schema {
     if (referencedSchemas) {
       referencedSchemas.forEach(rawSchema => {
         const $schema = JSON.parse(rawSchema.schema)
-        // @ts-ignore
         ajv.addSchema($schema, $schema['$id'])
       })
     }
