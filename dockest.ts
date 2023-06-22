@@ -13,13 +13,13 @@ const dockest = new Dockest({
 
 const dockestServices: DockestService[] = [
   {
-    serviceName: 'zooKeeper',
-    dependents: [
+    serviceName: 'kafka',
+    dependsOn: [
       {
-        serviceName: 'kafka',
-        readinessCheck: () => sleepWithLog(10, `Sleeping for Kafka`),
+        serviceName: 'zooKeeper',
       },
     ],
+    readinessCheck: () => sleepWithLog(10, `Sleeping for Kafka`),
   },
   {
     serviceName: 'schemaRegistry',
