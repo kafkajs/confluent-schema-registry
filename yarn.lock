@@ -598,7 +598,7 @@
 
 "@types/node@>=13.7.0":
   version "20.5.7"
-  resolved "https://rt.artifactory.tio.systems/artifactory/api/npm/npm-quantum-platform-stable-virtual/@types/node/-/node-20.5.7.tgz#4b8ecac87fbefbc92f431d09c30e176fc0a7c377"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.5.7.tgz#4b8ecac87fbefbc92f431d09c30e176fc0a7c377"
   integrity sha512-dP7f3LdZIysZnmvP3ANJYTSwg+wLLl8p7RqniVlV7j+oXSXAbt9h0WIBFmJy5inWZoX9wZN6eXx+YXd9Rh3RBA==
 
 "@types/node@^12.7.3":
@@ -3231,7 +3231,7 @@ prompts@^2.0.1:
 
 protobufjs@^6.11.4:
   version "6.11.4"
-  resolved "https://rt.artifactory.tio.systems/artifactory/api/npm/npm-quantum-platform-stable-virtual/protobufjs/-/protobufjs-6.11.4.tgz#29a412c38bf70d89e537b6d02d904a6f448173aa"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.4.tgz#29a412c38bf70d89e537b6d02d904a6f448173aa"
   integrity sha512-5kQWPaJHi1WoCpjTGszzQ32PG2F4+wRY6BmAT4Vfw56Q2FZ4YZzK20xUYQH4YkfehY1e6QSICrJquM6xXZNcrw==
   dependencies:
     "@protobufjs/aspromise" "^1.1.2"
