@@ -1,6 +1,5 @@
 import { Middleware } from 'mappersmith'
 let accessToken: string | null = null
-let expiredAt: number | null = null
 
 export interface AccessTokenParams {
   readonly clientCredentials: {
@@ -9,7 +8,6 @@ export interface AccessTokenParams {
   }
   readonly authHost: string
   refreshToken(authHost: string, clientId: string, clientSecret: string): Promise<string>
-  refreshThresholdMs?: number
 }
 
 export default (params: AccessTokenParams): Middleware =>
@@ -18,7 +16,7 @@ export default (params: AccessTokenParams): Middleware =>
       async request(request) {
         return Promise.resolve(accessToken)
           .then(async token => {
-            if (token && (!expiredAt || expiredAt > Date.now())) {
+            if (token) {
               return token
             }
             return await params.refreshToken(
@@ -29,7 +27,6 @@ export default (params: AccessTokenParams): Middleware =>
           })
           .then(token => {
             accessToken = token
-            expiredAt = params.refreshThresholdMs ? Date.now() + params.refreshThresholdMs : null
             return request.enhance({
               headers: { Authorization: token },
             })
