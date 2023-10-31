@@ -23,10 +23,12 @@ export type AvroOptions = Partial<ForSchemaOptions> & {
 }
 
 export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
-  ajvInstance?: {
-    addSchema: Ajv['addSchema']
-    compile: (schema: any) => ValidateFunction
-  } | Ajv
+  ajvInstance?:
+    | {
+        addSchema: Ajv['addSchema']
+        compile: (schema: any) => ValidateFunction
+      }
+    | Ajv
   referencedSchemas?: JsonConfluentSchema[]
 }
 export type ProtoOptions = { messageName?: string; referencedSchemas?: ProtoConfluentSchema[] }
