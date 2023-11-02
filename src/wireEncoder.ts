@@ -6,5 +6,15 @@ export const encode = (registryId: number, payload: Buffer, messageIndexes: numb
   const registryIdBuffer = Buffer.alloc(4)
   registryIdBuffer.writeInt32BE(registryId, DEFAULT_OFFSET)
 
-  return Buffer.concat([MAGIC_BYTE, registryIdBuffer, Buffer.from(messageIndexes), payload])
+  const messageIndexesBuffer = Buffer.from(messageIndexes)
+  const messageIndexesLength = Buffer.alloc(4)
+  messageIndexesLength.writeInt32BE(messageIndexesBuffer.length, DEFAULT_OFFSET)
+
+  return Buffer.concat([
+    MAGIC_BYTE,
+    registryIdBuffer,
+    messageIndexesLength,
+    messageIndexesBuffer,
+    payload,
+  ])
 }
