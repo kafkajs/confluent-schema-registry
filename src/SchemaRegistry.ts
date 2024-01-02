@@ -263,7 +263,11 @@ export default class SchemaRegistry {
     return await (await this._getSchema(registryId)).schema
   }
 
-  public async encode(registryId: number, payload: any, typeName?: string /* for protobuf */): Promise<Buffer> {
+  public async encode(
+    registryId: number,
+    payload: any,
+    typeName?: string /* for protobuf */,
+  ): Promise<Buffer> {
     if (!registryId) {
       throw new ConfluentSchemaRegistryArgumentError(
         `Invalid registryId: ${JSON.stringify(registryId)}`,

@@ -1,4 +1,4 @@
-import Long from "long"
+import Long from 'long'
 import { Schema, ProtoOptions, ProtoConfluentSchema } from './@types'
 import protobuf from 'protobufjs'
 import { Root, Namespace, Type } from 'protobufjs/light'
@@ -25,13 +25,15 @@ export default class ProtoSchema implements Schema {
   // this should return the Namespace that encapsulates all of the message types for this schema.
   private getNestedNamespace(root: Root, pkg: string): Namespace {
     let ns: Namespace = root
-    for (const name of pkg.split(".")) {
+    for (const name of pkg.split('.')) {
       if (!ns.nested) {
         throw new Error(`Unable to retrieve nested namespace '${pkg}' from root object`)
       }
       ns = ns.nested[name] as Namespace
       if (!(ns instanceof Namespace)) {
-        throw new Error(`Failed to retrieve namespace '${pkg}' from root object, because nested object '${name}' is not a Namespace instance`)
+        throw new Error(
+          `Failed to retrieve namespace '${pkg}' from root object, because nested object '${name}' is not a Namespace instance`,
+        )
       }
     }
     return ns
@@ -49,37 +51,39 @@ export default class ProtoSchema implements Schema {
   // TaskId message type nested inside of the top level Task message.
   //
   // for more information on this see https://docs.confluent.io/platform/current/schema-registry/fundamentals/serdes-develop/index.html#wire-format
-  public toBufferFromNestedType(payload: object, typeName=''): Buffer {
+  public toBufferFromNestedType(payload: object, typeName = ''): Buffer {
     if (!typeName) {
-        return this.toBuffer(payload)
+      return this.toBuffer(payload)
     }
 
-    let schema: Type
-    const typeArray = typeName.split(".")
+    const typeArray = typeName.split('.')
     const msgIndexes = new Array<number>(typeArray.length)
     let currentNamespace: Namespace = this.namespace
     // find the nested type (and store the message indexes along the way)
-    for (const [i, name] of typeName.split(".").entries()) {
-      const nestedMessageIndex = currentNamespace.orderedNestedMessages.findIndex(msg => msg.name === name)
+    for (const [i, name] of typeName.split('.').entries()) {
+      const nestedMessageIndex = currentNamespace.orderedNestedMessages.findIndex(
+        msg => msg.name === name,
+      )
       if (nestedMessageIndex === -1) {
-        throw new Error(`Unable to retrieve nested type '${typeName}' from namespace (failed at '${name}')`)
+        throw new Error(
+          `Unable to retrieve nested type '${typeName}' from namespace (failed at '${name}')`,
+        )
       }
       const nestedMessage = currentNamespace.orderedNestedMessages[nestedMessageIndex]
       if (!(nestedMessage && nestedMessage instanceof Type)) {
-        throw new Error(`Unable to retrieve nested type '${typeName}' from namespace (failed at '${name}')`)
+        throw new Error(
+          `Unable to retrieve nested type '${typeName}' from namespace (failed at '${name}')`,
+        )
       }
       msgIndexes[i] = nestedMessageIndex
       currentNamespace = nestedMessage as Namespace
     }
-    schema = currentNamespace as Type
+    const schema = currentNamespace as Type
 
     const encodedMessageIndexes = this.encodeMessageIndexes(msgIndexes)
     const msgPayload = schema.create(payload)
 
-    return Buffer.concat([
-      encodedMessageIndexes,
-      Buffer.from(schema.encode(msgPayload).finish()),
-    ])
+    return Buffer.concat([encodedMessageIndexes, Buffer.from(schema.encode(msgPayload).finish())])
   }
 
   // this handles the common case where we default to the first message in the payload. in this case we encode the
@@ -87,7 +91,9 @@ export default class ProtoSchema implements Schema {
   // -- the more general cases are handled by toBufferFromNestedType above.
   public toBuffer(payload: object): Buffer {
     if (!(this.namespace.orderedNestedMessages[0] instanceof Type)) {
-      throw new Error('Failed to retrieve schema to serialize protobuf message: nested message is not an instance of Type')
+      throw new Error(
+        'Failed to retrieve schema to serialize protobuf message: nested message is not an instance of Type',
+      )
     }
     const schema = this.namespace.orderedNestedMessages[0] as Type
 
@@ -100,42 +106,40 @@ export default class ProtoSchema implements Schema {
       throw new ConfluentSchemaRegistryValidationError('invalid payload', paths)
     }
 
-    return Buffer.from([
-      0,
-      ...schema.encode(schema.create(payload)).finish(),
-    ])
+    return Buffer.from([0, ...schema.encode(schema.create(payload)).finish()])
   }
 
   // adapted from https://github.com/confluentinc/confluent-kafka-go/blob/af4a5f8b2018db6503f7e8097a25a24a6d6feb06/schemaregistry/serde/protobuf/protobuf.go#L295
   private encodeMessageIndexes(msgIndexes: Array<number>): Buffer {
-      const encodedIndexes = Buffer.alloc((1+msgIndexes.length) * MAX_VARINT_LEN_64)
+    const encodedIndexes = Buffer.alloc((1 + msgIndexes.length) * MAX_VARINT_LEN_64)
 
-      let totalLength = this.putVarint(encodedIndexes, msgIndexes.length, 0)
-      for (const msgIndex of msgIndexes) {
-        const length = this.putVarint(encodedIndexes, msgIndex, totalLength)
-        totalLength += length
-      }
-      return encodedIndexes.slice(0, totalLength)
+    let totalLength = this.putVarint(encodedIndexes, msgIndexes.length, 0)
+
+    for (const msgIndex of msgIndexes) {
+      const length = this.putVarint(encodedIndexes, msgIndex, totalLength)
+      totalLength += length
+    }
+    return encodedIndexes.slice(0, totalLength)
   }
 
   // adapted from https://go.dev/src/encoding/binary/varint.go
   private putVarint(buffer: Buffer, value: number, offset: number): number {
-      let x = Long.fromNumber(value, true).shiftLeft(1); // unsigned 64 bit integer
-      if (value < 0) {
-        x = x.not()
-      }
-      let i = 0
-      while (x.gte(0x80)) {
-        buffer.writeUInt8(x.getLowBits() & 0x000000ff | 0x80, offset + i)
-        x = x.shiftRightUnsigned(7)
-        i += 1
-      }
-      buffer.writeUInt8(x.getLowBits() & 0x000000ff, offset + i)
-      return i + 1
+    let x = Long.fromNumber(value, true).shiftLeft(1) // unsigned 64 bit integer
+    if (value < 0) {
+      x = x.not()
+    }
+    let i = 0
+    while (x.gte(0x80)) {
+      buffer.writeUInt8((x.getLowBits() & 0x000000ff) | 0x80, offset + i)
+      x = x.shiftRightUnsigned(7)
+      i += 1
+    }
+    buffer.writeUInt8(x.getLowBits() & 0x000000ff, offset + i)
+    return i + 1
   }
 
   public fromBuffer(buffer: Buffer): any {
-    let [bytesRead, msgIndexes] = this.readMessageIndexes(buffer)
+    const [bytesRead, msgIndexes] = this.readMessageIndexes(buffer)
     const message = this.lookupMessage(msgIndexes)
 
     return message.decode(buffer.slice(bytesRead))
@@ -145,7 +149,9 @@ export default class ProtoSchema implements Schema {
     let currentNamespace: Namespace = this.namespace
     for (const idx of msgIndexes) {
       if (!(currentNamespace.orderedNestedMessages[idx] instanceof Type)) {
-        throw new Error('Failed to retrieve nested message from namespace: nested message is not an instance of Type')
+        throw new Error(
+          'Failed to retrieve nested message from namespace: nested message is not an instance of Type',
+        )
       }
       currentNamespace = currentNamespace.orderedNestedMessages[idx] as Namespace
     }
@@ -153,52 +159,54 @@ export default class ProtoSchema implements Schema {
   }
 
   private readMessageIndexes(payload: Buffer): [number, Array<number>] {
-      let [arrayLen, bytesRead] = this.parseVarint(payload)
-      if (bytesRead <= 0) {
-          throw new Error('unable to read message indexes')
-      }
-      if (arrayLen.lt(0)) {
-          throw new Error('parsed invalid message index count')
-      }
-      if (arrayLen.eq(0)) {
-          return [bytesRead, [0]]
-      }
+    let [arrayLen, bytesRead] = this.parseVarint(payload)
+    if (bytesRead <= 0) {
+      throw new Error('unable to read message indexes')
+    }
+    if (arrayLen.lt(0)) {
+      throw new Error('parsed invalid message index count')
+    }
+    if (arrayLen.eq(0)) {
+      return [bytesRead, [0]]
+    }
 
-      const msgIndexes = new Array<number>(arrayLen.toInt())
-      for (let i = 0; arrayLen.gt(i); i++) {
-        let [idx, read] = this.parseVarint(payload.slice(bytesRead))
-        if (read <= 0) {
-          throw new Error('unable to read message indexes')
-        }
-        bytesRead += read
-        msgIndexes[i] = idx.toInt()
+    const msgIndexes = new Array<number>(arrayLen.toInt())
+    for (let i = 0; arrayLen.gt(i); i++) {
+      const [idx, read] = this.parseVarint(payload.slice(bytesRead))
+      if (read <= 0) {
+        throw new Error('unable to read message indexes')
       }
+      bytesRead += read
+      msgIndexes[i] = idx.toInt()
+    }
 
-      return [bytesRead, msgIndexes]
+    return [bytesRead, msgIndexes]
   }
 
   // adapted from https://go.dev/src/encoding/binary/varint.go
   private parseVarint(buffer: Buffer): [Long, number] {
-    let [ux, n] = this.parseUvarint(buffer)
+    const [ux, n] = this.parseUvarint(buffer)
     let x = ux.shiftRight(1).toSigned()
     if (ux.and(1).neq(0)) {
-        x = x.not()
+      x = x.not()
     }
     return [x, n]
   }
 
   private parseUvarint(buffer: Buffer): [Long, number] {
-    let x = Long.UZERO; // new unsigned 64 bit integer
+    let x = Long.UZERO // new unsigned 64 bit integer
     let s = 0
 
     for (let i = 0; i < buffer.length; i++) {
-      if (i == MAX_VARINT_LEN_64)  { // overflow
+      if (i == MAX_VARINT_LEN_64) {
+        // overflow
         return [Long.UZERO, -(i + 1)]
       }
       const b = buffer.readUInt8(i)
       if (b < 0x80) {
-        if (i == MAX_VARINT_LEN_64 - 1 && b > 1) { // overflow
-            return [Long.UZERO, -(i + 1)]
+        if (i == MAX_VARINT_LEN_64 - 1 && b > 1) {
+          // overflow
+          return [Long.UZERO, -(i + 1)]
         }
         return [x.or(Long.fromBits(b, 0, true).shiftLeft(s)), i + 1]
       }
