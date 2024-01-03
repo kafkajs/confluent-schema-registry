@@ -39,11 +39,6 @@ export default class ProtoSchema implements Schema {
     return ns
   }
 
-  private trimStart(buffer: Buffer): Buffer {
-    const index = buffer.findIndex((value: number) => value != 0)
-    return buffer.slice(index)
-  }
-
   // this encodes a payload against the specified schema with the proper message index bytes. if typeName is empty,
   // we default to the first schema in the namespace. if typeName is provided, we split it on '.' and access the
   // nested schema accordingly. for example, if typeName is 'Task', then the payload will be encoded with the
@@ -220,8 +215,8 @@ export default class ProtoSchema implements Schema {
   // store multiple schemas we need something that can specify which schema we're validating against.
   // the validatePayloadAgainstSchema function below achieves this
   public isValid(
-    payload: object,
-    opts?: { errorHook: (path: Array<string>, value: any, type?: any) => void },
+    _payload: object,
+    _opts?: { errorHook: (path: Array<string>, value: any, type?: any) => void },
   ): boolean {
     return false
   }
