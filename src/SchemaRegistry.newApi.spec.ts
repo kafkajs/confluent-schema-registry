@@ -8,6 +8,7 @@ import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2Avro from '../fixtures/avro/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
+import encodedAnotherPersonNestedV2Proto from '../fixtures/proto/encodedAnotherPersonNestedV2'
 import encodedNestedV2Proto from '../fixtures/proto/encodedNestedV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
 import Ajv2020 from 'ajv8/dist/2020'
@@ -160,6 +161,7 @@ describe('SchemaRegistry - new Api', () => {
       }
       `,
       encodedAnotherPersonV2: encodedAnotherPersonV2Proto,
+      encodedAnotherPersonNestedV2: encodedAnotherPersonNestedV2Proto,
     },
   }
   const types = Object.keys(schemaStringsByType).map(str => SchemaType[str]) as KnownSchemaTypes[]
@@ -468,11 +470,11 @@ describe('SchemaRegistry - new Api', () => {
         subject: `${type}_test3`,
       })
 
-      const data = await schemaRegistry.encode(schema3.id, payload)
+      const data = await schemaRegistry.encode(schema3.id, payload, 'AnotherPerson')
 
       expect(data).toMatchConfluentEncodedPayload({
         registryId: schema3.id,
-        payload: Buffer.from(schemaStringsByType[type].encodedAnotherPersonV2),
+        payload: Buffer.from(schemaStringsByType[type].encodedAnotherPersonNestedV2),
       })
     })
 
@@ -486,7 +488,7 @@ describe('SchemaRegistry - new Api', () => {
         subject: `${type}_test3`,
       })
 
-      const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload))
+      const buffer = Buffer.from(await schemaRegistry.encode(schema3.id, payload, 'AnotherPerson'))
       const data = await schemaRegistry.decode(buffer)
 
       expect(data).toEqual(payload)
