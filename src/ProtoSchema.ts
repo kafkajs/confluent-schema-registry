@@ -154,7 +154,9 @@ export default class ProtoSchema implements Schema {
   }
 
   private readMessageIndexes(payload: Buffer): [number, Array<number>] {
-    let [arrayLen, bytesRead] = this.parseVarint(payload)
+    const result = this.parseVarint(payload)
+    const arrayLen = result[0]
+    let bytesRead = result[1]
     if (bytesRead <= 0) {
       throw new Error('unable to read message indexes')
     }
