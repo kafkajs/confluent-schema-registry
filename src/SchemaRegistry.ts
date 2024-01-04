@@ -32,6 +32,7 @@ import {
   schemaTypeFromString,
   schemaFromConfluentSchema,
 } from './schemaTypeResolver'
+import ProtoSchema from './ProtoSchema'
 
 export interface RegisteredSchema {
   id: number
@@ -262,16 +263,30 @@ export default class SchemaRegistry {
     return await (await this._getSchema(registryId)).schema
   }
 
-  public async encode(registryId: number, payload: any): Promise<Buffer> {
+  public async encode(
+    registryId: number,
+    payload: any,
+    typeName?: string /* for protobuf */,
+  ): Promise<Buffer> {
     if (!registryId) {
       throw new ConfluentSchemaRegistryArgumentError(
         `Invalid registryId: ${JSON.stringify(registryId)}`,
       )
     }
 
-    const { schema } = await this._getSchema(registryId)
+    const { type, schema } = await this._getSchema(registryId)
     try {
-      const serializedPayload = schema.toBuffer(payload)
+      let serializedPayload
+      switch (type) {
+        // in the case of protobuf schemas we need a bit more information to specify which schema to encode with
+        // (see the implementation for details)
+        case SchemaType.PROTOBUF:
+          const protoSchema = schema as ProtoSchema
+          serializedPayload = protoSchema.toBufferFromNestedType(payload, typeName)
+          break
+        default:
+          serializedPayload = schema.toBuffer(payload)
+      }
       return encode(registryId, serializedPayload)
     } catch (error) {
       if (error instanceof ConfluentSchemaRegistryValidationError) throw error

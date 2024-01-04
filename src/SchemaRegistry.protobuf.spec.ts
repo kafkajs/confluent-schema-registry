@@ -230,7 +230,7 @@ describe('SchemaRegistry', () => {
       })
 
       it('should return schema that match message', async () => {
-        expect(schema.message.name).toEqual('ThirdLevel')
+        expect(schema.namespace.orderedNestedMessages[0].name).toEqual('ThirdLevel')
       })
 
       it('should be able to encode/decode', async () => {
@@ -256,7 +256,7 @@ describe('SchemaRegistry', () => {
       })
 
       it('should return schema that match message', async () => {
-        expect(schema.message.name).toEqual('SecondLevelA')
+        expect(schema.namespace.orderedNestedMessages[0].name).toEqual('SecondLevelA')
       })
 
       it('should be able to encode/decode', async () => {
@@ -300,7 +300,7 @@ describe('SchemaRegistry', () => {
       })
 
       it('should return schema that match message', async () => {
-        expect(schema.message.name).toEqual('FirstLevel')
+        expect(schema.namespace.orderedNestedMessages[0].name).toEqual('FirstLevel')
       })
 
       it('should be able to encode/decode', async () => {
