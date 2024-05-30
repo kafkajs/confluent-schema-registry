@@ -12,9 +12,15 @@ class ResponseError extends Error {
   url: string
 
   constructor(clientName: string, response: ConfluenceResponse) {
+    const responseData = response.data()
+    const isResponseDataAnObject = typeof responseData === 'object'
+    const responseDataString = isResponseDataAnObject ? JSON.stringify(responseData) : responseData
+
     super(
-      `${clientName} - ${response.data().message ||
-        `Error, status ${response.status()}${response.data() ? `: ${response.data()}` : ''}`}`,
+      `${clientName} - ${responseData.message ||
+        `Error, status ${response.status()}${
+          responseDataString ? `: ${responseDataString}` : ''
+        }`}`,
     )
 
     const request = response.request()
