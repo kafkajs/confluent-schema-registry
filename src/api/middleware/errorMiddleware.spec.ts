@@ -56,6 +56,18 @@ describe('ErrorMiddleware', () => {
       )
     })
 
+    it('raises an error with a message in case of client-side object error', async () => {
+      const message = { cause: 'unknown cause', metadata: { id: 1 } }
+      const response = createResponse(message)
+
+      await expect(
+        executedMiddleware.response(() => Promise.reject(response), undefined),
+      ).rejects.toHaveProperty(
+        'message',
+        `${middlewareParams.clientId} - Error, status 500: ${JSON.stringify(message)}`,
+      )
+    })
+
     it('raise an error with a default message if the error payload is empty', async () => {
       const response = createResponse('')
 
