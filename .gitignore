@@ -17,6 +17,7 @@ trash
 
 \.vscode/
 \.vs/
+\.idea/
 
 # confluent-schema-registry
 #
