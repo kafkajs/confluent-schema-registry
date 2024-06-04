@@ -214,6 +214,17 @@ export default class SchemaRegistry {
     referencesSet: Set<string>,
   ): Promise<ConfluentSchema[]> {
     const { name, subject, version } = reference
+
+    // if version is -1, get the latest version to handle duplicates correctly
+    if (version === -1) {
+      const latestRegistryVersionNumber = await this.getLatestSchemaVersionNumber(subject)
+      return this.getreferencedSchemasFromReference(
+        { name, subject, version: latestRegistryVersionNumber },
+        helper,
+        referencesSet,
+      )
+    }
+
     const key = `${name}-${subject}-${version}`
 
     // avoid duplicates
@@ -370,6 +381,11 @@ export default class SchemaRegistry {
     return id
   }
 
+  async getLatestSchemaVersionNumber(subject: string): Promise<number> {
+    const response = await this.api.Subject.latestVersion({ subject })
+    const { version }: { version: number } = response.data()
+    return version
+  }
   private getSchemaOriginRequest(registryId: number) {
     // ensure that cache-misses result in a single origin request
     if (this.cacheMissRequests[registryId]) {
