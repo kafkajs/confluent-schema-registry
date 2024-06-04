@@ -213,18 +213,13 @@ export default class SchemaRegistry {
     helper: SchemaHelper,
     referencesSet: Set<string>,
   ): Promise<ConfluentSchema[]> {
-    const { name, subject, version } = reference
+    const { name, subject } = reference
 
-    // if version is -1, get the latest version to handle duplicates correctly
-    if (version === -1) {
-      const latestRegistryVersionNumber = await this.getLatestSchemaVersionNumber(subject)
-      return this.getreferencedSchemasFromReference(
-        { name, subject, version: latestRegistryVersionNumber },
-        helper,
-        referencesSet,
-      )
-    }
-
+    const versionResponse = await this.api.Subject.version(reference)
+    const foundSchema = versionResponse.data() as SchemaResponse
+    
+    // rely on version retrieved from the registry, because references may use -1 as version
+    const { version } = foundSchema
     const key = `${name}-${subject}-${version}`
 
     // avoid duplicates
@@ -232,9 +227,6 @@ export default class SchemaRegistry {
       return []
     }
     referencesSet.add(key)
-
-    const versionResponse = await this.api.Subject.version(reference)
-    const foundSchema = versionResponse.data() as SchemaResponse
 
     const schema = helper.toConfluentSchema(foundSchema)
     const referencedSchemas = await this.getreferencedSchemasRecursive(
@@ -381,11 +373,6 @@ export default class SchemaRegistry {
     return id
   }
 
-  async getLatestSchemaVersionNumber(subject: string): Promise<number> {
-    const response = await this.api.Subject.latestVersion({ subject })
-    const { version }: { version: number } = response.data()
-    return version
-  }
   private getSchemaOriginRequest(registryId: number) {
     // ensure that cache-misses result in a single origin request
     if (this.cacheMissRequests[registryId]) {
