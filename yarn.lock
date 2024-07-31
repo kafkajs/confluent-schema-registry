@@ -2838,10 +2838,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-"mappersmith@>= 2.30.1 < 3":
-  version "2.32.1"
-  resolved "https://registry.yarnpkg.com/mappersmith/-/mappersmith-2.32.1.tgz#e5c82cf53684777940516a63590c8b7d53c747c5"
-  integrity sha512-FlXIvDrYU3Jrkfr3Y0M1v6ZOCe6GdHWev8Jn4OFCa9057JaO6SC40Z0ivN2lpZLICYh0jbnZ83DAS7GNQAZPsg==
+"mappersmith@>= 2.43.0 < 3":
+  version "2.43.4"
+  resolved "https://registry.yarnpkg.com/mappersmith/-/mappersmith-2.43.4.tgz#8e00d82b95d9bfae6a5b519d93f2c0b0394fce20"
+  integrity sha512-IyUw53aE3/SPH3eOkqSuD+Hcstpcl4dpxDDgZsPz65R2SlOikq0VHxo3kMPzUVvw7cCHunTmlpNXl5n/KzPcpg==
 
 merge-stream@^2.0.0:
   version "2.0.0"
