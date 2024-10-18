@@ -117,7 +117,6 @@ export default class SchemaRegistry {
 
     const options = await this.updateOptionsWithSchemaReferences(confluentSchema, this.options)
     const schemaInstance = schemaFromConfluentSchema(confluentSchema, options)
-    helper.validate(schemaInstance)
     let isFirstTimeRegistration = false
     let subject: ConfluentSubject
     if (userOpts?.subject) {
