@@ -7,6 +7,7 @@ import { DEFAULT_API_CLIENT_ID } from '../constants'
 import errorMiddleware from './middleware/errorMiddleware'
 import confluentEncoder from './middleware/confluentEncoderMiddleware'
 import userAgentMiddleware from './middleware/userAgent'
+import AccessSecurityMiddleware from './middleware/AccessSecurityMiddleware'
 
 const DEFAULT_RETRY = {
   maxRetryTimeInSecs: 5,
@@ -19,6 +20,11 @@ const DEFAULT_RETRY = {
 export interface SchemaRegistryAPIClientArgs {
   host: string
   auth?: Authorization
+  oauth?:string 
+  ca?: Buffer
+  cert?: Buffer
+  key?: Buffer
+  proxy?:string
   clientId?: string
   retry?: Partial<RetryMiddlewareOptions>
   /** HTTP Agent that will be passed to underlying API calls */
@@ -44,6 +50,11 @@ export type SchemaRegistryAPIClient = Client<{
 
 export default ({
   auth,
+  oauth,
+  ca,
+  cert,
+  key,
+  proxy,
   clientId: userClientId,
   host,
   retry = {},
@@ -61,6 +72,7 @@ export default ({
       RetryMiddleware(Object.assign(DEFAULT_RETRY, retry)),
       errorMiddleware,
       ...(auth ? [BasicAuthMiddleware(auth)] : []),
+      ...(oauth ? [AccessSecurityMiddleware({oauth, ca, cert, key, proxy})] : []),
     ],
     resources: {
       Schema: {
