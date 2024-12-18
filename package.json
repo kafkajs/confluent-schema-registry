@@ -17,8 +17,7 @@
     "build:watch": "rm -rf ./dist && tsc --watch",
     "test:unit:watch": "yarn test:unit --watch",
     "test:unit": "jest",
-    "test": "ts-node ./dockest.ts",
-    "test:debug": "ts-node ./dockest.ts debug",
+    "test": "docker compose up -d --wait schemaRegistry && jest",
     "lint": "eslint './src/**/*.ts'",
     "format": "yarn lint --fix"
   },
@@ -29,7 +28,6 @@
     "protobufjs": "^6.11.4"
   },
   "devDependencies": {
-    "@types/execa": "^2.0.0",
     "@types/fs-extra": "^8.0.0",
     "@types/jest": "^25.2.1",
     "@types/node": "^12.7.3",
@@ -39,12 +37,10 @@
     "@typescript-eslint/parser": "^2.1.0",
     "@typescript-eslint/typescript-estree": "^2.1.0",
     "ajv8": "npm:ajv@^8.6.3",
-    "dockest": "^2.1.0",
     "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-no-only-tests": "^2.3.1",
     "eslint-plugin-prettier": "^3.1.0",
-    "execa": "^2.0.4",
     "fs-extra": "^8.1.0",
     "jest": "^25.2.7",
     "prettier": "^1.18.2",
