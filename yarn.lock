@@ -1318,18 +1318,19 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-dockest@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/dockest/-/dockest-2.1.0.tgz#efbeaca7bb6078b9bb0a431a050cdefc5b50f07e"
-  integrity sha512-cEudMXrP9Sl1obedYDEyXoKSePGsmbT8750W2D1/W19szr+EbSlEpaRp3tIl5q8oeZ6UxFnfZjXzD+4nDrVhZw==
+dockest@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/dockest/-/dockest-3.1.0.tgz#05148df0b8602b9a911145a7f73c6e1bb087cb58"
+  integrity sha512-1D4s3U00GkzaNc8c8aFqjfQ1XpdtzuND174e+/DdxP4s8Stpi7ik4p3LS+LOlTGXyLOfQ3PCCdQkQaGnXUX5jQ==
   dependencies:
     chalk "^3.0.0"
     execa "^4.0.0"
-    fp-ts "^2.8.3"
-    io-ts "^2.2.10"
     is-docker "^2.0.0"
     js-yaml "^3.13.1"
     rxjs "^6.5.4"
+    toposort "^2.0.2"
+    zod "^3.22.4"
+    zod-validation-error "^2.0.0"
 
 doctrine@^3.0.0:
   version "3.0.0"
@@ -1780,11 +1781,6 @@ form-data@~2.3.2:
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
 
-fp-ts@^2.8.3:
-  version "2.11.5"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.11.5.tgz#97cceb26655b1452d7088d6fb0864f84cceffbe4"
-  integrity sha512-OqlwJq1BdpB83BZXTqI+dNcA6uYk6qk4u9Cgnt64Y+XS7dwdbp/mobx8S2KXf2AXH+scNmA/UVK3SEFHR3vHZA==
-
 fragment-cache@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/fragment-cache/-/fragment-cache-0.2.1.tgz#4290fad27f13e89be7f33799c6bc5a0abfff0d19"
@@ -2042,11 +2038,6 @@ inquirer@^7.0.0:
     string-width "^4.1.0"
     strip-ansi "^6.0.0"
     through "^2.3.6"
-
-io-ts@^2.2.10:
-  version "2.2.16"
-  resolved "https://registry.yarnpkg.com/io-ts/-/io-ts-2.2.16.tgz#597dffa03db1913fc318c9c6df6931cb4ed808b2"
-  integrity sha512-y5TTSa6VP6le0hhmIyN0dqEXkrZeJLeC5KApJq6VLci3UEKF80lZ+KuoUs02RhBxNWlrqSNxzfI7otLX1Euv8Q==
 
 ip-regex@^2.1.0:
   version "2.1.0"
@@ -3870,6 +3861,11 @@ to-regex@^3.0.1, to-regex@^3.0.2:
     regex-not "^1.0.2"
     safe-regex "^1.1.0"
 
+toposort@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/toposort/-/toposort-2.0.2.tgz#ae21768175d1559d48bef35420b2f4962f09c330"
+  integrity sha512-0a5EOkAUp8D4moMi2W8ZF8jcga7BgZd91O/yabJCFY8az+XSzeGyTKs0Aoo897iV1Nj6guFq8orWDS96z91oGg==
+
 tough-cookie@^2.3.3, tough-cookie@~2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/tough-cookie/-/tough-cookie-2.5.0.tgz#cd9fb2a0aa1d5a12b473bd9fb96fa3dcff65ade2"
@@ -4207,3 +4203,13 @@ yn@3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
+
+zod-validation-error@^2.0.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/zod-validation-error/-/zod-validation-error-2.1.0.tgz#208eac75237dfed47c0018d2fe8fd03501bfc9ac"
+  integrity sha512-VJh93e2wb4c3tWtGgTa0OF/dTt/zoPCPzXq4V11ZjxmEAFaPi/Zss1xIZdEB5RD8GD00U0/iVXgqkF77RV7pdQ==
+
+zod@^3.22.4:
+  version "3.24.1"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.1.tgz#27445c912738c8ad1e9de1bea0359fa44d9d35ee"
+  integrity sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==

@@ -17,7 +17,7 @@
     "build:watch": "rm -rf ./dist && tsc --watch",
     "test:unit:watch": "yarn test:unit --watch",
     "test:unit": "jest",
-    "test": "ts-node ./dockest.ts",
+    "test": "docker compose up -d --wait schemaRegistry && jest",
     "test:debug": "ts-node ./dockest.ts debug",
     "lint": "eslint './src/**/*.ts'",
     "format": "yarn lint --fix"
@@ -39,7 +39,7 @@
     "@typescript-eslint/parser": "^2.1.0",
     "@typescript-eslint/typescript-estree": "^2.1.0",
     "ajv8": "npm:ajv@^8.6.3",
-    "dockest": "^2.1.0",
+    "dockest": "^3.1.0",
     "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-no-only-tests": "^2.3.1",
