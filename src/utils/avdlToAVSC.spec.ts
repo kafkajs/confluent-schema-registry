@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs-extra'
-import execa from 'execa'
 import avro from 'avsc'
+import { exec } from 'child_process'
 
 import SchemaRegistry from '../SchemaRegistry'
 import { avdlToAVSCAsync } from './avdlToAVSC'
@@ -9,13 +9,26 @@ import { avdlToAVSCAsync } from './avdlToAVSC'
 const registry = new SchemaRegistry({ host: 'http://localhost:8982' })
 const absolutePath = (...paths: string[]) => path.join(__dirname, '../..', ...paths)
 
+const promisifiedExec = async (command: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout) => {
+      if (error) {
+        return reject(error)
+      }
+
+      return resolve(stdout)
+    })
+  })
+}
+
 const compareWithJavaImplementation = (avdlPath: string, name: string) => async () => {
   const absolutePathToAvdlToAVSC = absolutePath('./bin/avdlToAVSC.sh')
-  const execaArgs = [`./fixtures/avdl/${avdlPath}`, name]
 
   let expectedAVSC
   try {
-    const { stdout: result } = await execa(absolutePathToAvdlToAVSC, execaArgs)
+    const result = await promisifiedExec(
+      `${absolutePathToAvdlToAVSC} ./fixtures/avdl/${avdlPath} ${name}`,
+    )
     expectedAVSC = JSON.parse(result)
   } catch (error) {
     console.error(`Error when running ${absolutePathToAvdlToAVSC}`, error) // eslint-disable-line no-console

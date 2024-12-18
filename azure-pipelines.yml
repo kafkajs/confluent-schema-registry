@@ -58,7 +58,7 @@ jobs:
       - bash: docker compose -f ${COMPOSE_FILE} pull
         displayName: docker compose pull
       - bash: yarn test
-        displayName: integration test with dockest
+        displayName: integration test with docker compose
 
   - job: npm_release
     displayName: 'NPM release'
