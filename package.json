@@ -24,8 +24,9 @@
   "dependencies": {
     "ajv": "^7.1.0",
     "avsc": ">= 5.4.13 < 6",
+    "long": "^5.2.3",
     "mappersmith": ">= 2.30.1 < 3",
-    "protobufjs": "^6.11.4"
+    "protobufjs": "github:davidgrisham/protobuf.js#ordered-nested-objects"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
