@@ -46,7 +46,7 @@ interface Opts {
 interface AvroDecodeOptions {
   readerSchema?: RawAvroSchema | AvroSchema | Schema
 }
-interface DecodeOptions {
+export interface DecodeOptions {
   [SchemaType.AVRO]?: AvroDecodeOptions
 }
 
