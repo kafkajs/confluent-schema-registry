@@ -1,12 +1,13 @@
 import { Agent } from 'http'
 import forge, { Authorization, Client, Options, GatewayConfiguration } from 'mappersmith'
 import RetryMiddleware, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
-import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
 
 import { DEFAULT_API_CLIENT_ID } from '../constants'
 import errorMiddleware from './middleware/errorMiddleware'
 import confluentEncoder from './middleware/confluentEncoderMiddleware'
 import userAgentMiddleware from './middleware/userAgent'
+import AccessTokenMiddleware, { AccessTokenParams } from './middleware//AccessTokenMiddleware'
+import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
 
 const DEFAULT_RETRY = {
   maxRetryTimeInSecs: 5,
@@ -19,6 +20,7 @@ const DEFAULT_RETRY = {
 export interface SchemaRegistryAPIClientArgs {
   host: string
   auth?: Authorization
+  accessTokenParams?: AccessTokenParams
   clientId?: string
   retry?: Partial<RetryMiddlewareOptions>
   /** HTTP Agent that will be passed to underlying API calls */
@@ -44,6 +46,7 @@ export type SchemaRegistryAPIClient = Client<{
 
 export default ({
   auth,
+  accessTokenParams,
   clientId: userClientId,
   host,
   retry = {},
@@ -61,6 +64,7 @@ export default ({
       RetryMiddleware(Object.assign(DEFAULT_RETRY, retry)),
       errorMiddleware,
       ...(auth ? [BasicAuthMiddleware(auth)] : []),
+      ...(accessTokenParams ? [AccessTokenMiddleware(accessTokenParams)] : []),
     ],
     resources: {
       Schema: {
