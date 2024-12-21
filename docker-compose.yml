@@ -14,6 +14,11 @@ services:
     image: 'confluentinc/cp-kafka:5.5.3'
     ports:
       - '9092:9092'
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 1s
+      timeout: 60s
+      retries: 60
 
   zooKeeper: # https://hub.docker.com/r/confluentinc/cp-zookeeper
     environment:
@@ -21,6 +26,11 @@ services:
     image: 'confluentinc/cp-zookeeper:5.2.2'
     ports:
       - '2181:2181'
+    healthcheck:
+      test: echo ruok | nc 127.0.0.1 2181 || exit 1
+      interval: 2s
+      timeout: 5s
+      retries: 20
 
   schemaRegistry: # https://hub.docker.com/r/confluentinc/cp-schema-registry
     environment:
@@ -29,8 +39,15 @@ services:
     image: 'confluentinc/cp-schema-registry:5.5.3'
     ports:
       - '8982:8081'
+    depends_on:
+      - kafka
+    healthcheck:
+      test:  "curl --output /dev/null --silent --head --fail http://localhost:8081/subjects"
+      interval: 30s
+      timeout: 10s
+      retries: 10
 
-  avro_tools: # https://hub.docker.com/r/coderfi/avro-tools
-    image: coderfi/avro-tools:1.7.7
+  avro_tools: # https://hub.docker.com/r/kpnnl/avro-tools
+    image: kpnnl/avro-tools:1.12.0
     ports:
-     - '9999:9999'
+      - '9999:9999'
