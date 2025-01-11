@@ -8,7 +8,6 @@ import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2 from '../fixtures/avro/encodedAnotherPersonV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
 import { RawAvroSchema } from './@types'
-import { Middleware } from 'mappersmith'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
