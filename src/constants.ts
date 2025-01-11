@@ -8,6 +8,6 @@ export enum COMPATIBILITY {
   FULL_TRANSITIVE = 'FULL_TRANSITIVE',
 }
 
-export const DEFAULT_SEPERATOR = '.'
+export const DEFAULT_SEPARATOR = '.'
 
 export const DEFAULT_API_CLIENT_ID = 'Confluent_Schema_Registry'

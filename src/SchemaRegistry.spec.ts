@@ -8,6 +8,7 @@ import { COMPATIBILITY, DEFAULT_API_CLIENT_ID } from './constants'
 import encodedAnotherPersonV2 from '../fixtures/avro/encodedAnotherPersonV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
 import { RawAvroSchema } from './@types'
+import { Middleware } from 'mappersmith'
 
 const REGISTRY_HOST = 'http://localhost:8982'
 const schemaRegistryAPIClientArgs = { host: REGISTRY_HOST }
@@ -248,5 +249,20 @@ describe('SchemaRegistry - old AVRO api', () => {
         'Confluent_Schema_Registry - Schema not found',
       )
     })
+  })
+})
+
+describe('SchemaRegistry - Custom Middleware', () => {
+  const customMiddleware = jest.fn()
+
+  const schemaRegistry = new SchemaRegistry({
+    ...schemaRegistryArgs,
+    middlewares: [customMiddleware],
+  })
+
+  it('should have called the custom middleware', async () => {
+    await schemaRegistry.register(personSchema)
+
+    expect(customMiddleware).toHaveBeenCalled()
   })
 })
