@@ -21,6 +21,18 @@
         "title": "Introduction",
         "sidebar_label": "Introduction"
       },
+      "schema-avro": {
+        "title": "Example Avro Schemas",
+        "sidebar_label": "Example Avro Schemas"
+      },
+      "schema-json": {
+        "title": "Example JSON Schemas",
+        "sidebar_label": "Example JSON Schemas"
+      },
+      "schema-protobuf": {
+        "title": "Example Protobuf Schemas",
+        "sidebar_label": "Example Protobuf Schemas"
+      },
       "schemas": {
         "title": "Example Avro Schemas",
         "sidebar_label": "Example Avro Schemas"

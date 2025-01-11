@@ -29,7 +29,3 @@ release
 build
 *.swp
 *~
-
-# test
-docker-compose.dockest-generated.yml
-dockest-error.json

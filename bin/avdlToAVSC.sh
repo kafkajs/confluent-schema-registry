@@ -6,4 +6,4 @@ if [ -z "${avdl_path}" ]; then
   exit;
 fi
 
-docker run --rm -v ${PWD}:/share coderfi/avro-tools:1.7.7 idl2schemata ${avdl_path} tmp && cat tmp/${avsc_name}.avsc
+docker run --rm -v "$(pwd)":/avro kpnnl/avro-tools:1.12.0 idl2schemata ${avdl_path} tmp && cat tmp/${avsc_name}.avsc

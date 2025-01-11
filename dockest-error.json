@@ -1,0 +1,7 @@
+{
+  "errorPayload": {
+    "trap": "SIGINT",
+    "signal": "SIGINT"
+  },
+  "timestamp": "2024-12-18T22:39:59.117Z"
+}
