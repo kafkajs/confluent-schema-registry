@@ -99,7 +99,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: '12.x'
+          versionSpec: '18.x'
       - bash: git config core.autocrlf true || test true
         displayName: git config core.autocrlf
       - bash: git config --global user.name "${GH_NAME}" || test true
