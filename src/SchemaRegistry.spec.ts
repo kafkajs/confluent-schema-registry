@@ -250,3 +250,18 @@ describe('SchemaRegistry - old AVRO api', () => {
     })
   })
 })
+
+describe('SchemaRegistry - Custom Middleware', () => {
+  const customMiddleware = jest.fn()
+
+  const schemaRegistry = new SchemaRegistry({
+    ...schemaRegistryArgs,
+    middlewares: [customMiddleware],
+  })
+
+  it('should have called the custom middleware', async () => {
+    await schemaRegistry.register(personSchema)
+
+    expect(customMiddleware).toHaveBeenCalled()
+  })
+})

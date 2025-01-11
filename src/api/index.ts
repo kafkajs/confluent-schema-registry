@@ -1,5 +1,11 @@
 import { Agent } from 'http'
-import forge, { Authorization, Client, Options, GatewayConfiguration } from 'mappersmith'
+import forge, {
+  Authorization,
+  Client,
+  Options,
+  GatewayConfiguration,
+  Middleware,
+} from 'mappersmith'
 import RetryMiddleware, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
 
@@ -23,6 +29,7 @@ export interface SchemaRegistryAPIClientArgs {
   retry?: Partial<RetryMiddlewareOptions>
   /** HTTP Agent that will be passed to underlying API calls */
   agent?: Agent
+  middlewares?: Middleware[]
 }
 
 // TODO: Improve typings
@@ -48,6 +55,7 @@ export default ({
   host,
   retry = {},
   agent,
+  middlewares = [],
 }: SchemaRegistryAPIClientArgs): SchemaRegistryAPIClient => {
   const clientId = userClientId || DEFAULT_API_CLIENT_ID
   // FIXME: ResourcesType typings is not exposed by mappersmith
@@ -61,6 +69,7 @@ export default ({
       RetryMiddleware(Object.assign(DEFAULT_RETRY, retry)),
       errorMiddleware,
       ...(auth ? [BasicAuthMiddleware(auth)] : []),
+      ...middlewares,
     ],
     resources: {
       Schema: {

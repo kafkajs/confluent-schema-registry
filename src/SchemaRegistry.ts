@@ -3,7 +3,7 @@ import { Response } from 'mappersmith'
 
 import { encode, MAGIC_BYTE } from './wireEncoder'
 import decode from './wireDecoder'
-import { COMPATIBILITY, DEFAULT_SEPERATOR } from './constants'
+import { COMPATIBILITY, DEFAULT_SEPARATOR } from './constants'
 import API, { SchemaRegistryAPIClientArgs, SchemaRegistryAPIClient } from './api'
 import Cache from './cache'
 import {
@@ -46,13 +46,13 @@ interface Opts {
 interface AvroDecodeOptions {
   readerSchema?: RawAvroSchema | AvroSchema | Schema
 }
-interface DecodeOptions {
+export interface DecodeOptions {
   [SchemaType.AVRO]?: AvroDecodeOptions
 }
 
 const DEFAULT_OPTS = {
   compatibility: COMPATIBILITY.BACKWARD,
-  separator: DEFAULT_SEPERATOR,
+  separator: DEFAULT_SEPARATOR,
 }
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
@@ -62,10 +62,10 @@ export default class SchemaRegistry {
   public cache: Cache
 
   constructor(
-    { auth, clientId, host, retry, agent }: SchemaRegistryAPIClientArgs,
+    { auth, clientId, host, retry, agent, middlewares }: SchemaRegistryAPIClientArgs,
     options?: SchemaRegistryAPIClientOptions,
   ) {
-    this.api = API({ auth, clientId, host, retry, agent })
+    this.api = API({ auth, clientId, host, retry, agent, middlewares })
     this.cache = new Cache()
     this.options = options
   }
