@@ -47,6 +47,11 @@ beforeAll(async () => {
 
   // deletes all the files from tmp dir
   const tmpDirectory = absolutePath('./tmp')
+  try {
+    fs.statSync(tmpDirectory)
+  } catch (e) {
+    fs.mkdirSync(tmpDirectory)
+  }
   for (const file of fs.readdirSync(tmpDirectory)) {
     fs.unlinkSync(path.join(tmpDirectory, file))
   }
