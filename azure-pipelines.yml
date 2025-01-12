@@ -25,11 +25,13 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: '12.x'
+          versionSpec: '18.x'
       - bash: yarn install
         displayName: yarn install
       - bash: yarn lint
         displayName: yarn lint
+      - bash: yarn check:types
+        displayName: Check type
 
   - job: build
     displayName: Build
@@ -38,7 +40,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: '12.x'
+          versionSpec: '18.x'
       - bash: yarn install
         displayName: yarn install
       - bash: yarn build
@@ -52,7 +54,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: '12.x'
+          versionSpec: '18.x'
       - bash: yarn install
         displayName: yarn install
       - bash: docker compose -f ${COMPOSE_FILE} pull
@@ -72,7 +74,7 @@ jobs:
     steps:
       - task: NodeTool@0
         inputs:
-          versionSpec: '12.x'
+          versionSpec: '18.x'
       - bash: yarn install
         displayName: yarn install
       - bash: yarn prepare:release

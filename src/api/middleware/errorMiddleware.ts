@@ -30,7 +30,7 @@ const errorMiddleware: Middleware = ({ clientId }) => ({
     new Promise((resolve, reject) =>
       next()
         .then(resolve)
-        .catch((response: Response) => reject(new ResponseError(clientId, response))),
+        .catch((response: Response) => reject(new ResponseError(clientId ?? '', response))),
     ),
 })
 

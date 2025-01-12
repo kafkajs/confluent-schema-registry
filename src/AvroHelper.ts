@@ -12,7 +12,7 @@ import { ConfluentSchemaRegistryArgumentError } from './errors'
 import avro, { ForSchemaOptions, Schema, Type } from 'avsc'
 import { SchemaResponse, SchemaType } from './@types'
 
-type TypeHook = (schema: Schema, opts: ForSchemaOptions) => Type
+type TypeHook = (schema: Schema, opts: ForSchemaOptions) => Type | undefined
 export default class AvroHelper implements SchemaHelper {
   private getRawAvroSchema(schema: ConfluentSchema): RawAvroSchema {
     return (typeof schema.schema === 'string'
@@ -57,8 +57,7 @@ export default class AvroHelper implements SchemaHelper {
 
   public getSubject(
     schema: AvroConfluentSchema,
-    // @ts-ignore
-    avroSchema: AvroSchema,
+    _avroSchema: AvroSchema,
     separator: string,
   ): ConfluentSubject {
     const rawSchema: RawAvroSchema = this.getRawAvroSchema(schema)

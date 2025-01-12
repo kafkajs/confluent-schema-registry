@@ -2,9 +2,9 @@ import { Agent } from 'http'
 import forge, {
   Authorization,
   Client,
-  Options,
   GatewayConfiguration,
   Middleware,
+  ManifestOptions,
 } from 'mappersmith'
 import RetryMiddleware, { RetryMiddlewareOptions } from 'mappersmith/middleware/retry/v2'
 import BasicAuthMiddleware from 'mappersmith/middleware/basic-auth'
@@ -59,7 +59,7 @@ export default ({
 }: SchemaRegistryAPIClientArgs): SchemaRegistryAPIClient => {
   const clientId = userClientId || DEFAULT_API_CLIENT_ID
   // FIXME: ResourcesType typings is not exposed by mappersmith
-  const manifest: Options<any> = {
+  const manifest: ManifestOptions<any> = {
     clientId,
     ignoreGlobalMiddleware: true,
     host,

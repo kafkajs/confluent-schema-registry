@@ -138,7 +138,7 @@ export default class SchemaRegistry {
         )
       }
     } catch (error) {
-      if (error.status !== 404) {
+      if (!error || typeof error !== 'object' || !('status' in error) || error.status !== 404) {
         throw error
       } else {
         isFirstTimeRegistration = true
@@ -355,7 +355,7 @@ export default class SchemaRegistry {
 
       return id
     } catch (error) {
-      if (error.status && error.status === 404) {
+      if (error && typeof error === 'object' && 'status' in error && error.status === 404) {
         throw new ConfluentSchemaRegistryError(error)
       }
 
@@ -370,18 +370,17 @@ export default class SchemaRegistry {
     return id
   }
 
-  private getSchemaOriginRequest(registryId: number) {
+  private async getSchemaOriginRequest(registryId: number): Promise<Response> {
     // ensure that cache-misses result in a single origin request
-    if (this.cacheMissRequests[registryId]) {
-      return this.cacheMissRequests[registryId]
-    } else {
-      const request = this.api.Schema.find({ id: registryId }).finally(() => {
-        delete this.cacheMissRequests[registryId]
-      })
+    const req = this.cacheMissRequests[registryId]
+    if (req) return req
 
-      this.cacheMissRequests[registryId] = request
+    const request = this.api.Schema.find({ id: registryId }).finally(() => {
+      delete this.cacheMissRequests[registryId]
+    })
 
-      return request
-    }
+    this.cacheMissRequests[registryId] = request
+
+    return request
   }
 }

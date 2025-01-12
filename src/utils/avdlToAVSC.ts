@@ -21,7 +21,7 @@ interface Field {
 
 let cache: any
 const merge = Object.assign
-const isObject = (obj: unknown): obj is Obj => obj && typeof obj === 'object'
+const isObject = (obj: unknown): obj is Obj => !!obj && typeof obj === 'object'
 const isIterable = (obj: unknown): obj is Iterable =>
   isObject(obj) && typeof obj.map !== 'undefined'
 const isFieldArray = (field: unknown): field is Field =>
@@ -92,12 +92,12 @@ export function avdlToAVSC(path: any) {
 export async function avdlToAVSCAsync(path: string) {
   cache = {}
 
-  const protocol: { [key: string]: any } = await new Promise((resolve, reject) => {
+  const protocol: Record<string, any> = await new Promise((resolve, reject) => {
     assembleProtocol(path, (err: AssembleProtocolError, schema) => {
       if (err) {
         reject(new ConfluentSchemaRegistryError(`${err.message}. Caused by: ${err.path}`))
       } else {
-        resolve(schema)
+        resolve(schema as Record<string, any>)
       }
     })
   })

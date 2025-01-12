@@ -1,8 +1,12 @@
 import { MAGIC_BYTE } from './src/wireEncoder'
 import decode from './src/wireDecoder'
+import { MatcherFunction } from 'expect'
 
-const toMatchConfluentEncodedPayload = context => (received, { payload: expectedPayload }) => {
-  const { printExpected, printReceived, printWithType } = context.utils
+const toMatchConfluentEncodedPayload: MatcherFunction<[{ payload: Buffer }]> = function(
+  received,
+  { payload: expectedPayload },
+) {
+  const { printExpected, printReceived, printWithType } = this.utils
 
   if (!Buffer.isBuffer(expectedPayload)) {
     const error = [
@@ -13,16 +17,17 @@ const toMatchConfluentEncodedPayload = context => (received, { payload: expected
     throw new Error(error)
   }
 
-  const { magicByte, payload } = decode(received)
+  const { magicByte, payload } = decode(received as Buffer)
   const expectedMessage = decode(expectedPayload)
 
   if (!Buffer.isBuffer(received)) {
     return {
       pass: false,
-      message: () => [
-        'Received value must be a Buffer',
-        printWithType('Received', received, printReceived),
-      ],
+      message: () =>
+        [
+          'Received value must be a Buffer',
+          printWithType('Received', received, printReceived),
+        ].join('\n'),
     }
   }
 
@@ -40,7 +45,7 @@ const toMatchConfluentEncodedPayload = context => (received, { payload: expected
   }
 
   return {
-    pass: context.equals(payload, expectedMessage.payload),
+    pass: this.equals(payload, expectedMessage.payload),
     message: () =>
       [
         'expected payload',
@@ -52,9 +57,5 @@ const toMatchConfluentEncodedPayload = context => (received, { payload: expected
 }
 
 expect.extend({
-  toMatchConfluentEncodedPayload(...args) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    return toMatchConfluentEncodedPayload(this)(...args)
-  },
+  toMatchConfluentEncodedPayload,
 })

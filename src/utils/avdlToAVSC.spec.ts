@@ -1,7 +1,7 @@
 import path from 'path'
-import fs from 'fs-extra'
 import avro from 'avsc'
 import { exec } from 'child_process'
+import fs from 'node:fs'
 
 import SchemaRegistry from '../SchemaRegistry'
 import { avdlToAVSCAsync } from './avdlToAVSC'
@@ -44,7 +44,17 @@ const compareWithJavaImplementation = (avdlPath: string, name: string) => async 
 
 beforeAll(async () => {
   jest.setTimeout(10000)
-  await fs.emptyDir(absolutePath('./tmp'))
+
+  // deletes all the files from tmp dir
+  const tmpDirectory = absolutePath('./tmp')
+  try {
+    fs.statSync(tmpDirectory)
+  } catch (e) {
+    fs.mkdirSync(tmpDirectory)
+  }
+  for (const file of fs.readdirSync(tmpDirectory)) {
+    fs.unlinkSync(path.join(tmpDirectory, file))
+  }
 })
 
 test('simple protocol', compareWithJavaImplementation('simple.avdl', 'Simple'))
