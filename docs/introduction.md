@@ -33,8 +33,8 @@ const schema = `
   }
 `
 const { id } = await registry.register({
-    type: SchemaType.AVRO,
-    schema
+  type: SchemaType.AVRO,
+  schema,
 })
 
 // Encode using the uploaded schema

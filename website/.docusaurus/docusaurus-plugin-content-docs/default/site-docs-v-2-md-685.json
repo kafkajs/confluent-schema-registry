@@ -1,0 +1,28 @@
+{
+  "id": "v2",
+  "title": "Migrating from v1 to v2",
+  "description": "In version 1, @kafkajs/confluent-schema-registry only supported Avro schemas and",
+  "source": "@site/../docs/v2.md",
+  "sourceDirName": ".",
+  "slug": "/v2",
+  "permalink": "/confluent-schema-registry/docs/v2",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kafkajs/confluent-schema-registry/edit/master/s/../docs/v2.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "v2",
+    "title": "Migrating from v1 to v2",
+    "sidebar_label": "Migrating to version 2"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Example Avro Schemas",
+    "permalink": "/confluent-schema-registry/docs/schemas"
+  },
+  "next": {
+    "title": "Development",
+    "permalink": "/confluent-schema-registry/docs/development"
+  }
+}

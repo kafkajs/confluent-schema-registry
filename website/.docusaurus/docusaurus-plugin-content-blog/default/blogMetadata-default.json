@@ -1,0 +1,5 @@
+{
+  "blogBasePath": "/confluent-schema-registry/blog",
+  "blogTitle": "Blog",
+  "authorsListPath": "/confluent-schema-registry/blog/authors"
+}

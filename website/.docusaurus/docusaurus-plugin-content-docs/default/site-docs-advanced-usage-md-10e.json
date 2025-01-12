@@ -1,0 +1,28 @@
+{
+  "id": "advanced-usage",
+  "title": "Advanced Usage",
+  "description": "While typical usage is covered in Usage, Confluent Schema Registry also",
+  "source": "@site/../docs/advanced-usage.md",
+  "sourceDirName": ".",
+  "slug": "/advanced-usage",
+  "permalink": "/confluent-schema-registry/docs/advanced-usage",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kafkajs/confluent-schema-registry/edit/master/s/../docs/advanced-usage.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "advanced-usage",
+    "title": "Advanced Usage",
+    "sidebar_label": "Advanced Usage"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Usage",
+    "permalink": "/confluent-schema-registry/docs/usage"
+  },
+  "next": {
+    "title": "Custom Types",
+    "permalink": "/confluent-schema-registry/docs/custom-types"
+  }
+}

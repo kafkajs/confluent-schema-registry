@@ -1,0 +1,19 @@
+{
+  "id": "schema-json",
+  "title": "Example JSON Schemas",
+  "description": "Schema with references to other schemas",
+  "source": "@site/../docs/schema-json.md",
+  "sourceDirName": ".",
+  "slug": "/schema-json",
+  "permalink": "/confluent-schema-registry/docs/schema-json",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kafkajs/confluent-schema-registry/edit/master/s/../docs/schema-json.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "schema-json",
+    "title": "Example JSON Schemas",
+    "sidebar_label": "Example JSON Schemas"
+  }
+}

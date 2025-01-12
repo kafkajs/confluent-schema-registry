@@ -1,0 +1,24 @@
+{
+  "id": "development",
+  "title": "Development",
+  "description": "To run the registry locally:",
+  "source": "@site/../docs/development.md",
+  "sourceDirName": ".",
+  "slug": "/development",
+  "permalink": "/confluent-schema-registry/docs/development",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kafkajs/confluent-schema-registry/edit/master/s/../docs/development.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "development",
+    "title": "Development",
+    "sidebar_label": "Development"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Migrating to version 2",
+    "permalink": "/confluent-schema-registry/docs/v2"
+  }
+}

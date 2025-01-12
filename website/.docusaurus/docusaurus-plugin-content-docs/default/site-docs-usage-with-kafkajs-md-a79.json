@@ -1,0 +1,28 @@
+{
+  "id": "usage-with-kafkajs",
+  "title": "Usage with KafkaJS",
+  "description": "Although Confluent Schema Registry can be used with any Kafka client, or outside",
+  "source": "@site/../docs/usage-with-kafkajs.md",
+  "sourceDirName": ".",
+  "slug": "/usage-with-kafkajs",
+  "permalink": "/confluent-schema-registry/docs/usage-with-kafkajs",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kafkajs/confluent-schema-registry/edit/master/s/../docs/usage-with-kafkajs.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "usage-with-kafkajs",
+    "title": "Usage with KafkaJS",
+    "sidebar_label": "Usage with KafkaJS"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Custom Types",
+    "permalink": "/confluent-schema-registry/docs/custom-types"
+  },
+  "next": {
+    "title": "Example Avro Schemas",
+    "permalink": "/confluent-schema-registry/docs/schemas"
+  }
+}

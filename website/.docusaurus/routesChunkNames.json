@@ -1,0 +1,73 @@
+{
+  "/confluent-schema-registry/markdown-page-e22": {
+    "__comp": "1f391b9e",
+    "__context": {
+      "plugin": "a7456010"
+    },
+    "content": "393be207"
+  },
+  "/confluent-schema-registry/docs-b2d": {
+    "__comp": "5e95c892",
+    "__context": {
+      "plugin": "aba21aa0"
+    }
+  },
+  "/confluent-schema-registry/docs-6bb": {
+    "__comp": "a7bd4aaa",
+    "__props": "701b1c32"
+  },
+  "/confluent-schema-registry/docs-b7e": {
+    "__comp": "a94703ab"
+  },
+  "/confluent-schema-registry/docs/advanced-usage-e6d": {
+    "__comp": "17896441",
+    "content": "10e5e9a2"
+  },
+  "/confluent-schema-registry/docs/custom-types-413": {
+    "__comp": "17896441",
+    "content": "7190234f"
+  },
+  "/confluent-schema-registry/docs/development-8c5": {
+    "__comp": "17896441",
+    "content": "fd8050c6"
+  },
+  "/confluent-schema-registry/docs/introduction-076": {
+    "__comp": "17896441",
+    "content": "53e18611"
+  },
+  "/confluent-schema-registry/docs/schema-avro-776": {
+    "__comp": "17896441",
+    "content": "08849936"
+  },
+  "/confluent-schema-registry/docs/schema-json-a16": {
+    "__comp": "17896441",
+    "content": "6a504048"
+  },
+  "/confluent-schema-registry/docs/schema-protobuf-f52": {
+    "__comp": "17896441",
+    "content": "77ded43d"
+  },
+  "/confluent-schema-registry/docs/schemas-3d8": {
+    "__comp": "17896441",
+    "content": "f2962ef1"
+  },
+  "/confluent-schema-registry/docs/usage-20c": {
+    "__comp": "17896441",
+    "content": "912fe03d"
+  },
+  "/confluent-schema-registry/docs/usage-with-kafkajs-786": {
+    "__comp": "17896441",
+    "content": "a7923996"
+  },
+  "/confluent-schema-registry/docs/v2-105": {
+    "__comp": "17896441",
+    "content": "685ce00f"
+  },
+  "/confluent-schema-registry/-b36": {
+    "__comp": "1df93b7f",
+    "__context": {
+      "plugin": "a7456010"
+    },
+    "config": "5e9f5e1a"
+  }
+}
