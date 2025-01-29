@@ -5,10 +5,12 @@ import { ConfluentSchemaRegistryValidationError } from './errors'
 interface BaseAjvValidationError {
   data?: unknown
   schema?: unknown
+  message?: string
 }
 interface OldAjvValidationError extends BaseAjvValidationError {
   dataPath: string
   instancePath?: string
+
 }
 interface NewAjvValidationError extends BaseAjvValidationError {
   instancePath: string
@@ -41,8 +43,13 @@ export default class JsonSchema implements Schema {
   }
 
   private validatePayload(payload: any) {
-    const paths: string[][] = []
-    if (!this.isValid(payload, { errorHook: path => paths.push(path) })) {
+    const paths: any[] = [];
+
+    if (!this.isValid(payload, {
+      errorHook: (path, message) => {
+        paths.push({ path, message });
+      }
+    })) {
       throw new ConfluentSchemaRegistryValidationError('invalid payload', paths)
     }
   }
@@ -62,14 +69,15 @@ export default class JsonSchema implements Schema {
     payload: object,
     opts?: { errorHook: (path: Array<string>, value: any, type?: any) => void },
   ): boolean {
+
     if (!this.validate(payload)) {
       if (opts?.errorHook) {
         for (const err of this.validate.errors as AjvValidationError[]) {
-          const path = this.isOldAjvValidationError(err) ? err.dataPath : err.instancePath
-          opts.errorHook([path], err.data, err.schema)
+          const path = this.isOldAjvValidationError(err) ? err.dataPath : err.instancePath;
+          opts.errorHook([path], err.message ?? err.data, err.schema);
         }
+        return false
       }
-      return false
     }
     return true
   }

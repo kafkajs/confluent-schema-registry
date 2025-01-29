@@ -587,7 +587,7 @@ describe('SchemaRegistry - new Api', () => {
           } catch (error) {
             expect(error).toBeInstanceOf(ConfluentSchemaRegistryValidationError)
             expect(error.message).toEqual('invalid payload')
-            expect(error.paths).toEqual([['/fullName']])
+            expect(error.paths[0].path).toEqual(['/fullName'])
           }
         },
       )
