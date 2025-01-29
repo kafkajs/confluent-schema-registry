@@ -104,8 +104,8 @@ describe('SchemaRegistry', () => {
   beforeEach(async () => {
     const options = {
       [SchemaType.JSON]: {
-        allErrors: true
-      }
+        allErrors: true,
+      },
     }
     api = API(schemaRegistryAPIClientArgs)
     schemaRegistry = new SchemaRegistry(schemaRegistryArgs, options)
@@ -114,7 +114,6 @@ describe('SchemaRegistry', () => {
   describe('when register', () => {
     describe('when no reference', () => {
       beforeEach(async () => {
-
         registeredSchema = await schemaRegistry.register(TestSchemas.ThirdLevelSchema, {
           subject: 'JSON:ThirdLevel',
         })
@@ -169,15 +168,14 @@ describe('SchemaRegistry', () => {
 
         expect(resultObj).toEqual(obj)
       })
-     
+
       it('should return error message', async () => {
-        const obj = { id2a: "sdfsdfsdf", level2a: 1 };
+        const obj = { id2a: 'sdfsdfsdf', level2a: 1 }
         try {
           await schemaRegistry.encode(registeredSchema.id, obj)
         } catch (ex) {
-
-          expect(ex.paths[0].message).toBeDefined();
-          expect(ex.paths[0].message).toEqual("should be number");
+          expect(ex.paths[0].message).toBeDefined()
+          expect(ex.paths[0].message).toEqual('should be number')
         }
       })
     })
@@ -250,7 +248,7 @@ describe('SchemaRegistry', () => {
         registeredSchema = await schemaRegistry.register(TestSchemas.ThirdLevelSchema, {
           subject: 'JSON:ThirdLevel',
         })
-          ; ({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
+        ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
       })
 
       it('should be able to encode/decode', async () => {
@@ -272,7 +270,7 @@ describe('SchemaRegistry', () => {
         registeredSchema = await schemaRegistry.register(TestSchemas.SecondLevelASchema, {
           subject: 'JSON:SecondLevelA',
         })
-          ; ({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
+        ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
       })
 
       it('should be able to encode/decode', async () => {
@@ -312,7 +310,7 @@ describe('SchemaRegistry', () => {
         registeredSchema = await schemaRegistry.register(TestSchemas.FirstLevelSchema, {
           subject: 'JSON:FirstLevel',
         })
-          ; ({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
+        ;({ schema } = await schemaRegistry['_getSchema'](registeredSchema.id))
       })
 
       it('should be able to encode/decode', async () => {
