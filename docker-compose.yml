@@ -10,7 +10,8 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
-      - zooKeeper
+     zooKeeper:
+       condition: service_healthy
     image: 'confluentinc/cp-kafka:5.5.3'
     ports:
       - '9092:9092'
@@ -40,7 +41,8 @@ services:
     ports:
       - '8982:8081'
     depends_on:
-      - kafka
+      kafka: 
+        condition: service_healthy
     healthcheck:
       test:  "curl --output /dev/null --silent --head --fail http://localhost:8081/subjects"
       interval: 30s
