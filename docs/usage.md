@@ -65,11 +65,11 @@ const { SchemaType, readAVSCAsync, avdlToAVSCAsync } = require('@kafkajs/conflue
 
 // From an avsc file
 const schema = await readAVSCAsync('path/to/schema.avsc')
-const { id } = await registry.register({ type: SchemaType.AVRO, schema }) // { id: 2 }
+const { id } = await registry.register({ type: SchemaType.AVRO, schema: JSON.stringify(schema) }) // { id: 2 }
 
 // From an avdl file
 const schema = await avdlToAVSCAsync('path/to/protocol.avdl')
-const { id } = await registry.register({ type: SchemaType.AVRO, schema }) // { id: 3 }
+const { id } = await registry.register({ type: SchemaType.AVRO, schema: JSON.stringify(schema) }) // { id: 3 }
 ```
 
 #### Subject
