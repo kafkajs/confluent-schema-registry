@@ -23,9 +23,11 @@ export interface ValidateFunction {
 }
 export default class JsonSchema implements Schema {
   private validate: ValidateFunction
+  private includeErrorPaths: boolean;
 
   constructor(schema: JsonConfluentSchema, opts?: JsonOptions) {
     this.validate = this.getJsonSchema(schema, opts)
+    this.includeErrorPaths = opts?.includeErrorPaths ? opts?.includeErrorPaths: false;
   }
 
   private getJsonSchema(schema: JsonConfluentSchema, opts?: JsonOptions) {
@@ -47,7 +49,12 @@ export default class JsonSchema implements Schema {
     if (
       !this.isValid(payload, {
         errorHook: (path, message) => {
-          paths.push({ path, message })
+          if(this.includeErrorPaths) {
+            paths.push({ path, message })
+          } else {
+            paths.push(path);
+          }
+         
         },
       })
     ) {

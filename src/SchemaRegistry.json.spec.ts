@@ -105,6 +105,7 @@ describe('SchemaRegistry', () => {
     const options = {
       [SchemaType.JSON]: {
         allErrors: true,
+        includeErrorPaths: true
       },
     }
     api = API(schemaRegistryAPIClientArgs)

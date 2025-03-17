@@ -570,7 +570,7 @@ describe('SchemaRegistry - new Api', () => {
         async (_, ajvInstance) => {
           expect.assertions(3)
           const registry = new SchemaRegistry(schemaRegistryArgs, {
-            [SchemaType.JSON]: { ajvInstance },
+            [SchemaType.JSON]: { ajvInstance, includeErrorPaths: true }, 
           })
           const subject: ConfluentSubject = {
             name: [SchemaType.JSON, 'com.org.domain.fixtures', 'AnotherPerson'].join('.'),
@@ -583,7 +583,7 @@ describe('SchemaRegistry - new Api', () => {
           const { id: schemaId } = await registry.register(schema, { subject: subject.name })
 
           try {
-            await schemaRegistry.encode(schemaId, { fullName: true })
+            await registry.encode(schemaId, { fullName: true })
           } catch (error) {
             expect(error).toBeInstanceOf(ConfluentSchemaRegistryValidationError)
             expect(error.message).toEqual('invalid payload')
