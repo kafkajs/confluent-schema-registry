@@ -30,7 +30,7 @@ export type JsonOptions = ConstructorParameters<typeof Ajv>[0] & {
       }
     | Ajv
   referencedSchemas?: JsonConfluentSchema[]
-  includeErrorPaths?: boolean;
+  includeErrorPaths?: boolean
 }
 export type ProtoOptions = { messageName?: string; referencedSchemas?: ProtoConfluentSchema[] }
 
