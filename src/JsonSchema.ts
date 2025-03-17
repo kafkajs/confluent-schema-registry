@@ -45,16 +45,15 @@ export default class JsonSchema implements Schema {
 
   private validatePayload(payload: any) {
     const paths: any[] = []
-
+    let errorHandler = (path, message) => {
+      paths.push(path)
+    }
+    if (this.includeErrorPaths) {
+      errorHandler = (path, message) => paths.push({ path, message })
+    }
     if (
       !this.isValid(payload, {
-        errorHook: (path, message) => {
-          if (this.includeErrorPaths) {
-            paths.push({ path, message })
-          } else {
-            paths.push(path)
-          }
-        },
+        errorHook: errorHandler,
       })
     ) {
       throw new ConfluentSchemaRegistryValidationError('invalid payload', paths)
