@@ -570,7 +570,7 @@ describe('SchemaRegistry - new Api', () => {
         async (_, ajvInstance) => {
           expect.assertions(3)
           const registry = new SchemaRegistry(schemaRegistryArgs, {
-            [SchemaType.JSON]: { ajvInstance, includeErrorPaths: true },
+            [SchemaType.JSON]: { ajvInstance, detailedErrorPaths: true },
           })
           const subject: ConfluentSubject = {
             name: [SchemaType.JSON, 'com.org.domain.fixtures', 'AnotherPerson'].join('.'),
