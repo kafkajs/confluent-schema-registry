@@ -26,7 +26,7 @@
     "ajv": "^7.1.0",
     "avsc": ">= 5.4.13 < 6",
     "mappersmith": ">= 2.44.0 < 3",
-    "protobufjs": ">= 6.11.4 < 8"
+    "protobufjs": "^7.4.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
