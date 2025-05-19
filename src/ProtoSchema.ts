@@ -37,7 +37,7 @@ export default class ProtoSchema implements Schema {
     const root = parsedMessage.root
     const pkg = parsedMessage.package
     const name = opts && opts.messageName ? opts.messageName : this.getNestedTypeName(root.nested)
-    return `${pkg ? pkg + '.' : ''}.${name}`
+    return `${pkg ? pkg : ''}.${name}`
   }
 
   private trimStart(buffer: Buffer): Buffer {
