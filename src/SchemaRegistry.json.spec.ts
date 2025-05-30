@@ -176,7 +176,7 @@ describe('SchemaRegistry', () => {
           await schemaRegistry.encode(registeredSchema.id, obj)
         } catch (ex) {
           expect(ex.paths[0].message).toBeDefined()
-          expect(ex.paths[0].message).toEqual('should be number')
+          expect(ex.paths[0].message).toEqual('must be number')
         }
       })
     })
