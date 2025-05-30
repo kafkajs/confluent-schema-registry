@@ -23,7 +23,7 @@
     "format": "yarn lint --fix"
   },
   "dependencies": {
-    "ajv": "^7.1.0",
+    "ajv": "^8.17.1",
     "avsc": ">= 5.4.13 < 6",
     "mappersmith": ">= 2.44.0 < 3",
     "protobufjs": "^7.4.0"
