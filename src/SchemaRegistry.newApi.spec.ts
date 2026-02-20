@@ -1,4 +1,3 @@
-import { Type } from 'avsc'
 import { v4 as uuid } from 'uuid'
 
 import SchemaRegistry from './SchemaRegistry'
@@ -10,7 +9,7 @@ import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
 import encodedNestedV2Proto from '../fixtures/proto/encodedNestedV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
-import Ajv2020 from 'ajv8/dist/2020'
+import Ajv2019 from 'ajv7/dist/2019'
 import Ajv from 'ajv'
 import { ConfluentSchemaRegistryValidationError } from './errors'
 
@@ -564,7 +563,7 @@ describe('SchemaRegistry - new Api', () => {
     describe('passing an Ajv instance in the constructor', () => {
       test.each([
         ['Ajv 7', new Ajv()],
-        ['Ajv2020', new Ajv2020()],
+        ['Ajv2020', new Ajv2019()],
       ])(
         'Errors are thrown with their path in %s when the validation fails',
         async (_, ajvInstance) => {

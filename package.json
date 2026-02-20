@@ -1,6 +1,6 @@
 {
   "name": "@kafkajs/confluent-schema-registry",
-  "version": "3.9.0",
+  "version": "3.9.1",
   "main": "dist/index.js",
   "description": "ConfluentSchemaRegistry is a library that makes it easier to interact with the Confluent schema registry, it provides convenient methods to encode, decode and register new schemas using the Apache Avro serialization format.",
   "keywords": [
@@ -23,7 +23,7 @@
     "format": "yarn lint --fix"
   },
   "dependencies": {
-    "ajv": "^7.1.0",
+    "ajv": "^8.18.0",
     "avsc": ">= 5.4.13 < 6",
     "mappersmith": ">= 2.44.0 < 3",
     "protobufjs": "^7.4.0"
@@ -35,7 +35,7 @@
     "@typescript-eslint/eslint-plugin": "^2.1.0",
     "@typescript-eslint/parser": "^2.1.0",
     "@typescript-eslint/typescript-estree": "^2.1.0",
-    "ajv8": "npm:ajv@^8.6.3",
+    "ajv7": "npm:ajv@^7.1.0",
     "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-no-only-tests": "^2.3.1",
