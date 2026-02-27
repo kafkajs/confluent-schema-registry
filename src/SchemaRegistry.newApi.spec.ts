@@ -10,7 +10,7 @@ import encodedAnotherPersonV2Json from '../fixtures/json/encodedAnotherPersonV2'
 import encodedAnotherPersonV2Proto from '../fixtures/proto/encodedAnotherPersonV2'
 import encodedNestedV2Proto from '../fixtures/proto/encodedNestedV2'
 import wrongMagicByte from '../fixtures/wrongMagicByte'
-import Ajv2020 from 'ajv8/dist/2020'
+import Ajv2020 from 'ajv'
 import Ajv from 'ajv'
 import { ConfluentSchemaRegistryValidationError } from './errors'
 
