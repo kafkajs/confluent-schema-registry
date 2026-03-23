@@ -1,6 +1,6 @@
 {
   "name": "@kafkajs/confluent-schema-registry",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "main": "dist/index.js",
   "description": "ConfluentSchemaRegistry is a library that makes it easier to interact with the Confluent schema registry, it provides convenient methods to encode, decode and register new schemas using the Apache Avro serialization format.",
   "keywords": [
@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kafkajs/confluent-schema-registry.git"
+    "url": "git+https://github.com/kafkajs/confluent-schema-registry.git"
   },
   "scripts": {
     "prepare:release": "./pipeline/prepareRelease.sh",
