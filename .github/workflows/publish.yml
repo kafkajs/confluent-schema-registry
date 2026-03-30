@@ -137,6 +137,8 @@ jobs:
       - name: Prepare release package
         run: yarn prepare:release
 
+      - run: npm install -g npm@latest
+
       - name: Publish package
         run: npm publish release/
 
