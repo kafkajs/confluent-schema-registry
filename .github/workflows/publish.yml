@@ -1,19 +1,44 @@
-name: CI
+name: Publish
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
+  validate_tag:
+    name: Validate tag target
+    runs-on: ubuntu-latest
+    outputs:
+      is_on_master: ${{ steps.check.outputs.is_on_master }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check tag commit is on master
+        id: check
+        run: |
+          git fetch origin master --depth=1
+
+          if git merge-base --is-ancestor "${GITHUB_SHA}" "origin/master"; then
+            echo "is_on_master=true" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          echo "Tag ${GITHUB_REF} does not point to a commit on master."
+          echo "is_on_master=false" >> "${GITHUB_OUTPUT}"
+          exit 1
+
   lint:
     name: Lint
+    needs: validate_tag
+    if: needs.validate_tag.outputs.is_on_master == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,6 +61,8 @@ jobs:
 
   build:
     name: Build
+    needs: validate_tag
+    if: needs.validate_tag.outputs.is_on_master == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -55,7 +82,10 @@ jobs:
 
   unit_tests:
     name: Tests
-    needs: lint
+    needs:
+      - validate_tag
+      - lint
+    if: needs.validate_tag.outputs.is_on_master == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -76,47 +106,43 @@ jobs:
       - name: Run tests
         run: yarn test
 
-  website_deploy:
-    name: Website
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+  npm_release:
+    name: NPM release
     needs:
+      - validate_tag
       - lint
+      - build
       - unit_tests
+    if: needs.validate_tag.outputs.is_on_master == 'true'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pages: write
+      contents: write
       id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          registry-url: https://registry.npmjs.org
+          scope: '@kafkajs'
           cache: yarn
-          cache-dependency-path: website/yarn.lock
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Install website dependencies
-        working-directory: website
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build website
-        working-directory: website
-        run: yarn build
+      - name: Prepare release package
+        run: yarn prepare:release
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: website/build
+      - name: Publish package
+        run: npm publish release/ --access public
 
-      - name: Deploy GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Create GitHub release
+        run: node ./pipeline/updateGithubRelease.js
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref }}
