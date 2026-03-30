@@ -43,4 +43,4 @@ This glossary shall help you when reading the code and understanding Schema Regi
 - Push changes to your branch
 - Create PR, wait for successful builds
 - Merge PR
-- Push tags `git push --tags`, this will trigger a CI job which publishes the new version on `npm`.
+- Push tags `git push --tags`, this will trigger the GitHub Actions release workflow, which publishes the new version on `npm`.
