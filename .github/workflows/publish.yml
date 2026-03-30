@@ -115,6 +115,7 @@ jobs:
       - unit_tests
     if: needs.validate_tag.outputs.is_on_master == 'true'
     runs-on: ubuntu-latest
+    environment: privileged
     permissions:
       contents: write
       id-token: write
