@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: yarn
 
       - name: Install dependencies
@@ -71,7 +71,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: yarn
 
       - name: Install dependencies
@@ -94,7 +94,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: yarn
 
       - name: Install dependencies
@@ -127,7 +127,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           registry-url: https://registry.npmjs.org
           scope: '@kafkajs'
           cache: yarn
@@ -137,9 +137,6 @@ jobs:
 
       - name: Prepare release package
         run: yarn prepare:release
-
-      - name: Update npm
-        run: npm install -g npm@latest
 
       - name: Publish package
         run: npm publish release/

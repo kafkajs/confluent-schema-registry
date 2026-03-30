@@ -11,6 +11,9 @@
     "type": "git",
     "url": "git+https://github.com/kafkajs/confluent-schema-registry.git"
   },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "prepare:release": "./pipeline/prepareRelease.sh",
     "build": "rm -rf ./dist && tsc",
