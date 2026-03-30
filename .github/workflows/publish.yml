@@ -138,8 +138,11 @@ jobs:
       - name: Prepare release package
         run: yarn prepare:release
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Publish package
-        run: npm publish release/ --access public
+        run: npm publish release/
 
       - name: Create GitHub release
         run: node ./pipeline/updateGithubRelease.js
