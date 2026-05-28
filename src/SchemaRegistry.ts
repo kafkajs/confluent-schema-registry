@@ -41,6 +41,7 @@ interface Opts {
   compatibility?: COMPATIBILITY
   separator?: string
   subject: string
+  updateConfig?: boolean
 }
 
 interface AvroDecodeOptions {
@@ -53,6 +54,7 @@ export interface DecodeOptions {
 const DEFAULT_OPTS = {
   compatibility: COMPATIBILITY.BACKWARD,
   separator: DEFAULT_SEPARATOR,
+  updateConfig: true,
 }
 export default class SchemaRegistry {
   private api: SchemaRegistryAPIClient
@@ -109,7 +111,7 @@ export default class SchemaRegistry {
     schema: RawAvroSchema | ConfluentSchema,
     userOpts?: Opts,
   ): Promise<RegisteredSchema> {
-    const { compatibility, separator } = { ...DEFAULT_OPTS, ...userOpts }
+    const { compatibility, separator, updateConfig } = { ...DEFAULT_OPTS, ...userOpts }
 
     const confluentSchema: ConfluentSchema = this.getConfluentSchema(schema)
 
@@ -154,7 +156,7 @@ export default class SchemaRegistry {
       },
     })
 
-    if (compatibility && isFirstTimeRegistration) {
+    if (compatibility && isFirstTimeRegistration && updateConfig) {
       await this.api.Subject.updateConfig({ subject: subject.name, body: { compatibility } })
     }
 
