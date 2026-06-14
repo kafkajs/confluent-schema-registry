@@ -258,6 +258,48 @@ const registry = new SchemaRegistry({
 })
 ```
 
+HTTP Agent configuration offer a high degree of customization for underlying both HTTP and HTTPS requests. 
+
+#### TLS/SSL Authentication
+
+If your Schema Registry requires TLS/SSL Authentication you can pass a custom `https.Agent` to its constructor which accept the options available in [tls.createSecureSocket()](https://nodejs.org/docs/latest/api/tls.html#tlscreatesecurecontextoptions).
+
+```js
+import { Agent } from 'https'
+import * as fs from 'fs'
+
+const agent = new Agent({ 
+    ca: [ fs.readFileSync('/path/to/yourca.crt', 'utf-8') ],
+    cert: fs.readFileSync('/path/to/yourcert.crt', 'utf-8'),
+    key: fs.readFileSync('/path/to/yourket.key', 'utf-8')
+})
+
+const registry = new SchemaRegistry({
+  host: 'http://localhost:8081',
+  agent
+})
+```
+
+Alteratively if you have PKCS12/PFX encoded certificate and key you can pass it as shown below:
+
+```js
+import { Agent } from 'https'
+import * as fs from 'fs'
+
+const agent = new Agent({ 
+    pfx: {
+      buf: fs.readFileSync('/path/to/keystore.p12'),
+      passphrase: 'your-keystore-password'
+    }
+})
+
+const registry = new SchemaRegistry({
+  host: 'http://localhost:8081',
+  agent
+})
+```
+
+
 ### Schema type options
 
 The second argument to the `SchemaRegistry` constructor is an object with keys for each `SchemaType`.
