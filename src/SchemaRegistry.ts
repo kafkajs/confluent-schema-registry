@@ -215,7 +215,13 @@ export default class SchemaRegistry {
     helper: SchemaHelper,
     referencesSet: Set<string>,
   ): Promise<ConfluentSchema[]> {
-    const { name, subject, version } = reference
+    const { name, subject } = reference
+
+    const versionResponse = await this.api.Subject.version(reference)
+    const foundSchema = versionResponse.data() as SchemaResponse
+    
+    // rely on version retrieved from the registry, because references may use -1 as version
+    const { version } = foundSchema
     const key = `${name}-${subject}-${version}`
 
     // avoid duplicates
@@ -223,9 +229,6 @@ export default class SchemaRegistry {
       return []
     }
     referencesSet.add(key)
-
-    const versionResponse = await this.api.Subject.version(reference)
-    const foundSchema = versionResponse.data() as SchemaResponse
 
     const schema = helper.toConfluentSchema(foundSchema)
     const referencedSchemas = await this.getreferencedSchemasRecursive(
